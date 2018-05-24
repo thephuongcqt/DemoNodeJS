@@ -4,6 +4,12 @@ var userController = require("./Controller/UserController")(app, express);
 var userDB = require("./Controller/UserDBController");
 var twilioController = require("./Controller/TwilioController")(app, express);
 
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(bodyParser.json());
+
 app.use("/api", userController);
 app.use("/twilio", twilioController);
 

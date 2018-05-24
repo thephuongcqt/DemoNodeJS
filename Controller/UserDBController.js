@@ -34,12 +34,6 @@ var userDBController = {
             }
         });    
     },
-
-    handlePost: function (request, res){
-        var body = request.body;
-        console.log(body);
-        request.end("a");
-    }
 };
 
 module.exports = userDBController;
