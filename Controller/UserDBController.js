@@ -30,9 +30,15 @@ var userDBController = {
                         "password": "blank",
                         "age": "unlimited"
                     });
-                });             
+                });                             
             }
         });    
+    },
+
+    handlePost: function (request, res){
+        var body = request.body;
+        console.log(body);
+        request.end("a");
     }
 };
 
