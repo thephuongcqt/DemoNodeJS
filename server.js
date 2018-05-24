@@ -2,8 +2,10 @@ var express = require("express");
 var app = express();
 var userController = require("./Controller/UserController")(app, express);
 var userDB = require("./Controller/UserDBController");
+var twilioController = require("./Controller/TwilioController")(app, express);
 
 app.use("/api", userController);
+app.use("/twilio", twilioController);
 
 app.route("/userDB").get(userDB.getAll);
 app.route("/getUserDB").get(userDB.getUserDB);

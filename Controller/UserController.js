@@ -12,11 +12,6 @@ module.exports = function(app, express){
         });
     });
 
-    apiRouter.get("/Twilio", function(req, res){
-        var xml = require('xml');
-        response.set('Content-Type', 'text/xml');
-        response.send(xml());
-    });
 
     return apiRouter;
 };
