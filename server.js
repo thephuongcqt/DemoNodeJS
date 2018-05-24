@@ -4,8 +4,10 @@ var userController = require("./Controller/UserController")(app, express);
 var userDB = require("./Controller/UserDBController");
 
 app.use("/api", userController);
+
 app.route("/userDB").get(userDB.getAll);
 app.route("/getUserDB").get(userDB.getUserDB);
+
 app.use("/", function(req, res){
     res.json({
         "username": "PhuongNT",
