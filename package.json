@@ -1,0 +1,23 @@
+{
+  "name": "demoheroku",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thephuongcqt/DemoNodeJS.git"
+  },
+  "author": "PhuongNT",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thephuongcqt/DemoNodeJS/issues"
+  },
+  "homepage": "https://github.com/thephuongcqt/DemoNodeJS#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
