@@ -4,12 +4,6 @@ var userController = require("./Controller/UserController")(app, express);
 var userDB = require("./Controller/UserDBController");
 var twilioController = require("./Controller/TwilioController")(app, express);
 
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
-app.use(bodyParser.json());
-
 /////////////////////////////////////////////////////////////////////////
 // require to UsersController
 var usersController = require("./Controller/UsersController");
@@ -30,7 +24,6 @@ app.route("/makeAppointment").post(appointmentController.postAppointment);
 app.use("/api", userController);
 app.route("/userDB").get(userDB.getAll);
 app.route("/getUserDB").get(userDB.getUserDB);
-app.route("/test").get(userDB.demo);
 
 
 

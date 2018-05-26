@@ -32,11 +32,7 @@ var userDBController = {
                 console.log("Connect Error: " + error);
                 return;
             } else{
-<<<<<<< HEAD
                 var queryString = "SELECT * FROM useraccount";
-=======
-                var queryString = "SELECT * FROM vm_user_role";                
->>>>>>> e5899f291a18dc1a87337092fcef744231534eb1
                 con.query(queryString, function (err, result, fields){
                     if(err) {
                         console.log("Query Error: " + err);
@@ -51,7 +47,6 @@ var userDBController = {
             }
         });    
     },
-<<<<<<< HEAD
     postUserDB: function (req,res) {
         var phonePost = req.body.phonenumber;
         var passPost = req.body.password;
@@ -95,8 +90,6 @@ var userDBController = {
             }
         });
     }
-=======
->>>>>>> e5899f291a18dc1a87337092fcef744231534eb1
 };
 
 module.exports = userDBController;
