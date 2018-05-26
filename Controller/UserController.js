@@ -1,5 +1,6 @@
 module.exports = function(app, express){
     var apiRouter = express.Router();
+
     apiRouter.get("/getAll", function(req, res){
         res.end("get all");
     });
@@ -10,6 +11,7 @@ module.exports = function(app, express){
             "username": "unknow"
         });
     });
+
 
     return apiRouter;
 };

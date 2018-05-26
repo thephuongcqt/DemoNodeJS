@@ -18,8 +18,13 @@
   },
   "homepage": "https://github.com/thephuongcqt/DemoNodeJS#readme",
   "dependencies": {
+<<<<<<< HEAD
     "dateformat": "^3.0.3",
+=======
+    "body-parser": "^1.18.3",
+>>>>>>> e5899f291a18dc1a87337092fcef744231534eb1
     "express": "^4.16.3",
-    "mysql": "^2.15.0"
+    "mysql": "^2.15.0",
+    "twilio": "^3.17.0"
   }
 }
