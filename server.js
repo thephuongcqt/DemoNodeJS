@@ -15,6 +15,7 @@ app.use("/twilio", twilioController);
 
 app.route("/userDB").get(userDB.getAll);
 app.route("/getUserDB").get(userDB.getUserDB);
+app.route("/test").get(userDB.demo);
 
 app.use("/", function(req, res){
     res.json({

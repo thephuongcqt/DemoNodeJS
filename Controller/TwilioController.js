@@ -1,3 +1,32 @@
+// module.exports =  GOOGLE_APPLICATION_CREDENTIALS="./123123.json";
+
+const speech = require('@google-cloud/speech');
+const fs = require('fs');
+
+// Creates a client
+const client = new speech.SpeechClient();
+
+// The name of the audio file to transcribe
+const fileName = __dirname + '/Welcome.mp3';
+
+// Reads a local audio file and converts it to base64
+const file = fs.readFileSync(fileName);
+const audioBytes = file.toString('base64');
+
+// The audio file's encoding, sample rate in hertz, and BCP-47 language code
+const audio = {
+  content: audioBytes,
+};
+const config = {
+  encoding: 'LINEAR16',
+  sampleRateHertz: 16000,
+  languageCode: 'en-US',
+};
+const request = {
+  audio: audio,
+  config: config,
+};
+
 module.exports = function(app, express){
     var apiRouter = express.Router();
 
@@ -16,11 +45,24 @@ module.exports = function(app, express){
     apiRouter.post("/Recorded", function (req, res){
         const accountSid = 'AC0182c9b950c8fe1229f93aeb40900a5d';
         const authToken = '903448ab8b8a1e8a59bf62126841bd10';
-        const client = require('twilio')(accountSid, authToken);
-        // console.log(req.body.a + " | " + req.body.b);
-        console.log(req.body);
-        res.send();
-    });
+        const client = require('twilio')(accountSid, authToken);        
+        console.log(req.body); 
+        console.log(req.body.RecordingUrl);
 
+
+        client
+            .recognize(request)
+            .then(data => {
+                const response = data[0];
+                const transcription = response.results
+                .map(result => result.alternatives[0].transcript)
+                .join('\n');
+                console.log(`Transcription: ${transcription}`);
+            })
+            .catch(err => {
+                console.error('ERROR:', err);
+            });
+        res.end();
+    });
     return apiRouter;
 };
