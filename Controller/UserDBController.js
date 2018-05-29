@@ -5,11 +5,14 @@ var con = mysql.createConnection({
     password: "",
     database: "demo"
 });
-var pool = mysql.createPool({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "demo"
+var pool = mysql.createPool({    
+    host: "capstone.cgxwlwzclurt.us-east-1.rds.amazonaws.com",
+    port: "3306",
+    user: "thephuongcqt",
+    password: "Callcenterpass1",
+    database: "CallCenter",
+    connectTimeout: 20000,
+    acquireTimeout: 20000
 });
 function makeResponse(success, value, error){
     var response = {
@@ -21,9 +24,26 @@ function makeResponse(success, value, error){
 }
 var userDBController = {
     getAll: function(req, res){
-        res.json({
-            "dm": "dm"
+        pool.getConnection(function(error){
+            if(error){
+                console.log("Connect Error: " + error);
+                return;
+            } else{
+                var sqlString = "SELECT * FROM testUser";
+                pool.query(sqlString, function (err, result, fields){
+                    if(err){
+                        console.log(err);                        
+                    } else{
+                        var parseResult = JSON.parse(JSON.stringify(result));
+                        res.json(parseResult);
+                    }
+                });
+            }
         });
+
+        // res.json({
+        //     "dm": "dm"
+        // });
     },
     
     getUserDB: function(req, res){
