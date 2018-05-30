@@ -14,7 +14,7 @@ function makeResponse(success, value, error) {
 
 var appointmentController = {
     // post method for make an appointment
-    postAppointment: function (req, res) {
+    postMakeAppointment: function (req, res) {
         var phonePost = req.body.phonenumber;
         var namePost = req.body.fullname;
         var departPost = req.body.department;
@@ -34,7 +34,6 @@ var appointmentController = {
                     console.log("Query Error: " + err);
                     return;
                 }
-                console.log(result);
                 if (result.length > 0) {
                     var date = dateFormat(new Date(result[0].appointment_time), "yyyy-mm-dd HH:MM");
                     var result = {
@@ -43,7 +42,7 @@ var appointmentController = {
                         "FullName": result[0].fullname,
                         "Department": result[0].department,
                         "Status": result[0].status,
-                        "AppointmantTime": date,
+                        "AppointmantTime": date
                     };
                     res.json(makeResponse(true, result, null));
                     connection.release();
@@ -57,7 +56,7 @@ var appointmentController = {
                     var aHours = appointmentDate.getHours();
                     var aMinutes = appointmentDate.getMinutes();
                     var aSeconds = appointmentDate.getSeconds();
-                    var appointmentTime = aYear + "-" + aMonth + "-" + aDate + " " + aHours + ":" + aMinutes +  ":" + aSeconds; 
+                    var appointmentTime = aYear + "-" + aMonth + "-" + aDate + " " + aHours + ":" + aMinutes + ":" + aSeconds;
                     var queryInsert = "INSERT INTO appointment (phonenumber,fullname,department,status,appointment_time) VALUES ?";
                     var values = [[phonePost, namePost, departPost, "active", appointmentTime]];
                     connectDB.pool.query(queryInsert, [values], function (err, result, fields) {
@@ -83,7 +82,7 @@ var appointmentController = {
                                 "FullName": result[0].fullname,
                                 "Department": result[0].department,
                                 "Status": result[0].status,
-                                "AppointmantTime": date,
+                                "AppointmantTime": date
                             };
                             res.json(makeResponse(true, result, null));
                             connection.release();
@@ -92,8 +91,23 @@ var appointmentController = {
                     });
                 }
             });
+        });
+    },
 
-
+    // get method for list an appointment
+    getListAllAppointment: function (req, res) {
+        connectDB.pool.getConnection(function (err, connection) {
+            if (err) {
+                res.json(makeResponse(false, null, "444 No Response"));
+                connection.release();
+                console.log("Connect Error" + err);
+                return;
+            }
+            // query get list all appointment
+            var querySearch = "SELECT * FROM appointment";
+            connectDB.pool.query(querySearch, function (err, result, fields) {
+                res.json(makeResponse(true, listResult, null));
+            });
         });
     }
 };

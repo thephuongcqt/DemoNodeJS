@@ -17,8 +17,10 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 // post request for client connect UsersController
 app.route("/postUserLogin").post(usersController.postUserLogin);
-// posy request for client make an appointment
-app.route("/makeAppointment").post(appointmentController.postAppointment);
+// post request for client make an appointment
+app.route("/makeAppointment").post(appointmentController.postMakeAppointment);
+// post request for client make an appointment
+app.route("/listAppointment").get(appointmentController.getListAllAppointment);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/api", userController);
