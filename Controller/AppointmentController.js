@@ -106,7 +106,7 @@ var appointmentController = {
             // query get list all appointment
             var querySearch = "SELECT * FROM appointment";
             connectDB.pool.query(querySearch, function (err, result, fields) {
-                res.json(makeResponse(true, listResult, null));
+                res.json(makeResponse(true, result, null));
             });
         });
     }
