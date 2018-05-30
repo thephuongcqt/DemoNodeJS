@@ -36,7 +36,7 @@ var appointmentController = {
                 }
                 console.log(result);
                 if (result.length > 0) {
-                    var date = dateFormat(new Date(result[0].appointment_time), "yyyy-mm-dd HH:MM:SS");
+                    var date = dateFormat(new Date(result[0].appointment_time), "yyyy-mm-dd HH:MM");
                     var result = {
                         "AppointmentID": result[0].appointment_ID,
                         "PhoneNumber": result[0].phonenumber,
@@ -76,7 +76,7 @@ var appointmentController = {
                                 console.log("Query Error: " + err);
                                 return;
                             }
-                            var date = dateFormat(new Date(result[0].appointment_time), "yyyy-mm-dd HH:MM:SS");
+                            var date = dateFormat(new Date(result[0].appointment_time), "yyyy-mm-dd HH:MM");
                             var result = {
                                 "AppointmentID": result[0].appointment_ID,
                                 "PhoneNumber": result[0].phonenumber,
