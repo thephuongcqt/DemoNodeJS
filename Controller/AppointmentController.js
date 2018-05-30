@@ -36,25 +36,30 @@ var appointmentController = {
                 }
                 console.log(result);
                 if (result.length > 0) {
-                    var day = dateFormat(new Date(result[0].date), "yyyy-mm-dd");
+                    var date = dateFormat(new Date(result[0].appointment_time), "yyyy-mm-dd HH:MM:SS");
                     var result = {
+                        "AppointmentID": result[0].appointment_ID,
                         "PhoneNumber": result[0].phonenumber,
-                        "UserName": result[0].username,
-                        "Number": result[0].number,
+                        "FullName": result[0].fullname,
                         "Department": result[0].department,
                         "Status": result[0].status,
-                        "Date": day,
+                        "AppointmantTime": date,
                     };
                     res.json(makeResponse(true, result, null));
                     connection.release();
                     return;
                 } else {
                     // query make appointment
-                    var insertPhone = phonePost;
-                    var insertName = namePost;
-                    var insertDepart = departPost;
-                    var queryInsert = "INSERT INTO appointment (phonenumber,fullname,number,department,status,date) VALUES ?";
-                    var values = [[insertPhone, insertName, "", insertDepart, "active", "2018-05-26"]];
+                    var appointmentDate = new Date();
+                    var aYear = appointmentDate.getFullYear();
+                    var aMonth = appointmentDate.getMonth() + 1;
+                    var aDate = appointmentDate.getDate();
+                    var aHours = appointmentDate.getHours();
+                    var aMinutes = appointmentDate.getMinutes();
+                    var aSeconds = appointmentDate.getSeconds();
+                    var appointmentTime = aYear + "-" + aMonth + "-" + aDate + " " + aHours + ":" + aMinutes +  ":" + aSeconds; 
+                    var queryInsert = "INSERT INTO appointment (phonenumber,fullname,department,status,appointment_time) VALUES ?";
+                    var values = [[phonePost, namePost, departPost, "active", appointmentTime]];
                     connectDB.pool.query(queryInsert, [values], function (err, result, fields) {
                         if (err) {
                             res.json(makeResponse(false, null, "404 Not Found"));
@@ -64,21 +69,21 @@ var appointmentController = {
                         }
                         // query check appointment
                         var querySearch = "SELECT * FROM appointment WHERE phonenumber=? AND fullname=?";
-                        connectDB.pool.query(querySearch, [insertPhone, insertName], function (err, result, fileds) {
+                        connectDB.pool.query(querySearch, [phonePost, namePost], function (err, result, fileds) {
                             if (err) {
                                 res.json(makeResponse(false, null, "404 Not Found"));
                                 connection.release();
                                 console.log("Query Error: " + err);
                                 return;
                             }
-                            var day = dateFormat(new Date(result[0].date), "yyyy-mm-dd");
+                            var date = dateFormat(new Date(result[0].appointment_time), "yyyy-mm-dd HH:MM:SS");
                             var result = {
+                                "AppointmentID": result[0].appointment_ID,
                                 "PhoneNumber": result[0].phonenumber,
-                                "UserName": result[0].username,
-                                "Number": result[0].number,
+                                "FullName": result[0].fullname,
                                 "Department": result[0].department,
                                 "Status": result[0].status,
-                                "Date": day,
+                                "AppointmantTime": date,
                             };
                             res.json(makeResponse(true, result, null));
                             connection.release();

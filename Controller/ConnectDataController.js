@@ -7,6 +7,10 @@ class ConnectData{
             user: "duync",
             password: "123456",
             database: "demo"
+            // host: "localhost",
+            // user: "root",
+            // password: "",
+            // database: "demo"
         });
     }
 }
