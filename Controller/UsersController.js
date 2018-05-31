@@ -139,17 +139,26 @@ var usersController = {
             var querySearch = "SELECT * FROM tbl_user";
             connectDB.pool.query(querySearch, function (err, results, fields) {
                 var listResults = [];
-                for (var i = 0; i < results.length; i++) {
-                    var tmp = {
-                        "UserName": results[0].username,
-                        "Password": results[0].password,
-                        "PhoneNumber": results[0].phoneNumber,
-                        "Role": results[0].role,
-                        "isActive": results[0].isActive
-                    };
-                    listResults.push(tmp);
+                if (results.length > 0) {
+                    for (var i = 0; i < results.length; i++) {
+                        var tmp = {
+                            "UserName": results[0].username,
+                            "Password": results[0].password,
+                            "PhoneNumber": results[0].phoneNumber,
+                            "Role": results[0].role,
+                            "isActive": results[0].isActive
+                        };
+                        listResults.push(tmp);
+                    }
+                    res.json(makeResponse(true, listResults, null));
+                    connection.release();
+                    return;
+                } else {
+                    res.json(makeResponse(true, null, 'List User is empty'));
+                    connection.release();
+                    return;
                 }
-                res.json(makeResponse(true, listResults, null));
+
             });
         });
     }
