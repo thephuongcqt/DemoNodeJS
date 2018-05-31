@@ -128,24 +128,29 @@ var appointmentController = {
                 console.log("Connect Error" + err);
                 return;
             }
-
             // query get list all appointment
-            var querySearch = "SELECT * FROM appointment";
+            var querySearch = "SELECT * FROM tbl_appointment";
             connectDB.pool.query(querySearch, function (err, results, fields) {
                 var listResults = [];
-                var date = dateFormat(new Date(results[0].appointment_time), "yyyy-mm-dd HH:MM");
-                for (var i = 0; i < results.length; i++) {
-                    var tmp = {
-                        // "AppointmentID": result[0].appointment_ID,
-                        "PhoneNumber": results[0].phonenumber,
-                        "FullName": results[0].fullname,
-                        "Department": results[0].department,
-                        "Status": results[0].status,
-                        "AppointmantTime": date
-                    };
-                    listResults.push(tmp);
+                if (results.length > 0) {
+                    var date = dateFormat(new Date(results[0].appointmentTime), "yyyy-mm-dd HH:MM");
+                    for (var i = 0; i < results.length; i++) {
+                        var tmp = {
+                            "AppointmentID": results[0].appointmentID,
+                            "Clinic Name": results[0].clinicUsername,
+                            "Patient ID": results[0].patientID,
+                            "AppointmantTime": date
+                        };
+                        listResults.push(tmp);
+                    }
+                    res.json(makeResponse(true, listResults, null));
+                    connection.release();
+                    return;
+                } else {
+                    res.json(makeResponse(true, results, null));
+                    connection.release();
+                    return;
                 }
-                res.json(makeResponse(true, listResults, null));
             });
         });
     }
