@@ -55,7 +55,7 @@ var usersController = {
                         }
                     });
                     if (found == false) {
-                        res.json(makeResponse(false, null, "400 Bad Request"));
+                        res.json(makeResponse(false, null, 'Username or password is not correct'));
                         connection.release();
                     }
                 });
@@ -139,7 +139,7 @@ var usersController = {
             var querySearch = "SELECT * FROM tbl_user";
             connectDB.pool.query(querySearch, function (err, results, fields) {
                 var listResults = [];
-                for (var i = 0; i < results.length; i++){
+                for (var i = 0; i < results.length; i++) {
                     var tmp = {
                         "UserName": results[0].username,
                         "Password": results[0].password,
