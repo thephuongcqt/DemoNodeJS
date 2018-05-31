@@ -16,9 +16,10 @@ function makeResponse(success, value, error) {
 var appointmentController = {
     // post method for make an appointment
     postMakeAppointment: function (req, res) {
-        var phonePost = req.body.phonenumber;
-        var namePost = req.body.fullname;
-        var departPost = req.body.department;
+        var patientPhonePost = req.body.patientphone;
+        var patientIDPost = req.body.patientid;
+        var clinicNamePost = req.body.clinicusername;
+        var appointmentTimePost = req.body.appointmenttime;
         connectDB.pool.getConnection(function (err, connection) {
             if (err) {
                 res.json(makeResponse(false, null, "444 No Response"));
@@ -27,37 +28,36 @@ var appointmentController = {
                 return;
             }
             // query check appointment
-            var querySearch = "SELECT * FROM appointment WHERE phonenumber=? AND fullname=?";
-            connectDB.pool.query(querySearch, [phonePost, namePost], function (err, result, fields) {
+            var querySearch = "SELECT * FROM tbl_appointment WHERE patientID=?";
+            connectDB.pool.query(querySearch, patientIDPost, function (err, results, fields) {
                 if (err) {
                     res.json(makeResponse(false, null, "404 Not Found"));
                     connection.release();
                     console.log("Query Error: " + err);
                     return;
                 }
-                if (result.length > 0) {
-                    var patientPhone = result[0].phonenumber;
-                    var patientName = result[0].fullname;
-                    var patientDepartment = result[0].department;
-                    var date = dateFormat(new Date(result[0].appointment_time), "yyyy-mm-dd HH:MM");
-                    var result = {
-                        // "AppointmentID": result[0].appointment_ID,
-                        "PhoneNumber": result[0].phonenumber,
-                        "FullName": result[0].fullname,
-                        "Department": result[0].department,
-                        "Status": result[0].status,
-                        "AppointmantTime": date
+                if (results.length > 0) {
+                    var appointID = results[0].appointmentID;
+                    var clinicName = results[0].clinicUsername;
+                    var patientIDs = results[0].patientID;
+                    var appointDate = dateFormat(new Date(results[0].appointmentTime), "dd-mm-yyyy");
+                    var appointTime = dateFormat(new Date(results[0].appointmentTime), "HH:MM");
+                    var results = {
+                        "Appointment ID": appointID,
+                        "Clinic Name": clinicName,
+                        "Patient ID": patientIDs,
+                        "AppointmantTime": appointDate + ' ' + appointTime
                     };
                     // Send SMS to announcement appointment has book successfull //////////////////////////////////////////////
                     twilioConnect.twilios.messages.create({
-                        body: patientName + ' đã đặt lịch khám ngày ' + date + ' khoa ' + patientDepartment + ' thành công',
+                        body: 'Bạn đã đặt lịch khám tại ' + clinicName + ' ngày ' + appointDate + ' lúc ' + appointTime + ' mã số ' + patientIDs,
                         from: '+19792136847',
-                        to: '+1' + patientPhone
+                        to: '+1' + patientPhonePost
                     }).then(messages => {
                         console.log(messages);
                     }).done();
                     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    res.json(makeResponse(true, result, null));
+                    res.json(makeResponse(true, results, null));
                     connection.release();
                     return;
                 } else {
@@ -70,9 +70,9 @@ var appointmentController = {
                     var aMinutes = appointmentDate.getMinutes();
                     var aSeconds = appointmentDate.getSeconds();
                     var appointmentTime = aYear + "-" + aMonth + "-" + aDate + " " + aHours + ":" + aMinutes + ":" + aSeconds;
-                    var queryInsert = "INSERT INTO appointment (phonenumber,fullname,department,status,appointment_time) VALUES ?";
-                    var values = [[phonePost, namePost, departPost, "active", appointmentTime]];
-                    connectDB.pool.query(queryInsert, [values], function (err, result, fields) {
+                    var queryInsert = "INSERT INTO tbl_appointment (appointmentID,clinicUsername,patientID,appointmentTime) VALUES ?";
+                    var values = [['', clinicNamePost, patientIDPost, appointmentTime]];
+                    connectDB.pool.query(queryInsert, [values], function (err, results, fields) {
                         if (err) {
                             res.json(makeResponse(false, null, "404 Not Found"));
                             connection.release();
@@ -80,36 +80,37 @@ var appointmentController = {
                             return;
                         }
                         // query check appointment
-                        var querySearch = "SELECT * FROM appointment WHERE phonenumber=? AND fullname=?";
-                        connectDB.pool.query(querySearch, [phonePost, namePost], function (err, result, fileds) {
+                        var querySearch = "SELECT * FROM tbl_appointment WHERE patientID=?";
+                        connectDB.pool.query(querySearch, patientIDPost, function (err, results, fileds) {
                             if (err) {
                                 res.json(makeResponse(false, null, "404 Not Found"));
                                 connection.release();
                                 console.log("Query Error: " + err);
                                 return;
                             }
-                            var patientPhone = result[0].phonenumber;
-                            var patientName = result[0].fullname;
-                            var patientDepartment = result[0].department;
-                            var date = dateFormat(new Date(result[0].appointment_time), "yyyy-mm-dd HH:MM");
-                            var result = {
-                                // "AppointmentID": result[0].appointment_ID,
-                                "PhoneNumber": patientPhone,
-                                "FullName": patientName,
-                                "Department": patientDepartment,
-                                "Status": result[0].status,
-                                "AppointmantTime": date
-                            };
+                            if (results.length > 0) {
+                                var appointID = results[0].appointmentID;
+                                var clinicName = results[0].clinicUsername;
+                                var patientIDs = results[0].patientID;
+                                var appointDate = dateFormat(new Date(results[0].appointmentTime), "dd-mm-yyyy");
+                                var appointTime = dateFormat(new Date(results[0].appointmentTime), "HH:MM");
+                                var results = {
+                                    "Appointment ID": appointID,
+                                    "Clinic Name": clinicName,
+                                    "Patient ID": patientIDs,
+                                    "AppointmantTime": appointDate + ' ' + appointTime
+                                };
+                            }
                             // Send SMS to announcement appointment has book successfull //////////////////////////////////////////////
                             twilioConnect.twilios.messages.create({
-                                body: patientName + ' đã đặt lịch khám ngày ' + date + ' khoa ' + patientDepartment + ' thành công',
+                                body: 'Bạn đã đặt lịch khám tại ' + clinicName + ' ngày ' + appointDate + ' lúc ' + appointTime + ' mã số ' + patientIDs,
                                 from: '+19792136847',
-                                to: '+1' + patientPhone
+                                to: '+1' + patientPhonePost
                             }).then(messages => {
                                 console.log(messages);
                             }).done();
                             ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-                            res.json(makeResponse(true, result, null));
+                            res.json(makeResponse(true, results, null));
                             connection.release();
                             return;
                         });
