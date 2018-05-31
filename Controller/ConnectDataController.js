@@ -3,7 +3,7 @@ var mysql = require('mysql');
 class ConnectData{
     constructor(config){
         this.pool = mysql.createPool({
-            host: "192.168.1.48",
+            host: "203.205.29.13",
             user: "duync",
             password: "123456",
             database: "callcenter"

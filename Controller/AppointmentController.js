@@ -147,7 +147,7 @@ var appointmentController = {
                     connection.release();
                     return;
                 } else {
-                    res.json(makeResponse(true, results, null));
+                    res.json(makeResponse(true, null, 'Appointment schedule is empty'));
                     connection.release();
                     return;
                 }
