@@ -15,12 +15,16 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
-// post request for client connect UsersController
+// post request for client login
 app.route("/postUserLogin").post(usersController.postUserLogin);
+// post request for client register
+app.route("/postUserRegister").post(usersController.postUserRegister);
+// get request for client get list user
+app.route("/getListUser").get(usersController.getListAllUser);
 // post request for client make an appointment
 app.route("/makeAppointment").post(appointmentController.postMakeAppointment);
-// post request for client make an appointment
-app.route("/listAppointment").get(appointmentController.getListAllAppointment);
+// get request for client get list an appointment
+app.route("/getListAppointment").get(appointmentController.getListAllAppointment);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/twilio", twilioController);

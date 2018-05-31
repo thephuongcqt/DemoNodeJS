@@ -6,11 +6,11 @@ class ConnectData{
             host: "192.168.1.48",
             user: "duync",
             password: "123456",
-            database: "demo"
+            database: "callcenter"
             // host: "localhost",
             // user: "root",
             // password: "",
-            // database: "demo"
+            // database: "callcenter"
         });
     }
 }
