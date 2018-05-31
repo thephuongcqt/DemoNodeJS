@@ -27,6 +27,7 @@ app.route("/makeAppointment").post(appointmentController.postMakeAppointment);
 app.route("/getListAppointment").get(appointmentController.getListAllAppointment);
 //////////////////////////////////////////////////////////////////////
 
+app.use("/twilio", twilioController);
 app.use("/api", userController);
 app.route("/userDB").get(userDB.getAll);
 app.route("/getUserDB").get(userDB.getUserDB);
