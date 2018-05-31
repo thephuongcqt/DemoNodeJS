@@ -40,7 +40,7 @@ app.route("/postUserRegister").post(usersController.postUserRegister);
 // get request for client get list user
 app.route("/getListUser").get(usersController.getListAllUser);
 // post request for client make an appointment
-app.route("/makeAppointment").post(appointmentController.postMakeAppointment);
+app.route("/postMakeAppointment").post(appointmentController.postMakeAppointment);
 // get request for client get list an appointment
 app.route("/getListAppointment").get(appointmentController.getListAllAppointment);
 //////////////////////////////////////////////////////////////////////
