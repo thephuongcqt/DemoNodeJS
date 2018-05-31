@@ -70,8 +70,8 @@ var appointmentController = {
                     var aMinutes = appointmentDate.getMinutes();
                     var aSeconds = appointmentDate.getSeconds();
                     var appointmentTime = aYear + "-" + aMonth + "-" + aDate + " " + aHours + ":" + aMinutes + ":" + aSeconds;
-                    var queryInsert = "INSERT INTO tbl_appointment (appointmentID,clinicUsername,patientID,appointmentTime) VALUES ?";
-                    var values = [['', clinicNamePost, patientIDPost, appointmentTime]];
+                    var queryInsert = "INSERT INTO tbl_appointment (clinicUsername,patientID,appointmentTime) VALUES ?";
+                    var values = [[clinicNamePost, patientIDPost, appointmentTime]];
                     connectDB.pool.query(queryInsert, [values], function (err, results, fields) {
                         if (err) {
                             res.json(makeResponse(false, null, "404 Not Found"));
