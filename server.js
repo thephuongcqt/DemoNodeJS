@@ -49,6 +49,8 @@ app.route("/getListAppointment").get(appointmentController.getListAllAppointment
 app.route("/message").post(twilioControllers.postReceiveSMS);
 // post request for server get voice
 app.route("/voice").post(twilioControllers.postReceiveVoice);
+// post request for server get voice
+app.route("/record").post(twilioControllers.postRecord);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/twilio", twilioController);

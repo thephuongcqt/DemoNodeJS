@@ -22,12 +22,18 @@ var twilioController = {
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
         const twiml = new VoiceResponse();
         twiml.say('Hello. please leave a message after the beep.');
-        twiml.record();
+        twiml.record({
+            recordingStatusCallback: 'http://203.205.29.13:8080/record',
+            method: 'POST'
+        });
         twiml.hangup();
 
         res.type('text/xml');
         res.send(twiml.toString());
 
+    },
+    postRecord: function(req, res){
+        console.log(req.body);
     }
 }
 module.exports = twilioController;
