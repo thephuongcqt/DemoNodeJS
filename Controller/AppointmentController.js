@@ -54,7 +54,7 @@ var appointmentController = {
                         from: '+19792136847',
                         to: '+1' + patientPhonePost
                     }).then(messages => {
-                        console.log(messages);
+                        
                     }).done();
                     //////////////////////////////////////////////////////////////////////////////////////////////////////////
                     res.json(makeResponse(true, results, null));

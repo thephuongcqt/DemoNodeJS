@@ -27,6 +27,8 @@ app.use(function (req, res, next) {
 var usersController = require("./Controller/UsersController");
 // require to AppointmentController
 var appointmentController = require("./Controller/AppointmentController");
+// require to AppointmentController
+var twilioControllers = require("./Controller/TwilioControllers");
 // parse request to json
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({
@@ -43,6 +45,8 @@ app.route("/getListUser").get(usersController.getListAllUser);
 app.route("/postMakeAppointment").post(appointmentController.postMakeAppointment);
 // get request for client get list an appointment
 app.route("/getListAppointment").get(appointmentController.getListAllAppointment);
+// get request for client get list an appointment
+app.route("/message").get(twilioControllers.getReceiveSMS);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/twilio", twilioController);
