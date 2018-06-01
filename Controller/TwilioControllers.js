@@ -12,6 +12,7 @@ function makeResponse(success, value, error) {
 var twilioController = {
     // receice SMS from twilio
     getReceiveSMS: function (req, res) {
+        req.set('Content-Type', 'text/xml');
         res.set('Content-Type', 'text/xml'); 
         console.log(req.body);
     }
