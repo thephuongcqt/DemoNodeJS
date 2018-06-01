@@ -46,7 +46,7 @@ app.route("/postMakeAppointment").post(appointmentController.postMakeAppointment
 // get request for client get list an appointment
 app.route("/getListAppointment").get(appointmentController.getListAllAppointment);
 // get request for client get list an appointment
-app.route("/message").get(twilioControllers.getReceiveSMS);
+app.route("/message").post(twilioControllers.postReceiveSMS);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/twilio", twilioController);
