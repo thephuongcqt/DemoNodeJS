@@ -32,8 +32,12 @@ var twilioController = {
         res.send(twiml.toString());
 
     },
-    postRecord: function(req, res){
-        console.log(req.body);
+    postRecord: function (req, res) {
+        var recordURL = req.body.RecordingURL;
+        var speechToText = require("./SpeechToTextController");
+        speechToText.getTextFromVoice(recordURL, function (err, results) {
+            console.log(results);
+        });
     }
 }
 module.exports = twilioController;
