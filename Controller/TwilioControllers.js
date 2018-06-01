@@ -25,8 +25,8 @@ var twilioController = {
         twiml.record();
         twiml.hangup();
 
-        response.type('text/xml');
-        response.send(twiml.toString());
+        res.type('text/xml');
+        res.send(twiml.toString());
 
     }
 }
