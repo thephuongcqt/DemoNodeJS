@@ -134,11 +134,11 @@ var usersController = {
                 if (results.length > 0) {
                     for (var i = 0; i < results.length; i++) {
                         var tmp = {
-                            "userName": results[0].username,
-                            "password": results[0].password,
-                            "phoneNumber": results[0].phoneNumber,
-                            "role": results[0].role,
-                            "isActive": results[0].isActive
+                            "userName": results.username,
+                            "password": results.password,
+                            "phoneNumber": results.phoneNumber,
+                            "role": results.role,
+                            "isActive": results.isActive
                         };
                         listResults.push(tmp);
                     }
