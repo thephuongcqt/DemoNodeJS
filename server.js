@@ -54,7 +54,7 @@ app.route("/record").post(twilioControllers.postReceiveRecord);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/twilio", twilioController);
-app.use("/api", userController);
+app.use("/user", userController);
 app.route("/userDB").get(userDB.getAll);
 app.route("/getUserDB").get(userDB.getUserDB);
 

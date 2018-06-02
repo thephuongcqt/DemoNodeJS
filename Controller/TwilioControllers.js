@@ -29,10 +29,8 @@ var twilioController = {
             method: 'POST'
         });
         twiml.hangup();
-
         res.type('text/xml');
         res.send(twiml.toString());
-
     },
     postReceiveRecord: function (req, res) {
         var recordURL = req.body.RecordingURL;        
