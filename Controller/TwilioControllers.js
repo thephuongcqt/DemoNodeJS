@@ -1,5 +1,6 @@
 const twilioConnect = require('./ConnectTwilioController');
-var speechToText = require("./SpeechToTextController");
+var speechToText = require('./SpeechToTextController');
+var appointmentRequest = require('./AppointmentController');
 
 function makeResponse(success, value, error) {
     var response = {
@@ -33,19 +34,22 @@ var twilioController = {
         res.send(twiml.toString());
     },
     postReceiveRecord: function (req, res) {
-        var recordURL = req.body.RecordingURL;
+        var recordURL = req.body.RecordingUrl;
         var responseObjc = {
         };
-        speechToText.getTextFromVoice(recordURL, function (err, results) {
+        // speed to text
+        speechToText.getTextFromVoice(recordURL, function (err, transcription) {
+            var patientName;
             responseObjc.fullName = transcription;
-            console.log(responseObjc);
-
+            // require phone number from twilio
             twilioConnect.twilios.calls(req.body.CallSid)
-            .fetch().then(call =>{
-                console.log(call.from);
-                responseObjc.sdt = call.from;
-                res.json(responseObjc);
-            }).done();
+                .fetch().then(call => {
+                    responseObjc.sdt = call.from;
+                    // make appointment
+                    var apppointUrl = req.protocol + '://' + req.get('host') + '/getListAllAppointment';
+                    console.log(apppointUrl);
+                }).done();
+
         });
     }
 }
