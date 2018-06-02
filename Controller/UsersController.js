@@ -32,7 +32,7 @@ var usersController = {
                             for (var i = 0; i < parseResult.length; i++) {
                                 if (item.username == userPost && item.password == passPost) {
                                     var result = {
-                                        "userName": item.username,
+                                        "username": item.username,
                                         "password": item.password,
                                         "phoneNumber": item.phoneNumber,
                                         "role": item.role,
@@ -100,7 +100,7 @@ var usersController = {
                             }
                             if (results.length > 0) {
                                 var results = {
-                                    "userName": results[0].username,
+                                    "username": results[0].username,
                                     "password": results[0].password,
                                     "phoneNumber": results[0].phoneNumber,
                                     "role": results[0].role,
@@ -134,7 +134,7 @@ var usersController = {
                 if (results.length > 0) {
                     for (var i = 0; i < results.length; i++) {
                         var tmp = {
-                            "userName": results[i].username,
+                            "username": results[i].username,
                             "password": results[i].password,
                             "phoneNumber": results[i].phoneNumber,
                             "role": results[i].role,
