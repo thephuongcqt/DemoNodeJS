@@ -134,12 +134,13 @@ var appointmentController = {
             connectDB.pool.query(querySearch, function (err, results, fields) {
                 var listResults = [];
                 if (results.length > 0) {
-                    var date = dateFormat(new Date(results[0].appointmentTime), "yyyy-mm-dd HH:MM");
+                    
                     for (var i = 0; i < results.length; i++) {
+                        var date = dateFormat(new Date(results[i].appointmentTime), "yyyy-mm-dd HH:MM");
                         var tmp = {
-                            "AppointmentID": results[0].appointmentID,
-                            "Clinic Name": results[0].clinicUsername,
-                            "Patient ID": results[0].patientID,
+                            "AppointmentID": results[i].appointmentID,
+                            "Clinic Name": results[i].clinicUsername,
+                            "Patient ID": results[i].patientID,
                             "AppointmantTime": date
                         };
                         listResults.push(tmp);
