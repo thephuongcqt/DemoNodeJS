@@ -29,15 +29,24 @@ var twilioController = {
             method: 'POST'
         });
         twiml.hangup();
-
         res.type('text/xml');
         res.send(twiml.toString());
 
     },
     postReceiveRecord: function (req, res) {
-        var recordURL = req.body.RecordingURL;        
+        var recordURL = req.body.RecordingURL;
+        var responseObjc = {
+        };
         speechToText.getTextFromVoice(recordURL, function (err, results) {
-            console.log(results);
+            responseObjc.fullName = transcription;
+            console.log(responseObjc);
+
+            twilioConnect.twilios.calls(req.body.CallSid)
+            .fetch().then(call =>{
+                console.log(call.from);
+                responseObjc.sdt = call.from;
+                res.json(responseObjc);
+            }).done();
         });
     }
 }
