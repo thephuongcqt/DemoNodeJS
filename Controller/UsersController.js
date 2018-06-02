@@ -40,10 +40,10 @@ var usersController = {
                             for (var i = 0; i < parseResult.length; i++) {
                                 if (item.username == userPost && item.password == passPost) {
                                     var result = {
-                                        "UserName": item.username,
-                                        "Password": item.password,
-                                        "PhoneNumber": item.phoneNumber,
-                                        "Role": item.role,
+                                        "userName": item.username,
+                                        "password": item.password,
+                                        "phoneNumber": item.phoneNumber,
+                                        "role": item.role,
                                         "isActive": item.isActive
                                     };
                                     res.json(makeResponse(true, result, null));
@@ -108,10 +108,10 @@ var usersController = {
                             }
                             if (results.length > 0) {
                                 var results = {
-                                    "UserName": results[0].username,
-                                    "Password": results[0].password,
-                                    "PhoneNumber": results[0].phoneNumber,
-                                    "Role": results[0].role,
+                                    "userName": results[0].username,
+                                    "password": results[0].password,
+                                    "phoneNumber": results[0].phoneNumber,
+                                    "role": results[0].role,
                                     "isActive": results[0].isActive
                                 };
                                 res.json(makeResponse(true, results, null));
@@ -142,10 +142,10 @@ var usersController = {
                 if (results.length > 0) {
                     for (var i = 0; i < results.length; i++) {
                         var tmp = {
-                            "UserName": results[0].username,
-                            "Password": results[0].password,
-                            "PhoneNumber": results[0].phoneNumber,
-                            "Role": results[0].role,
+                            "userName": results[0].username,
+                            "password": results[0].password,
+                            "phoneNumber": results[0].phoneNumber,
+                            "role": results[0].role,
                             "isActive": results[0].isActive
                         };
                         listResults.push(tmp);

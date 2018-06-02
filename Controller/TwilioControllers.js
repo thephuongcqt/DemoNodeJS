@@ -36,7 +36,7 @@ var twilioController = {
         var recordURL = req.body.RecordingURL;
         var responseObjc = {
         };
-        speechToText.getTextFromVoice(recordURL, function (err, results) {
+        speechToText.getTextFromVoice(recordURL, function (err, transcription) {
             responseObjc.fullName = transcription;
             console.log(responseObjc);
 
