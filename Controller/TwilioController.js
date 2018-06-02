@@ -1,4 +1,7 @@
 var speechToText = require("./SpeechToTextController");
+const accountSid = 'AC0182c9b950c8fe1229f93aeb40900a5d';
+const authToken = '903448ab8b8a1e8a59bf62126841bd10';
+const client = require('twilio')(accountSid, authToken);
 
 module.exports = function(app, express){
     var apiRouter = express.Router();
@@ -15,11 +18,22 @@ module.exports = function(app, express){
         res.end(twiml.toString());        
     });
 
-    apiRouter.post("/Recorded", function (req, res){    
+    apiRouter.post("/Recorded", function (req, res){            
+        var responseObjc = {                        
+        };    
         speechToText.getTextFromVoice(req.body.RecordingUrl, function(err, transcription){
             console.log("ERROR: " + err);
-            console.log("Transcript: " + transcription);
-            res.end(transcription)
+            console.log("Transcript: " + transcription);       
+            responseObjc.fullName = transcription;
+            
+            client.calls(req.body.CallSid)
+            .fetch()
+            .then(call => {
+                console.log(call.from);
+                responseObjc.sdt = call.from;
+                res.json(responseObjc);
+            })
+            .done();
         });
     });
     return apiRouter;
