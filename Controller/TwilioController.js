@@ -1,3 +1,5 @@
+var speechToText = require("./SpeechToTextController");
+
 module.exports = function(app, express){
     var apiRouter = express.Router();
 
@@ -13,12 +15,11 @@ module.exports = function(app, express){
         res.end(twiml.toString());        
     });
 
-    apiRouter.post("/Recorded", function (req, res){
-        var speechToText = require("./SpeechToTextController");
-
+    apiRouter.post("/Recorded", function (req, res){    
         speechToText.getTextFromVoice(req.body.RecordingUrl, function(err, transcription){
             console.log("ERROR: " + err);
             console.log("Transcript: " + transcription);
+            res.end(transcription)
         });
     });
     return apiRouter;

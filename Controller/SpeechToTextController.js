@@ -1,9 +1,9 @@
 const speech = require('@google-cloud/speech');
-const fs = require('fs');
 const https = require('https');
 
-const client = new speech.SpeechClient();
-const recordUrl = "https://api.twilio.com/2010-04-01/Accounts/AC0182c9b950c8fe1229f93aeb40900a5d/Recordings/RE0b370a1548be00d91273116fb2d8cd0d";
+const googleClient = new speech.SpeechClient({
+    keyFilename: './Certificate/callcenter.json'    
+});
 
 var sttFunctions = {
     getTextFromVoice: function(url, callBackMethod){
@@ -29,7 +29,7 @@ var sttFunctions = {
                     config: config,
                 };
         
-                client
+                googleClient
                     .recognize(request)
                     .then(data => {
                         const response = data[0];

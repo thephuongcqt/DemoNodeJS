@@ -1,4 +1,5 @@
 const twilioConnect = require('./ConnectTwilioController');
+var speechToText = require("./SpeechToTextController");
 
 function makeResponse(success, value, error) {
     var response = {
@@ -22,8 +23,9 @@ var twilioController = {
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
         const twiml = new VoiceResponse();
         twiml.say('Hello. please leave a message after the beep.');
+        var recordURL = req.protocol + '://' + req.get('host') + '/record';
         twiml.record({
-            recordingStatusCallback: 'http://203.205.29.13:8080/record',
+            recordingStatusCallback: recordURL,
             method: 'POST'
         });
         twiml.hangup();
@@ -32,9 +34,8 @@ var twilioController = {
         res.send(twiml.toString());
 
     },
-    postRecord: function (req, res) {
-        var recordURL = req.body.RecordingURL;
-        var speechToText = require("./SpeechToTextController");
+    postReceiveRecord: function (req, res) {
+        var recordURL = req.body.RecordingURL;        
         speechToText.getTextFromVoice(recordURL, function (err, results) {
             console.log(results);
         });
