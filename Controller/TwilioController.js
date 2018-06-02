@@ -37,5 +37,12 @@ module.exports = function(app, express){
             .done();
         });
     });
+    apiRouter.post("/PostLogin", function(req, res){
+        res.json({
+            "username": "phuongnt",
+            "password": "",
+            
+        })
+    })
     return apiRouter;
 };
