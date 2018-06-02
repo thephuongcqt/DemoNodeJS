@@ -37,13 +37,9 @@ var twilioController = {
         var recordURL = req.body.RecordingUrl;
         var responseObjc = {
         };
-<<<<<<< HEAD
-        speechToText.getTextFromVoice(recordURL, function (err, transcription) {
-=======
         // speed to text
         speechToText.getTextFromVoice(recordURL, function (err, transcription) {
             var patientName;
->>>>>>> 112fe9e36dd89b4544f225382f4d0940304a3c07
             responseObjc.fullName = transcription;
             // require phone number from twilio
             twilioConnect.twilios.calls(req.body.CallSid)
@@ -53,7 +49,6 @@ var twilioController = {
                     var apppointUrl = req.protocol + '://' + req.get('host') + '/getListAllAppointment';
                     console.log(apppointUrl);
                 }).done();
-
         });
     }
 }

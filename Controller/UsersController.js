@@ -1,14 +1,6 @@
 var myConnect = require("./ConnectDataController.js");
 var connectDB = new myConnect("ConnectData");
-
-function makeResponse(success, value, error) {
-    var response = {
-        "status": success,
-        "value": value,
-        "error": error
-    };
-    return response;
-}
+var utils = require("./Utils");
 
 var usersController = {
     // post method Login
@@ -19,7 +11,7 @@ var usersController = {
 
         connectDB.pool.getConnection(function (err, connection) {
             if (err) {
-                res.json(makeResponse(false, null, "444 No Response"));
+                res.json(utils.makeResponse(false, null, "444 No Response"));
                 console.log("Connect Error" + err);
                 return;
             } else {
@@ -27,7 +19,7 @@ var usersController = {
                 var queryString = "SELECT * FROM tbl_user";
                 connectDB.pool.query(queryString, function (err, result, fields) {
                     if (err) {
-                        res.json(makeResponse(false, null, "404 Not Found"));
+                        res.json(utils.makeResponse(false, null, "404 Not Found"));
                         console.log("Query Error: " + err);
                         return;
                     }
@@ -46,7 +38,7 @@ var usersController = {
                                         "role": item.role,
                                         "isActive": item.isActive
                                     };
-                                    res.json(makeResponse(true, result, null));
+                                    res.json(utils.makeResponse(true, result, null));
                                     connection.release();
                                     found = true;
                                     break;
@@ -55,7 +47,7 @@ var usersController = {
                         }
                     });
                     if (found == false) {
-                        res.json(makeResponse(false, null, 'Username or password is not correct'));
+                        res.json(utils.makeResponse(false, null, 'Username or password is not correct'));
                         connection.release();
                     }
                 });
@@ -71,7 +63,7 @@ var usersController = {
 
         connectDB.pool.getConnection(function (err, connection) {
             if (err) {
-                res.json(makeResponse(false, null, "444 No Response"));
+                res.json(utils.makeResponse(false, null, "444 No Response"));
                 console.log("Connect Error" + err);
                 return;
             }
@@ -79,13 +71,13 @@ var usersController = {
             var querySearch = 'SELECT * FROM tbl_user WHERE username=?'
             connectDB.pool.query(querySearch, userPost, function (err, results, fields) {
                 if (err) {
-                    res.json(makeResponse(false, null, "404 Not Found"));
+                    res.json(utils.makeResponse(false, null, "404 Not Found"));
                     connection.release();
                     console.log("Query Error: " + err);
                     return;
                 }
                 if (results.length > 0) {
-                    res.json(makeResponse(false, null, 'Username have been existed!'));
+                    res.json(utils.makeResponse(false, null, 'Username have been existed!'));
                     connection.release();
                     return;
                 } else {
@@ -93,7 +85,7 @@ var usersController = {
                     var values = [[userPost, passPost, phonePost, 1, 1]];
                     connectDB.pool.query(queryInsert, [values], function (err, results, fields) {
                         if (err) {
-                            res.json(makeResponse(false, null, "404 Not Found"));
+                            res.json(utils.makeResponse(false, null, "404 Not Found"));
                             connection.release();
                             console.log("Query Error: " + err);
                             return;
@@ -101,7 +93,7 @@ var usersController = {
                         // query search user in database
                         connectDB.pool.query(querySearch, userPost, function (err, results, fields) {
                             if (err) {
-                                res.json(makeResponse(false, null, "404 Not Found"));
+                                res.json(utils.makeResponse(false, null, "404 Not Found"));
                                 connection.release();
                                 console.log("Query Error: " + err);
                                 return;
@@ -114,7 +106,7 @@ var usersController = {
                                     "role": results[0].role,
                                     "isActive": results[0].isActive
                                 };
-                                res.json(makeResponse(true, results, null));
+                                res.json(utils.makeResponse(true, results, null));
                                 connection.release();
                                 return;
                             }
@@ -130,7 +122,7 @@ var usersController = {
     getListAllUser: function (req, res) {
         connectDB.pool.getConnection(function (err, connection) {
             if (err) {
-                res.json(makeResponse(false, null, "444 No Response"));
+                res.json(utils.makeResponse(false, null, "444 No Response"));
                 connection.release();
                 console.log("Connect Error" + err);
                 return;
@@ -150,11 +142,11 @@ var usersController = {
                         };
                         listResults.push(tmp);
                     }
-                    res.json(makeResponse(true, listResults, null));
+                    res.json(utils.makeResponse(true, listResults, null));
                     connection.release();
                     return;
                 } else {
-                    res.json(makeResponse(true, null, 'List User is empty'));
+                    res.json(utils.makeResponse(true, null, 'List User is empty'));
                     connection.release();
                     return;
                 }
