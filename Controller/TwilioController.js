@@ -5,6 +5,7 @@ const client = require('twilio')(accountSid, authToken);
 var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
+const dateFormat = require('dateformat');
 
 function makeAppointment(patientPhone, patientName, clinicPhone) {
     //get clinicUsername from phoneNumber
@@ -13,7 +14,6 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
         .then(function (model) {
             if (model != null) {
                 var clinicUsername = model.attributes.username;
-                var clinicName = model.attributes.clinicName;
                 var patient = {
                     "phoneNumber": patientPhone,
                     "fullName": patientName,
@@ -35,19 +35,26 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                         db.Appointment.forge(newAppointment)
                             .save()
                             .then(function (model) {
-                                //need to notify to clinic and patient
                                 var appointment = model.toJSON();
-                                console.log(appointment);
-                                console.log(clinicPhone);
-                                console.log(patientPhone);
-                                // Send SMS to announcement appointment has book successfull //////////////////////////////////////////////
-                                client.twilios.messages.create({
-                                    body: ' đã đặt lịch khám tại ' + clinicName + ' ngày ' + appointmentTime + ' mã số ' + patientIDs,
-                                    from: clinicPhone,
-                                    to: patientPhone
-                                }).then(messages => {
-                                }).done();
-                                //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                //need to notify to clinic
+                                db.Clinic.forge({ "username": clinicUsername })
+                                    .fetch()
+                                    .then(function (model) {
+                                        var clinic = model.toJSON();
+                                        var appointTime = appointment.appointmentTime;
+                                        var timeAppointment = dateFormat(new Date(appointTime), "dd-mm-yyyy HH:MM");
+                                        // Send SMS to announcement appointment has book successfull //////////////////////////////////////////////
+                                        client.messages.create({
+                                            body: patientName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + clinic.clinicName + ' ngày ' + timeAppointment,
+                                            from: clinicPhone,
+                                            to: patientPhone
+                                        }).then(messages => {
+                                        }).done();
+                                        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                    })
+                                    .catch(function (err) {
+                                        console.log(err.message);
+                                    });
                             })
                             .catch(function (err) {
                                 console.log(err.message);
@@ -90,7 +97,7 @@ module.exports = function (app, express) {
             client.calls(req.body.CallSid)
                 .fetch()
                 .then(call => {
-                    console.log(call.from + " | " + call.to);
+                    // console.log(call.from + " | " + call.to);
                     makeAppointment(call.from, patientName, call.to);
                 })
                 .done();
