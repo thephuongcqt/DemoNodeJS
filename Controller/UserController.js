@@ -1,6 +1,6 @@
-var utils = require("./Utils");
-var db = require("./DBUtils");
-
+var db = require("../Utils/DBUtils");
+var utils = require("../Utils/Utils");
+var Const = require("../Utils/Const");
 module.exports = function (app, express) {
     var apiRouter = express.Router();
 
@@ -55,7 +55,7 @@ module.exports = function (app, express) {
 
     apiRouter.get("/getAllAdmin", function(req,res){
         db.User.forge()
-            .where("role", utils.Const.ROLE_ADMIN)
+            .where("role", Const.ROLE_ADMIN)
             .fetchAll()
             .then(function (collection) {
                 var responseObj = utils.makeResponse(true, collection.toJSON(), null);
