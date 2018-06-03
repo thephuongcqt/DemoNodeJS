@@ -28,7 +28,7 @@ module.exports = function (app, express) {
         db.User.forge()
             .fetchAll()
             .then(function (collection) {
-                var responseObj = utils.makeResponse(true, collection.toJSON(), false);
+                var responseObj = utils.makeResponse(true, collection.toJSON(), null);
                 res.json(responseObj)
             })
             .catch(function (err) {
@@ -49,6 +49,20 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 var responseObj = utils.makeResponse(false, false, "Incorrect username or password");
+                res.json(responseObj);
+            });
+    });
+
+    apiRouter.get("/getAllAdmin", function(req,res){
+        db.User.forge()
+            .where("role", utils.Const.ROLE_ADMIN)
+            .fetchAll()
+            .then(function (collection) {
+                var responseObj = utils.makeResponse(true, collection.toJSON(), null);
+                res.json(responseObj)
+            })
+            .catch(function (err) {
+                var responseObj = utils.makeResponse(false, null, err.message);
                 res.json(responseObj);
             });
     });

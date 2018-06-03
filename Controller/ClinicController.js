@@ -33,5 +33,48 @@ module.exports = function (app, express) {
             });
     });
 
+
+    apiRouter.get("/getAllClinic", function (req, res) {
+        db.User.forge()
+            .where("role", utils.Const.ROLE_CLINIC)
+            .fetchAll()
+            .then(function (collection) {
+                var userList = collection.toJSON();
+                var usernames = [];
+                for(var i in userList){
+                    usernames.push(userList[i].username);
+                }                
+                db.Clinic.forge( )
+                    .where("username", "in", usernames)
+                    .fetchAll()
+                    .then(function (result) {
+                        var clinics = result.toJSON();
+                        var clinicList = []
+                        for(var i in clinics){
+                            var clinic = clinics[i];
+                            for(var j in userList){
+                                var user = userList[j];
+                                if(clinic.username == user.username){
+                                    user.address = clinic.address;
+                                    user.clinicName = clinic.clinicName;
+                                    user.password = "";
+                                    clinicList.push(user);
+                                }
+                            }
+                        }
+                        var responseObj = utils.makeResponse(true, clinicList, null);
+                        res.json(responseObj)
+                    })
+                    .catch(function (err) {
+                        var responseObj = utils.makeResponse(false, null, err.message);
+                        res.json(responseObj);
+                    })
+
+            })
+            .catch(function (err) {
+                var responseObj = utils.makeResponse(false, null, err.message);
+                res.json(responseObj);
+            });
+    })
     return apiRouter;
 }
