@@ -15,7 +15,7 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                 var patient = {
                     "phoneNumber": patientPhone,
                     "fullName": patientName,
-                    "totalAppointment": 0,
+                    "totalAppointment": 0, // chua test ten nay da ton tai hay chua
                     "abortedAppointment": 0
                 };
                 //insert Patient
