@@ -20,10 +20,12 @@
   "dependencies": {
     "@google-cloud/speech": "^1.5.0",
     "body-parser": "^1.18.3",
+    "bookshelf": "^0.13.3",
     "dateformat": "^3.0.3",
     "express": "^4.16.3",
     "fs": "0.0.1-security",
     "https": "^1.0.0",
+    "knex": "^0.13.0",
     "mysql": "^2.15.0",
     "twilio": "^3.17.1"
   }
