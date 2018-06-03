@@ -1,5 +1,6 @@
-var db = require("./DBUtils");
-var utils = require("./Utils");
+var db = require("../Utils/DBUtils");
+var utils = require("../Utils/Utils");
+var Const = require("../Utils/Const");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -36,7 +37,7 @@ module.exports = function (app, express) {
 
     apiRouter.get("/getAllClinic", function (req, res) {
         db.User.forge()
-            .where("role", utils.Const.ROLE_CLINIC)
+            .where("role", Const.ROLE_CLINIC)
             .fetchAll()
             .then(function (collection) {
                 var userList = collection.toJSON();

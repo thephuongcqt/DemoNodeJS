@@ -6,10 +6,6 @@ var utils = {
             "error": error
         };
         return response;
-    },
-    Const: {
-        ROLE_ADMIN: 0,
-        ROLE_CLINIC: 1,
     }
 }
 module.exports = utils;
