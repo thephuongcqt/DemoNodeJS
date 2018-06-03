@@ -16,7 +16,7 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                 var patient = {
                     "phoneNumber": patientPhone,
                     "fullName": patientName,
-                    "totalAppointment": 0,
+                    "totalAppointment": 0, // chua test ten nay da ton tai hay chua
                     "abortedAppointment": 0
                 };
                 //insert Patient
@@ -59,7 +59,7 @@ module.exports = function (app, express) {
     apiRouter.get("/Voice", function (req, res) {
         res.set('Content-Type', 'text/xml');
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
-        var recordURL = req.protocol + '://' + req.get('host') + 'twilio/Recorded';
+        var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
         const twiml = new VoiceResponse();
         twiml.play('https://firebasestorage.googleapis.com/v0/b/chatfirebase-1e377.appspot.com/o/Welcome.mp3?alt=media&token=6914df70-85d3-4ea4-9ce0-edf4516ea353');
         twiml.record({
