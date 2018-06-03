@@ -30,7 +30,7 @@ module.exports = function(app, express){
             res.json(responseObj);            
         });
 
-    })
+    });
 
     return apiRouter;
 }
