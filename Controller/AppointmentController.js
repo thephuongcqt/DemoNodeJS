@@ -19,23 +19,24 @@ module.exports = function(app, express){
 
     apiRouter.get("/findAppointmentForClinic", function(req, res){
         var clinicUsername = req.query.clinicUsername;
-        db.Appointment.where("clinicUsername", "=", clinicUsername)
-        .fetchAll()
+        var sql = "SELECT * FROM tbl_appointment WHERE clinicUsername = '" + clinicUsername + "' AND DATE(appointmentTime) = CURRENT_DATE()";
+        // db.Appointment.where("clinicUsername", "=", clinicUsername)
+        db.knex.raw(sql)        
         .then(function(collection){
-            var responseObj = utils.makeResponse(true, collection.toJSON(), null);
-            
-            if(collection != null && collection.models.length > 0){  
+            result = collection[0];                
+            if(result.length > 0){  
                 var tmp = [];
-                for(var i in collection.models){        
-                    tmp.push(collection.models[i].attributes.patientID);
+                for(var i in result){        
+                    tmp.push(result[i].patientID);
                 }
                 db.Patient.forge()
                 .where("patientID", "in", tmp)
                 .fetchAll()
                 .then(function(patientsResult){
                     var results = [];
-                    for(var i in collection.models){
-                        var tmpAppointment = collection.models[i].toJSON();                        
+                    for(var i in result){
+                        var tmpAppointment = JSON.parse(JSON.stringify(result[i]));
+                        console.log(tmpAppointment);
                         for(j in patientsResult.models){                                                        
                             var tmpPatient = patientsResult.models[j].toJSON();                                                        
                             if(tmpAppointment.patientID == tmpPatient.patientID){                            
