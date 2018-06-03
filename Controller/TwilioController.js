@@ -12,6 +12,7 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
         .then(function (model) {
             if (model != null) {
                 var clinicUsername = model.attributes.username;
+                var clinicName = model.attributes.clinicName;
                 var patient = {
                     "phoneNumber": patientPhone,
                     "fullName": patientName,
@@ -22,23 +23,34 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                 db.Patient.forge(patient)
                     .save()
                     .then(function (model) {
-                        var newPatient = model.toJSON();                        
+                        var newPatient = model.toJSON();
                         var newAppointment = {
                             "clinicUsername": clinicUsername,
                             "patientID": newPatient.id,
                             "appointmentTime": new Date(),
-                            "status": 1                    
+                            "status": 1
                         };
                         // insert Appointment                        
                         db.Appointment.forge(newAppointment)
-                        .save()
-                        .then(function(model){
-                            //need to notify to clinic and patient
-                            console.log(model.toJSON());
-                        })
-                        .catch(function(err){
-                            console.log(err.message);
-                        })
+                            .save()
+                            .then(function (model) {
+                                //need to notify to clinic and patient
+                                var appointment = model.toJSON();
+                                console.log(appointment);
+                                console.log(clinicPhone);
+                                console.log(patientPhone);
+                                // Send SMS to announcement appointment has book successfull //////////////////////////////////////////////
+                                client.twilios.messages.create({
+                                    body: ' đã đặt lịch khám tại ' + clinicName + ' ngày ' + appointmentTime + ' mã số ' + patientIDs,
+                                    from: clinicPhone,
+                                    to: patientPhone
+                                }).then(messages => {
+                                }).done();
+                                //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                            })
+                            .catch(function (err) {
+                                console.log(err.message);
+                            })
                     })
                     .catch(function (err) {
                         console.log(err.message);
