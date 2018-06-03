@@ -9,7 +9,7 @@ module.exports = function(app, express){
         .fetchAll()
         .then(function(collection){
             var responseObj = utils.makeResponse(true, collection.toJSON(), false);
-            res.json(responseObj)
+            res.json(responseObj);
         })
         .catch(function(err){
             var responseObj = utils.makeResponse(false, err.message, true);
@@ -22,8 +22,42 @@ module.exports = function(app, express){
         db.Appointment.where("clinicUsername", "=", clinicUsername)
         .fetchAll()
         .then(function(collection){
+
             var responseObj = utils.makeResponse(true, collection.toJSON(), null);
-            res.json(responseObj)
+            var patients = [];
+            if(collection != null && collection.models.length > 0){  
+                var count = 0;              
+                for(var i = 0; i < collection.models.length; i++){                                        
+                    db.Patient.forge("patientID", collection.models[i].attributes.patientID)
+                    .fetch()
+                    .then(function(result){                        
+                        count++;
+                        patients.push(result.attributes);
+
+                        if(count == collection.models.length){
+                            var result = [];
+                            console.log(patients);
+                            for(var ii = 0; ii < collection.models.length; ii++){
+                                var appointment = collection.models[ii].attributes;
+                                console.log(appointment);
+                                for(var jj = 0; jj < patients.length; jj++){
+                                    var patient = patients[jj];
+                                    if(appointment.patientID == patient.patientID){
+                                        appointment.patient = patient;
+                                    }
+                                }
+                                result.push(appointment);
+                            }
+                            res.json(utils.makeResponse(true, result, null));
+                        }
+                    })
+                    .catch(function(err){
+                        count++;
+                        patients.push("null");
+                    });                
+                }    
+            }   
+                     
         })
         .catch(function(err){
             var responseObj = utils.makeResponse(false, null, err.message);
