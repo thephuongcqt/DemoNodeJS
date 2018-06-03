@@ -36,5 +36,21 @@ module.exports = function (app, express) {
                 res.json(responseObj);
             });
     });
+
+    apiRouter.post("/changePassword", function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+        var newPassword = req.body.newPassword;
+        db.User.where({ "username": username, "password": password })            
+            .save({"password": newPassword}, {patch: true})
+            .then(function(model){
+                var responseObj = utils.makeResponse(true, null, null);
+                res.json(responseObj);
+            })
+            .catch(function (err) {
+                var responseObj = utils.makeResponse(false, false, "Incorrect username or password");
+                res.json(responseObj);
+            });
+    });
     return apiRouter;
 };

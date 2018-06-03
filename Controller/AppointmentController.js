@@ -24,40 +24,34 @@ module.exports = function(app, express){
         .then(function(collection){
 
             var responseObj = utils.makeResponse(true, collection.toJSON(), null);
-            var patients = [];
+            
             if(collection != null && collection.models.length > 0){  
-                var count = 0;              
-                for(var i = 0; i < collection.models.length; i++){                                        
-                    db.Patient.forge("patientID", collection.models[i].attributes.patientID)
-                    .fetch()
-                    .then(function(result){                        
-                        count++;
-                        patients.push(result.attributes);
-
-                        if(count == collection.models.length){
-                            var result = [];
-                            console.log(patients);
-                            for(var ii = 0; ii < collection.models.length; ii++){
-                                var appointment = collection.models[ii].attributes;
-                                console.log(appointment);
-                                for(var jj = 0; jj < patients.length; jj++){
-                                    var patient = patients[jj];
-                                    if(appointment.patientID == patient.patientID){
-                                        appointment.patient = patient;
-                                    }
-                                }
-                                result.push(appointment);
+                var tmp = [];
+                for(var i in collection.models){        
+                    tmp.push(collection.models[i].attributes.patientID);
+                }
+                db.Patient.forge()
+                .where("patientID", "in", tmp)
+                .fetchAll()
+                .then(function(patientsResult){
+                    var results = [];
+                    for(var i in collection.models){
+                        var tmpAppointment = collection.models[i].toJSON();                        
+                        for(j in patientsResult.models){                                                        
+                            var tmpPatient = patientsResult.models[j].toJSON();                                                        
+                            if(tmpAppointment.patientID == tmpPatient.patientID){                            
+                                tmpAppointment.patient = tmpPatient;                                
                             }
-                            res.json(utils.makeResponse(true, result, null));
-                        }
-                    })
-                    .catch(function(err){
-                        count++;
-                        patients.push("null");
-                    });                
-                }    
-            }   
-                     
+                        }   
+                        delete tmpAppointment.clinicUsername;
+                        delete tmpAppointment.patientID;
+                        results.push(tmpAppointment);
+                    }
+                    res.json(utils.makeResponse(true, results, null));
+                });                
+            } else{
+                res.json(utils.makeResponse(false, null, "Không có cuộc hẹn nào"));
+            }                      
         })
         .catch(function(err){
             var responseObj = utils.makeResponse(false, null, err.message);
