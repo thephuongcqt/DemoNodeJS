@@ -19,7 +19,7 @@ module.exports = function (app, express) {
                 res.json(responseObj)
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, err.message, null);
+                var responseObj = utils.makeResponse(false, null, err.message);
                 res.json(responseObj);
             });
 
@@ -32,7 +32,7 @@ module.exports = function (app, express) {
                 res.json(responseObj)
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, err.message, true);
+                var responseObj = utils.makeResponse(false, null, err.message);
                 res.json(responseObj);
             });
     });

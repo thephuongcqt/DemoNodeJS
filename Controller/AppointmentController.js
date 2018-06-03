@@ -22,7 +22,6 @@ module.exports = function(app, express){
         db.Appointment.where("clinicUsername", "=", clinicUsername)
         .fetchAll()
         .then(function(collection){
-
             var responseObj = utils.makeResponse(true, collection.toJSON(), null);
             
             if(collection != null && collection.models.length > 0){  

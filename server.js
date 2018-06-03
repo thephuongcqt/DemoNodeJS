@@ -2,6 +2,7 @@ var express = require("express");
 var app = express();
 var userController = require("./Controller/UserController")(app, express);
 var twilioController = require("./Controller/TwilioController")(app, express);
+var clinicController = require("./Controller/ClinicController")(app, express);
 // Add headers
 app.use(function (req, res, next) {
 
@@ -52,6 +53,8 @@ app.route("/voice").post(twilioControllers.postReceiveVoice);
 app.route("/record").post(twilioControllers.postReceiveRecord);
 // route to Appointment Controller
 app.use("/appointment", appointmentController);
+// route to Clinic Controller
+app.use("/clinic", clinicController);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/twilio", twilioController);
