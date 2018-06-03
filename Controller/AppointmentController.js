@@ -22,11 +22,11 @@ module.exports = function(app, express){
         db.Appointment.where("clinicUsername", "=", clinicUsername)
         .fetchAll()
         .then(function(collection){
-            var responseObj = utils.makeResponse(true, collection.toJSON(), false);
+            var responseObj = utils.makeResponse(true, collection.toJSON(), null);
             res.json(responseObj)
         })
         .catch(function(err){
-            var responseObj = utils.makeResponse(false, err.message, true);
+            var responseObj = utils.makeResponse(false, null, err.message);
             res.json(responseObj);            
         });
 
