@@ -47,20 +47,19 @@ app.use(bodyParser.json());
 // app.route("/getListAppointment").get(appointmentController.getListAllAppointment);
 // post request for server get message
 app.route("/message").post(twilioControllers.postReceiveSMS);
-// post request for server get voice
-app.route("/voice").post(twilioControllers.postReceiveVoice);
+// // post request for server get voice
+// app.route("/voice").post(twilioControllers.postReceiveVoice);
 // post request for server get voice
 app.route("/record").post(twilioControllers.postReceiveRecord);
 // route to Appointment Controller
 app.use("/appointment", appointmentController);
 // route to Clinic Controller
 app.use("/clinic", clinicController);
-//////////////////////////////////////////////////////////////////////
-
-app.use("/twilio", twilioController);
+// route to User Controller
 app.use("/user", userController);
-
-
+// route to Twilio Controller
+app.use("/twilio", twilioController);
+//////////////////////////////////////////////////////////////////////
 
 app.use("/", function(req, res){
     res.json({
