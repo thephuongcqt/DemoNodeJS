@@ -18,7 +18,7 @@ module.exports = function(app, express){
     });
 
     apiRouter.get("/findAppointmentForClinic", function(req, res){
-        var clinicUsername = "nhanai";
+        var clinicUsername = req.query.clinicUsername;
         db.Appointment.where("clinicUsername", "=", clinicUsername)
         .fetchAll()
         .then(function(collection){
@@ -29,7 +29,6 @@ module.exports = function(app, express){
             var responseObj = utils.makeResponse(false, null, err.message);
             res.json(responseObj);            
         });
-
     })
 
     return apiRouter;
