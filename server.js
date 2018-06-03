@@ -49,8 +49,8 @@ app.use(bodyParser.json());
 app.route("/message").post(twilioControllers.postReceiveSMS);
 // // post request for server get voice
 // app.route("/voice").post(twilioControllers.postReceiveVoice);
-// post request for server get voice
-app.route("/record").post(twilioControllers.postReceiveRecord);
+// // post request for server get voice
+// app.route("/record").post(twilioControllers.postReceiveRecord);
 // route to Appointment Controller
 app.use("/appointment", appointmentController);
 // route to Clinic Controller
