@@ -29,7 +29,7 @@ module.exports = function(app, express){
             var responseObj = utils.makeResponse(false, null, err.message);
             res.json(responseObj);            
         });
-    })
+    });
 
     return apiRouter;
 }
