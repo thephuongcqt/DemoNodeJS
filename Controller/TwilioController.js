@@ -43,7 +43,7 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                                         var clinic = model.toJSON();
                                         var appointTime = appointment.appointmentTime;
                                         var timeAppointment = dateFormat(new Date(appointTime), "dd-mm-yyyy HH:MM");
-                                        // Send SMS to announcement appointment has book successfull //////////////////////////////////////////////
+                                        // Send SMS to announcement appointment for patient has book successfull //////////////////////////////////////////////
                                         client.messages.create({
                                             body: patientName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + clinic.clinicName + ' ngày ' + timeAppointment,
                                             from: clinicPhone,
@@ -102,6 +102,11 @@ module.exports = function (app, express) {
                 })
                 .done();
         });
+    });
+
+    apiRouter.post("/Message", function(req, res){
+        console.log(req.body.From);
+        console.log(req.body.Body);
     });
     return apiRouter;
 };
