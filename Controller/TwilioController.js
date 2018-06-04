@@ -107,6 +107,8 @@ module.exports = function (app, express) {
     apiRouter.post("/Message", function(req, res){
         console.log(req.body.From);
         console.log(req.body.Body);
+        console.log(req.body.To);
+        makeAppointment(req.body.From, req.body.Body, req.body.To);
     });
     return apiRouter;
 };
