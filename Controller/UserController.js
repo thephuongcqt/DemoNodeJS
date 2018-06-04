@@ -66,19 +66,46 @@ module.exports = function (app, express) {
                 res.json(responseObj);
             });
     });
-    // get all clinic from database
-    apiRouter.get("/getAllClinic", function (req, res) {
-        db.User.forge()
-            .where("role", Const.ROLE_CLINIC)
-            .fetchAll()
-            .then(function (collection) {
-                var responseObj = utils.makeResponse(true, collection.toJSON(), null);
-                res.json(responseObj)
-            })
-            .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
-            });
+    // get all user by role from database
+    apiRouter.get("/getAllUser", function (req, res) {
+        if (req.query.role == 0) {
+            db.User.forge()
+                .where("role", Const.ROLE_ADMIN)
+                .fetchAll()
+                .then(function (collection) {
+                    var responseObj = utils.makeResponse(true, collection.toJSON(), null);
+                    res.json(responseObj)
+                })
+                .catch(function (err) {
+                    var responseObj = utils.makeResponse(false, null, err.message);
+                    res.json(responseObj);
+                });
+        }
+        if (req.query.role == 1) {
+            db.User.forge()
+                .where("role", Const.ROLE_CLINIC)
+                .fetchAll()
+                .then(function (collection) {
+                    var responseObj = utils.makeResponse(true, collection.toJSON(), null);
+                    res.json(responseObj)
+                })
+                .catch(function (err) {
+                    var responseObj = utils.makeResponse(false, null, err.message);
+                    res.json(responseObj);
+                });
+        }
+        else {
+            db.User.forge()
+                .fetchAll()
+                .then(function (collection) {
+                    var responseObj = utils.makeResponse(true, collection.toJSON(), null);
+                    res.json(responseObj)
+                })
+                .catch(function (err) {
+                    var responseObj = utils.makeResponse(false, null, err.message);
+                    res.json(responseObj);
+                });
+        }
     });
     return apiRouter;
 };

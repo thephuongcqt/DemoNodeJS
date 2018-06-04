@@ -105,6 +105,7 @@ module.exports = function (app, express) {
     });
 // book appointment by SMS
     apiRouter.post("/Message", function (req, res) {
+        res.set('Content-Type', 'text/xml');
         makeAppointment(req.body.From, req.body.Body, req.body.To);
     });
     return apiRouter;
