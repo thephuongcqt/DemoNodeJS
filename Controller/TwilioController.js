@@ -87,7 +87,7 @@ module.exports = function (app, express) {
         });
         res.end(twiml.toString());
     });
-// get data from Twilio
+// speech to text
     apiRouter.post("/Recorded", function (req, res) {
         res.end();
         speechToText.getTextFromVoice(req.body.RecordingUrl, function (err, patientName) {
@@ -105,6 +105,7 @@ module.exports = function (app, express) {
     });
 // book appointment by SMS
     apiRouter.post("/Message", function (req, res) {
+        res.end();
         res.set('Content-Type', 'text/xml');
         makeAppointment(req.body.From, req.body.Body, req.body.To);
     });
