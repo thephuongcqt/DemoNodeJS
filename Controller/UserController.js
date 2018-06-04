@@ -41,9 +41,9 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var password = req.body.password;
         var newPassword = req.body.newPassword;
-        db.User.where({ "username": username, "password": password })            
-            .save({"password": newPassword}, {patch: true})
-            .then(function(model){
+        db.User.where({ "username": username, "password": password })
+            .save({ "password": newPassword }, { patch: true })
+            .then(function (model) {
                 var responseObj = utils.makeResponse(true, null, null);
                 res.json(responseObj);
             })
@@ -52,10 +52,24 @@ module.exports = function (app, express) {
                 res.json(responseObj);
             });
     });
-
-    apiRouter.get("/getAllAdmin", function(req,res){
+    // get all admin from database
+    apiRouter.get("/getAllAdmin", function (req, res) {
         db.User.forge()
             .where("role", Const.ROLE_ADMIN)
+            .fetchAll()
+            .then(function (collection) {
+                var responseObj = utils.makeResponse(true, collection.toJSON(), null);
+                res.json(responseObj)
+            })
+            .catch(function (err) {
+                var responseObj = utils.makeResponse(false, null, err.message);
+                res.json(responseObj);
+            });
+    });
+    // get all clinic from database
+    apiRouter.get("/getAllClinic", function (req, res) {
+        db.User.forge()
+            .where("role", Const.ROLE_CLINIC)
             .fetchAll()
             .then(function (collection) {
                 var responseObj = utils.makeResponse(true, collection.toJSON(), null);

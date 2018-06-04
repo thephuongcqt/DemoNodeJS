@@ -37,7 +37,7 @@ module.exports = function(app, express){
                     var results = [];
                     for(var i in result){
                         var tmpAppointment = JSON.parse(JSON.stringify(result[i]));
-                        console.log(tmpAppointment);
+                        // console.log(tmpAppointment);
                         for(j in patientsResult.models){                                                        
                             var tmpPatient = patientsResult.models[j].toJSON();                                                        
                             if(tmpAppointment.patientID == tmpPatient.patientID){                            
