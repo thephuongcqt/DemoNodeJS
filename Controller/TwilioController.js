@@ -74,7 +74,7 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
-
+// book appointment by Call
     apiRouter.get("/Voice", function (req, res) {
         res.set('Content-Type', 'text/xml');
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
@@ -87,7 +87,7 @@ module.exports = function (app, express) {
         });
         res.end(twiml.toString());
     });
-
+// get data from Twilio
     apiRouter.post("/Recorded", function (req, res) {
         res.end();
         speechToText.getTextFromVoice(req.body.RecordingUrl, function (err, patientName) {
@@ -103,11 +103,8 @@ module.exports = function (app, express) {
                 .done();
         });
     });
-
-    apiRouter.post("/Message", function(req, res){
-        console.log(req.body.From);
-        console.log(req.body.Body);
-        console.log(req.body.To);
+// book appointment by SMS
+    apiRouter.post("/Message", function (req, res) {
         makeAppointment(req.body.From, req.body.Body, req.body.To);
     });
     return apiRouter;
