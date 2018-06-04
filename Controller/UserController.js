@@ -81,7 +81,7 @@ module.exports = function (app, express) {
                     res.json(responseObj);
                 });
         }
-        if (req.query.role == 1) {
+        else if (req.query.role == 1) {
             db.User.forge()
                 .where("role", Const.ROLE_CLINIC)
                 .fetchAll()
@@ -106,6 +106,36 @@ module.exports = function (app, express) {
                     res.json(responseObj);
                 });
         }
+    });
+    // create user for admin
+    apiRouter.post("/create", function (req, res) {
+        var username = req.body.username;
+        var phoneNumber = req.body.phoneNumber;
+        var role = req.body.role;
+        db.User.forge({ "username": username })
+            .fetch()
+            .then(function (collection) {
+                var responseObj;
+                if (collection == null) {
+                    db.User.forge({ 'username': username, 'password': '123456', 'phoneNumber': phoneNumber, 'role': role, 'isActive': '1' })
+                        .save()
+                        .then(function (collection) {
+                            responseObj = utils.makeResponse(true, collection.toJSON(), null);
+                            res.json(responseObj);
+                        })
+                        .catch(function (err) {
+                            responseObj = utils.makeResponse(false, null, err.message);
+                            res.json(responseObj);
+                        });
+                } else {
+                    responseObj = utils.makeResponse(true, collection.toJSON(), null);
+                    res.json(responseObj);
+                }
+            })
+            .catch(function (err) {
+                var responseObj = utils.makeResponse(false, null, err.message);
+                res.json(responseObj);
+            });
     });
     return apiRouter;
 };
