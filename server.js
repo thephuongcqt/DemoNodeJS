@@ -23,8 +23,8 @@ app.use(function (req, res, next) {
     next();
 });
 /////////////////////////////////////////////////////////////////////////
-// require to UsersController
-var usersController = require("./Controller/UsersController");
+// // require to UsersController
+// var usersController = require("./Controller/UserController");
 // require to AppointmentController
 var appointmentController = require("./Controller/AppointmentController")(app, express);
 // require to AppointmentController
