@@ -26,6 +26,22 @@ module.exports = function (app, express) {
             });
     });
 
+    apiRouter.post("/changePassword", function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+        var newPassword = req.body.newPassword;
+        db.User.where({ "username": username, "password": password })
+            .save({ "password": newPassword }, { patch: true })
+            .then(function (model) {
+                var responseObj = utils.makeResponse(true, null, null);
+                res.json(responseObj);
+            })
+            .catch(function (err) {
+                var responseObj = utils.makeResponse(false, false, "Incorrect username or password");
+                res.json(responseObj);
+            });
+    });
+
     // apiRouter.get("/getAll", function (req, res) {
     //     db.User.forge()
     //         .fetchAll()
@@ -39,21 +55,7 @@ module.exports = function (app, express) {
     //         });
     // });
     // // change password
-    // apiRouter.post("/changePassword", function (req, res) {
-    //     var username = req.body.username;
-    //     var password = req.body.password;
-    //     var newPassword = req.body.newPassword;
-    //     db.User.where({ "username": username, "password": password })
-    //         .save({ "password": newPassword }, { patch: true })
-    //         .then(function (model) {
-    //             var responseObj = utils.makeResponse(true, null, null);
-    //             res.json(responseObj);
-    //         })
-    //         .catch(function (err) {
-    //             var responseObj = utils.makeResponse(false, false, "Incorrect username or password");
-    //             res.json(responseObj);
-    //         });
-    // });
+    
     // // get all admin from database
     // apiRouter.get("/getAllAdmin", function (req, res) {
     //     db.User.forge()

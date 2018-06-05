@@ -13,20 +13,21 @@ module.exports = function (app, express) {
         db.User.where({ "username": username, "password": password })
             .fetch()
             .then(function (collection) {
+                var user = collection.toJSON();
                 if (collection == null) {
                     var responseObj = utils.makeResponse(false, false, "Incorrect username or password");
                     res.json(responseObj);
                 } else {
                     db.Clinic.where({ "username": username })
                         .save({ "address": address, "clinicName": clinicName }, { patch: true })
-                        .then(function (model) {
-                            res.json(utils.makeResponse(true, null, null));
+                        .then(function (model) {                                                        
+                            res.json(utils.makeResponse(true, model.toJSON(), null));
                         })
                         .catch(function (err) {
                             var responseObj = utils.makeResponse(false, false, err);
                             res.json(responseObj);
                         });
-                        
+
                 }
             })
             .catch(function (err) {
