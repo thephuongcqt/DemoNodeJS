@@ -44,10 +44,50 @@ var test = function(){
     //     })       
 
     
-    new db.License({"licenseID": 1})        
-        .fetch({withRelated: ["bills"]})
-        .then(function(license){
-            console.log(license.toJSON());            
+    // new db.License({"licenseID": 1})        
+    //     .fetch({withRelated: ["bills"]})
+    //     .then(function(license){
+    //         console.log(license.toJSON());            
+    //     })
+    //     .catch(function(err){
+    //         console.log(err);
+    //     })
+
+    // new db.Clinic({"username": "hoanghoa"})
+    //     .related("workingHours")
+    //     .fetch()
+    //     .then(function(model){
+    //         console.log(model.toJSON());
+    //     })
+    //     .catch(function(err){
+    //         console.log(err);
+    //     })
+
+
+    // new db.Clinic({"username": "hoanghoa"})        
+    //     .fetch({withRelated: ["workingHours"]})
+    //     .then(function(model){
+    //         console.log(model.toJSON());
+    //     })
+    //     .catch(function(err){
+    //         console.log(err);
+    //     })
+
+    new db.Clinic({"username": "hoanghoa"})        
+        .fetch({withRelated: ["appointments"]})
+        .then(function(model){
+            var clinic = model.toJSON();                        
+            for(var i in clinic.appointments){
+                var appointment = clinic.appointments[i];                
+                new db.Appointment(appointment)
+                .fetch({withRelated: ["patient"]})
+                .then(function(appointment){
+                    console.log(appointment.toJSON());
+                })
+                .catch(function(err){
+                    console.log(err);
+                })
+            }
         })
         .catch(function(err){
             console.log(err);

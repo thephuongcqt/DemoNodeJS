@@ -27,6 +27,10 @@ var db = {
 
   Appointment: bookshelf.Model.extend({
     tableName: 'tbl_appointment',
+    patient: function(){
+      return this.hasOne(db.Patient, 'patientID', 'patientID');
+    },
+    
   }),
 
   Bill: bookshelf.Model.extend({
@@ -40,7 +44,14 @@ var db = {
     tableName: 'tbl_clinic',
     user: function () {
       return this.belongsTo(db.User, 'username', "username");
-    }    
+    },
+    workingHours: function(){
+      return this.hasMany(db.WorkingHours, 'clinicUsername', 'username');
+    },
+    appointments: function(){
+      return this.hasMany(db.Appointment, 'clinicUsername', 'username');
+    },
+
   }),
 
   License: bookshelf.Model.extend({
@@ -51,7 +62,10 @@ var db = {
   }),
 
   WorkingHours: bookshelf.Model.extend({
-    tableName: 'tbl_working_hours'
+    tableName: 'tbl_working_hours',
+    clinic: function(){
+      return this.belongsTo(db.Clinic, 'username', 'clinicUsername');
+    }
   }),
 
   Patient: bookshelf.Model.extend({
