@@ -20,7 +20,7 @@ module.exports = function (app, express) {
                 } else {
                     db.Clinic.where({ "username": username })
                         .save({ "address": address, "clinicName": clinicName }, { patch: true })
-                        .then(function (model) {                                                        
+                        .then(function (model) {
                             res.json(utils.makeResponse(true, model.toJSON(), null));
                         })
                         .catch(function (err) {
@@ -91,7 +91,7 @@ module.exports = function (app, express) {
                     res.json(utils.makeResponse(false, null, "Incorrect username or password!"));
                 } else {
                     var clinic = model.toJSON();
-                    if (clinic.role === Const.ROLE_CLINIC) {                        
+                    if (clinic.role === Const.ROLE_CLINIC) {
                         clinic.clinicName = clinic.clinic.clinicName;
                         clinic.address = clinic.clinic.address;
                         delete clinic.clinic;
@@ -108,6 +108,18 @@ module.exports = function (app, express) {
                 res.json(responseObj);
             });
     });
-
+    // get appointment of clinic
+    apiRouter.get("/appointment", function (req, res) {
+        var username = req.query.username;
+        new db.Clinic({ "username": username })
+            .fetch({ withRelated: ["appointments"] })
+            .then(function (model) {
+                var clinic = model.toJSON();
+                res.json(utils.makeResponse(true, clinic, null));
+            })
+            .catch(function (err) {
+                console.log(err);
+            })
+    });
     return apiRouter;
 }
