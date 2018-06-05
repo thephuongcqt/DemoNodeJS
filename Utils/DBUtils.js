@@ -11,6 +11,7 @@ const knex = require('knex')({
   }
 });
 const bookshelf = require('bookshelf')(knex);
+bookshelf.plugin(require('bookshelf-relationships'));
 
 var db = {
   knex: knex,
@@ -18,23 +19,35 @@ var db = {
   bookshelf: bookshelf,
 
   User: bookshelf.Model.extend({
-    tableName: 'tbl_user'
+    tableName: 'tbl_user',
+    clinic: function () {
+      return this.hasOne(db.Clinic, 'username', "username");
+    }
   }),
 
   Appointment: bookshelf.Model.extend({
-    tableName: 'tbl_appointment'
+    tableName: 'tbl_appointment',
   }),
 
   Bill: bookshelf.Model.extend({
-    tableName: 'tbl_bill'
+    tableName: 'tbl_bill',
+    license: function(){
+      return this.belongsTo(db.License, "licenseID", "licenseID");
+    }
   }),
 
   Clinic: bookshelf.Model.extend({
-    tableName: 'tbl_clinic'
+    tableName: 'tbl_clinic',
+    user: function () {
+      return this.belongsTo(db.User, 'username', "username");
+    }    
   }),
 
   License: bookshelf.Model.extend({
-    tableName: 'tbl_license'
+    tableName: 'tbl_license',
+    bills: function(){
+      return this.hasMany(db.Bill, "licenseID", "licenseID");
+    }
   }),
 
   WorkingHours: bookshelf.Model.extend({
