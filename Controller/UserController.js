@@ -186,12 +186,12 @@ module.exports = function (app, express) {
                                             res.json(output);
                                         })
                                         .catch(function (err) {
-                                            responseObj = utils.makeResponse(false, false, err.message);
+                                            responseObj = utils.makeResponse(false, null, err.message);
                                             res.json(responseObj);
                                         })
                                 })
                                 .catch(function (err) {
-                                    responseObj = utils.makeResponse(false, false, err.message);
+                                    responseObj = utils.makeResponse(false, null, err.message);
                                     res.json(responseObj);
                                 });
                         } else if (collection.attributes.role == 0) {
@@ -205,7 +205,7 @@ module.exports = function (app, express) {
                     });
             })
             .catch(function (err) {
-                responseObj = utils.makeResponse(false, false, err.message);
+                responseObj = utils.makeResponse(false, null, err.message);
                 res.json(responseObj);
             });
     });
@@ -243,13 +243,13 @@ module.exports = function (app, express) {
                             res.json(responseObj);
                         })
                         .catch(function (err) {
-                            responseObj = utils.makeResponse(false, false, err.message);
+                            responseObj = utils.makeResponse(false, null, err.message);
                             res.json(responseObj);
                         });
                 }
             })
             .catch(function (err) {
-                responseObj = utils.makeResponse(false, false, err.message);
+                responseObj = utils.makeResponse(false, null, err.message);
                 res.json(responseObj);
             });
     });

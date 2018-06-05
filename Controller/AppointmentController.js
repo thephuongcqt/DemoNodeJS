@@ -20,8 +20,7 @@ module.exports = function(app, express){
 
     apiRouter.get("/findAppointmentForClinic", function(req, res){
         var clinicUsername = req.query.clinicUsername;
-        var sql = "SELECT * FROM tbl_appointment WHERE clinicUsername = '" + clinicUsername + "' AND DATE(appointmentTime) = CURRENT_DATE()";
-        // db.Appointment.where("clinicUsername", "=", clinicUsername)
+        var sql = "SELECT * FROM tbl_appointment WHERE clinicUsername = '" + clinicUsername + "' AND DATE(appointmentTime) = CURRENT_DATE()";        
         db.knex.raw(sql)
         .then(function(collection){
             result = collection[0];                
