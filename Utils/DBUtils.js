@@ -29,8 +29,7 @@ var db = {
     tableName: 'tbl_appointment',
     patient: function(){
       return this.hasOne(db.Patient, 'patientID', 'patientID');
-    },
-    
+    },    
   }),
 
   Bill: bookshelf.Model.extend({

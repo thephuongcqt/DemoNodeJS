@@ -73,24 +73,33 @@ var test = function(){
     //         console.log(err);
     //     })
 
-    new db.Clinic({"username": "hoanghoa"})        
-        .fetch({withRelated: ["appointments"]})
-        .then(function(model){
-            var clinic = model.toJSON();                        
-            for(var i in clinic.appointments){
-                var appointment = clinic.appointments[i];                
-                new db.Appointment(appointment)
-                .fetch({withRelated: ["patient"]})
-                .then(function(appointment){
-                    console.log(appointment.toJSON());
-                })
-                .catch(function(err){
-                    console.log(err);
-                })
-            }
-        })
-        .catch(function(err){
-            console.log(err);
-        })
+    // new db.Clinic({"username": "hoanghoa"})        
+    //     .fetch({withRelated: ["appointments"]})
+    //     .then(function(model){
+    //         var clinic = model.toJSON();                        
+    //         for(var i in clinic.appointments){
+    //             var appointment = clinic.appointments[i];                
+    //             new db.Appointment(appointment)
+    //             .fetch({withRelated: ["patient"]})
+    //             .then(function(appointment){
+    //                 console.log(appointment.toJSON());
+    //             })
+    //             .catch(function(err){
+    //                 console.log(err);
+    //             })
+    //         }
+    //     })
+    //     .catch(function(err){
+    //         console.log(err);
+    //     })
+
+    new db.User({"username": "thuanpt", "password": "123456"})
+    .fetch({withRelated: ["clinic"]})
+    .then(function(model){
+        console.log(model.toJSON());
+    })
+    .catch(function(err){
+        console.log(err);
+    });
 };
 test();
