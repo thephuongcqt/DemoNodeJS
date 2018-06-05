@@ -88,7 +88,7 @@ module.exports = function (app, express) {
             .fetch({ withRelated: ["clinic"] })
             .then(function (model) {
                 if (model == null) {
-                    res.json(utils.makeResponse(false, null, "Sai tên đăng nhập hoặc mật khẩu"));
+                    res.json(utils.makeResponse(false, null, "Incorrect username or password!"));
                 } else {
                     var clinic = model.toJSON();
                     if (clinic.role === Const.ROLE_CLINIC) {                        
@@ -104,7 +104,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 console.log(err);
-                var responseObj = utils.makeResponse(false, null, "Sai tên đăng nhập hoặc mật khẩu");
+                var responseObj = utils.makeResponse(false, null, "Incorrect username or password!");
                 res.json(responseObj);
             });
     });
