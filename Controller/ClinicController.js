@@ -93,7 +93,7 @@ module.exports = function (app, express) {
                     var clinic = model.toJSON();
                     if (clinic.role === Const.ROLE_CLINIC) {                        
                         clinic.clinicName = clinic.clinic.clinicName;
-                        clinic.address = clinic.clinic.clinicName;
+                        clinic.address = clinic.clinic.address;
                         delete clinic.clinic;
                         delete clinic.password;
                         res.json(utils.makeResponse(true, clinic, null));
