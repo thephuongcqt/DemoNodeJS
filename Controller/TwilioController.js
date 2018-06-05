@@ -67,7 +67,7 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                         console.log(err.message);
                     });
             } else {
-                console.log("Make appoiontment faile: clinicphone:" + clinicPhone + " patientphone: " + patientPhone);
+                console.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone);
             }
         })
         .catch(function (err) {
@@ -94,13 +94,9 @@ module.exports = function (app, express) {
     apiRouter.post("/Recorded", function (req, res) {
         res.end();
         speechToText.getTextFromVoice(req.body.RecordingUrl, function (err, patientName) {
-            console.log("ERROR: " + err);
-            console.log("Transcript: " + patientName);
-
             client.calls(req.body.CallSid)
                 .fetch()
-                .then(call => {
-                    // console.log(call.from + " | " + call.to);
+                .then(call => {                    
                     makeAppointment(call.from, patientName, call.to);
                 })
                 .done();
