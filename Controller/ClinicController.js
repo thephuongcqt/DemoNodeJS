@@ -111,23 +111,24 @@ module.exports = function (app, express) {
     // get appointment of clinic
     apiRouter.get("/appointment", function (req, res) {
         var username = req.query.username;
-        var date = new Date(2018, 5, 4);
-        var parseDate = date.toDateString();
-        new db.Clinic({ "username": username })
-            .fetch({ withRelated: ["appointments"] })
-            .then(function (model) {
-                var clinics = model.toJSON();
-                var appointmentList = [];
-                for (var i in clinics.appointments){
-                    if(clinics.appointments[i].appointmentTime.toDateString() == parseDate){
-                        appointmentList.push(clinics.appointments[i]);
-                    }
+        var responseObj;
+        db.Clinic.forge()
+            .where("username", username)
+            .fetchAll({withRelated: ["appointments"]})
+            .then(function (collection) {
+                if (collection.length > 0) {
+                    
+                    
+                    console.log(collection);
+                    console.log();
+                } else {
+                    responseObj = utils.makeResponse(false, null, "This clinic is not exist");
+                    res.json(responseObj);
                 }
-                    console.log(appointmentList);
-
             })
             .catch(function (err) {
-                console.log(err);
+                responseObj = utils.makeResponse(false, null, err.message);
+                res.json(responseObj);
             });
     });
     return apiRouter;
