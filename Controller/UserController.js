@@ -14,7 +14,9 @@ module.exports = function (app, express) {
                 if (collection == null) {
                     responseObj = utils.makeResponse(false, null, "Incorrect username or password!");
                 } else {
-                    responseObj = utils.makeResponse(true, collection.toJSON(), null);
+                    var user = collection.toJSON();
+                    delete user.password;
+                    responseObj = utils.makeResponse(true, user, null);
                 }
                 res.json(responseObj)
             })

@@ -26,6 +26,7 @@ module.exports = function (app, express) {
                             var responseObj = utils.makeResponse(false, false, err);
                             res.json(responseObj);
                         });
+                        
                 }
             })
             .catch(function (err) {
@@ -89,8 +90,7 @@ module.exports = function (app, express) {
                     res.json(utils.makeResponse(false, null, "Sai tên đăng nhập hoặc mật khẩu"));
                 } else {
                     var clinic = model.toJSON();
-                    if (clinic.role === Const.ROLE_CLINIC) {
-                        // var result = new Object(user);
+                    if (clinic.role === Const.ROLE_CLINIC) {                        
                         clinic.clinicName = clinic.clinic.clinicName;
                         clinic.address = clinic.clinic.clinicName;
                         delete clinic.clinic;
