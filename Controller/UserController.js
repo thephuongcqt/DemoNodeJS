@@ -37,7 +37,7 @@ module.exports = function (app, express) {
                 res.json(responseObj);
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, false, "Incorrect username or password");
+                var responseObj = utils.makeResponse(false, null, "Incorrect username or password");
                 res.json(responseObj);
             });
     });
