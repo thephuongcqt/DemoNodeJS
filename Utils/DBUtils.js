@@ -11,7 +11,6 @@ const knex = require('knex')({
   }
 });
 const bookshelf = require('bookshelf')(knex);
-bookshelf.plugin(require('bookshelf-relationships'));
 
 var db = {
   knex: knex,
