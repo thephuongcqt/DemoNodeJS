@@ -22,7 +22,7 @@ module.exports = function(app, express){
         var clinicUsername = req.query.clinicUsername;
         var sql = "SELECT * FROM tbl_appointment WHERE clinicUsername = '" + clinicUsername + "' AND DATE(appointmentTime) = CURRENT_DATE()";
         // db.Appointment.where("clinicUsername", "=", clinicUsername)
-        db.knex.raw(sql)        
+        db.knex.raw(sql)
         .then(function(collection){
             result = collection[0];                
             if(result.length > 0){  

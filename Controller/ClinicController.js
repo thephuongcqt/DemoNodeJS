@@ -42,20 +42,20 @@ module.exports = function (app, express) {
             .then(function (collection) {
                 var userList = collection.toJSON();
                 var usernames = [];
-                for(var i in userList){
+                for (var i in userList) {
                     usernames.push(userList[i].username);
-                }                
-                db.Clinic.forge( )
+                }
+                db.Clinic.forge()
                     .where("username", "in", usernames)
                     .fetchAll()
                     .then(function (result) {
                         var clinics = result.toJSON();
                         var clinicList = []
-                        for(var i in clinics){
+                        for (var i in clinics) {
                             var clinic = clinics[i];
-                            for(var j in userList){
+                            for (var j in userList) {
                                 var user = userList[j];
-                                if(clinic.username == user.username){
+                                if (clinic.username == user.username) {
                                     user.address = clinic.address;
                                     user.clinicName = clinic.clinicName;
                                     user.password = "";
@@ -76,6 +76,37 @@ module.exports = function (app, express) {
                 var responseObj = utils.makeResponse(false, null, err.message);
                 res.json(responseObj);
             });
-    })
+    });
+
+    apiRouter.post("/Login", function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+
+        new db.User({ "username": username, "password": password })
+            .fetch({ withRelated: ["clinic"] })
+            .then(function (model) {
+                if (model == null) {
+                    res.json(utils.makeResponse(false, null, "Sai tên đăng nhập hoặc mật khẩu"));
+                } else {
+                    var clinic = model.toJSON();
+                    if (clinic.role === Const.ROLE_CLINIC) {
+                        // var result = new Object(user);
+                        clinic.clinicName = clinic.clinic.clinicName;
+                        clinic.address = clinic.clinic.clinicName;
+                        delete clinic.clinic;
+                        delete clinic.password;
+                        res.json(utils.makeResponse(true, clinic, null));
+                    } else {
+                        res.json(utils.makeResponse(false, null, "Access denied"));
+                    }
+                }
+            })
+            .catch(function (err) {
+                console.log(err);
+                var responseObj = utils.makeResponse(false, null, "Sai tên đăng nhập hoặc mật khẩu");
+                res.json(responseObj);
+            });
+    });
+
     return apiRouter;
 }

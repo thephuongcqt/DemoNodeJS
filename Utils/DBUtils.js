@@ -18,27 +18,52 @@ var db = {
   bookshelf: bookshelf,
 
   User: bookshelf.Model.extend({
-    tableName: 'tbl_user'
+    tableName: 'tbl_user',
+    clinic: function () {
+      return this.hasOne(db.Clinic, 'username', "username");
+    }
   }),
 
   Appointment: bookshelf.Model.extend({
-    tableName: 'tbl_appointment'
+    tableName: 'tbl_appointment',
+    patient: function(){
+      return this.hasOne(db.Patient, 'patientID', 'patientID');
+    },    
   }),
 
   Bill: bookshelf.Model.extend({
-    tableName: 'tbl_bill'
+    tableName: 'tbl_bill',
+    license: function(){
+      return this.belongsTo(db.License, "licenseID", "licenseID");
+    }
   }),
 
   Clinic: bookshelf.Model.extend({
-    tableName: 'tbl_clinic'
+    tableName: 'tbl_clinic',
+    user: function () {
+      return this.belongsTo(db.User, 'username', "username");
+    },
+    workingHours: function(){
+      return this.hasMany(db.WorkingHours, 'clinicUsername', 'username');
+    },
+    appointments: function(){
+      return this.hasMany(db.Appointment, 'clinicUsername', 'username');
+    },
+
   }),
 
   License: bookshelf.Model.extend({
-    tableName: 'tbl_license'
+    tableName: 'tbl_license',
+    bills: function(){
+      return this.hasMany(db.Bill, "licenseID", "licenseID");
+    }
   }),
 
   WorkingHours: bookshelf.Model.extend({
-    tableName: 'tbl_working_hours'
+    tableName: 'tbl_working_hours',
+    clinic: function(){
+      return this.belongsTo(db.Clinic, 'username', 'clinicUsername');
+    }
   }),
 
   Patient: bookshelf.Model.extend({
