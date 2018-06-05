@@ -48,8 +48,11 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                                             body: patientName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + clinic.clinicName + ' ngày ' + timeAppointment,
                                             from: clinicPhone,
                                             to: patientPhone
-                                        }).then(messages => {
-                                        }).done();
+                                        }).then(messages => {})
+                                        .catch(function(err){
+                                            console.log(err);
+                                        })
+                                        .done();
                                         //////////////////////////////////////////////////////////////////////////////////////////////////////////
                                     })
                                     .catch(function (err) {
