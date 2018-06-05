@@ -15,7 +15,7 @@ module.exports = function (app, express) {
             .then(function (collection) {
                 var user = collection.toJSON();
                 if (collection == null) {
-                    var responseObj = utils.makeResponse(false, false, "Incorrect username or password");
+                    var responseObj = utils.makeResponse(false, null, "Incorrect username or password");
                     res.json(responseObj);
                 } else {
                     db.Clinic.where({ "username": username })
@@ -24,14 +24,14 @@ module.exports = function (app, express) {
                             res.json(utils.makeResponse(true, model.toJSON(), null));
                         })
                         .catch(function (err) {
-                            var responseObj = utils.makeResponse(false, false, err);
+                            var responseObj = utils.makeResponse(false, null, err);
                             res.json(responseObj);
                         });
 
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, false, "Incorrect username or password");
+                var responseObj = utils.makeResponse(false, null, "Incorrect username or password");
                 res.json(responseObj);
             });
     });
