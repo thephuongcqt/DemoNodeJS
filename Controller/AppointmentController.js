@@ -20,52 +20,37 @@ module.exports = function (app, express) {
 
     apiRouter.get("/findAppointmentForClinic", function (req, res) {
         var clinicUsername = req.query.clinicUsername;
-        db.Appointment.forge()
-            .where("clinicUsername", clinicUsername)
-            .fetchAll()
+        var sql = "SELECT * FROM tbl_appointment WHERE clinicUsername = '" + clinicUsername + "' AND DATE(appointmentTime) = CURRENT_DATE()";
+        db.knex.raw(sql)
             .then(function (collection) {
-                if (collection.length > 0) {
-                    var appointmentList = collection.toJSON();
-                    var patientIDs = [];
-                    for (var i in appointmentList) {
-                        patientIDs.push(appointmentList[i].patientID);
+                result = collection[0];
+                if (result.length > 0) {
+                    var tmp = [];
+                    for (var i in result) {
+                        tmp.push(result[i].patientID);
                     }
                     db.Patient.forge()
-                        .where("patientID", "in", patientIDs)
+                        .where("patientID", "in", tmp)
                         .fetchAll()
-                        .then(function (collection) {
-                            if (collection.length > 0) {
-                                var patients = collection.toJSON();
-                                var patientList = [];
-                                var date = new Date();
-                                var parseDate = date.toDateString();
-                                for (var i in patients) {
-                                    var patient = patients[i];
-                                    for (var j in appointmentList) {
-                                        var appointment = appointmentList[j];
-                                        if (appointment.patientID == patient.patientID) {
-                                            appointment.appointmentTime = appointment.appointmentTime.toDateString();
-                                            delete appointment.clinicUsername;
-                                            delete appointment.patientID;
-                                            appointment.patient = patient;
-                                        }
+                        .then(function (patientsResult) {
+                            var results = [];
+                            for (var i in result) {
+                                var tmpAppointment = JSON.parse(JSON.stringify(result[i]));
+                                // console.log(tmpAppointment);
+                                for (j in patientsResult.models) {
+                                    var tmpPatient = patientsResult.models[j].toJSON();
+                                    if (tmpAppointment.patientID == tmpPatient.patientID) {
+                                        tmpAppointment.patient = tmpPatient;
                                     }
-                                    patientList.push(appointment);
                                 }
-                                var responseObj = utils.makeResponse(true, patientList, null);
-                                res.json(responseObj);
-                            } else {
-                                var responseObj = utils.makeResponse(false, null, "This clinic does not have schedule appointments");
-                                res.json(responseObj);
+                                delete tmpAppointment.clinicUsername;
+                                delete tmpAppointment.patientID;
+                                results.push(tmpAppointment);
                             }
-                        })
-                        .catch(function (err) {
-                            var responseObj = utils.makeResponse(false, null, err.message);
-                            res.json(responseObj);
+                            res.json(utils.makeResponse(true, results, null));
                         });
                 } else {
-                    var responseObj = utils.makeResponse(false, null, "This clinic is not exist");
-                    res.json(responseObj);
+                    res.json(utils.makeResponse(false, null, "Không có cuộc hẹn nào"));
                 }
             })
             .catch(function (err) {
