@@ -1,8 +1,9 @@
 var Const = require("./Utils/Const");
 var db = require("./Utils/DBUtils");
 var utils = require("./Utils/Utils");
+var Moment = require('moment');
 
-var test = function(){
+var test = function () {
     // new db.License({"licenseID": 1})
     //     .fetch()
     //     .then(function(model){
@@ -43,7 +44,7 @@ var test = function(){
     //         console.log(model.toJSON());
     //     })       
 
-    
+
     // new db.License({"licenseID": 1})        
     //     .fetch({withRelated: ["bills"]})
     //     .then(function(license){
@@ -128,31 +129,74 @@ var test = function(){
     //     console.log(configWorking);
     //     // var startWorking = configWorking.startWorking;
     //     // var endWorking = configWorking.endWorking;
-        
+
     //     // console.log(startWorking + " | " + endWorking);
     // })
     // .catch(function(err){
     //     console.log(err.message);
     // })
 
-    new db.WorkingHours({"clinicUsername": clinicUsername, "applyDate": Const.Day.Mon})
-    .fetch({withRelated: ["clinic"]})
-    .then(function(model){        
-        var configClinic = model.toJSON();
-        var sql = "clinicUsername = ? AND DATE(appointmentTime) = CURRENT_DATE()";
-        db.knex("tbl_appointment")
-        .whereRaw(sql, [clinicUsername])
-        .count("* as count")
-        .then(function(collection){
-            var bookedAppointment = collection[0].count;
+
+    new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": Const.Day.Mon })
+        .fetch({ withRelated: ["clinic"] })
+        .then(function (model) {
+            var configClinic = model.toJSON();
+            var sql = "clinicUsername = ? AND DATE(appointmentTime) = CURRENT_DATE()";
+            db.knex("tbl_appointment")
+                .whereRaw(sql, [clinicUsername])
+                .count("* as count")
+                .then(function (collection) {
+                    var bookedAppointment = collection[0].count;
+
+                    var mStart = Moment(configClinic.startWorking, "HH:mm:ss");
+                    // var mEnd = Moment(configClinic.endWorking, "HH:mm:ss");
+                    // var mDuration = Moment(configClinic.clinic.examinationDuration, "HH:mm:ss");
+
+                    // var miliseconds = getTotalDuration(bookedAppointment + 1, mDuration);
+
+                    // var mExpectation = Moment(configClinic.startWorking, "HH:mm:ss");
+                    // mExpectation.add(miliseconds, "milliseconds");
+
+                    // if (mExpectation <= mEnd) {
+                    //     console.log(mExpectation);
+                    // }
+                    var result = getExpectationTime(configClinic.startWorking, configClinic.endWorking, bookedAppointment, configClinic.clinic.examinationDuration);
+                    console.log(mStart.toDate());
+                    console.log(result);
+                })
+                .catch(function (err) {
+                    console.log(err.message);
+                })
         })
-        .catch(function(err){
+        .catch(function (err) {
             console.log(err.message);
-        })
-    })
-    .catch(function(err){
-        console.log(err.message);
-    });
-    
+        });
+
 };
 test();
+
+function miliseconds(hours, minutes, seconds) {
+    return ((hours * 60 * 60 + minutes * 60 + seconds) * 1000);
+}
+
+function getTotalDuration(count, duration) {
+    var times = miliseconds(duration.hour(), duration.minute(), duration.second());
+    return count * times;
+}
+
+function getExpectationTime(startWorking, endWorking, count, duration) {
+    var mStart = Moment(startWorking, "HH:mm:ss");
+    var mEnd = Moment(endWorking, "HH:mm:ss");
+    var mDuration = Moment(duration, "HH:mm:ss");
+
+    var miliseconds = getTotalDuration(count + 1, mDuration);
+
+    var mExpectation = Moment(startWorking, "HH:mm:ss");
+    mExpectation.add(miliseconds, "milliseconds");
+
+    if (mExpectation <= mEnd) {
+        return mExpectation.toDate();
+    }
+    return null;
+}
+
