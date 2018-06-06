@@ -108,28 +108,80 @@ module.exports = function (app, express) {
                 res.json(responseObj);
             });
     });
-    // get appointment of clinic
-    apiRouter.get("/appointment", function (req, res) {
-        var username = req.query.username;
-        var responseObj;
-        db.Clinic.forge()
-            .where("username", username)
-            .fetchAll({withRelated: ["appointments"]})
-            .then(function (collection) {
-                if (collection.length > 0) {
-                    
-                    
-                    console.log(collection);
-                    console.log();
+    // register
+    apiRouter.post("/register", async function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+        var clinicName = req.body.clinicName;
+        var address = req.body.address;
+        var expiredLicense = req.body.expiredLicense;
+        await new db.User({ "username": username })
+            .fetch({ withRelated: ["clinic"] })
+            .then(async function (model) {
+                if (model == null) {
+                    await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0 })
+                        .then(async function (model) {
+                            await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": 3000, "expiredLicense": null })
+                                .then(function (model) {
+                                    var responseObj = utils.makeResponse(true, "Register Success", null);
+                                    res.json(responseObj);
+                                })
+                                .catch(function (err) {
+                                    var responseObj = utils.makeResponse(false, null, err.message);
+                                    res.json(responseObj);
+                                });
+                        })
                 } else {
-                    responseObj = utils.makeResponse(false, null, "This clinic is not exist");
+                    var responseObj = utils.makeResponse(false, null, "Username have exist");
                     res.json(responseObj);
                 }
             })
             .catch(function (err) {
-                responseObj = utils.makeResponse(false, null, err.message);
+                var responseObj = utils.makeResponse(false, null, err.message);
                 res.json(responseObj);
             });
+    });
+
+    // get appointment of clinic
+    apiRouter.get("/appointment", async function (req, res) {
+        var username = req.query.username;
+        await new db.Clinic({ "username": username })
+            .fetch({ withRelated: ["appointments"] })
+            .then(async function (model) {
+                if (model != null) {
+                    var clinic = model.toJSON();
+                    var listAppointment = [];
+                    var date = new Date().toDateString();
+                    for (var i in clinic.appointments) {
+                        var appointmentList = clinic.appointments[i];
+                        await new db.Appointment(appointmentList)
+                            .fetch({ withRelated: ["patient"] })
+                            .then(function (appointmentList) {
+                                appointmentList = appointmentList.toJSON();
+                                var dateAppointment = appointmentList.appointmentTime.toDateString();
+                                appointmentList.appointmentTime = dateAppointment;
+                                if (dateAppointment == date) {
+                                    delete appointmentList.patientID;
+                                    delete appointmentList.clinicUsername;
+                                    listAppointment.push(appointmentList);
+                                }
+                            })
+                            .catch(function (err) {
+                                var responseObj = utils.makeResponse(false, null, err.message);
+                                res.json(responseObj);
+                            });
+                    }
+                    var responseObj = utils.makeResponse(true, listAppointment, null);
+                    res.json(responseObj);
+                } else {
+                    var responseObj = utils.makeResponse(false, null, "This clinic have not exist");
+                    res.json(responseObj);
+                }
+            })
+            .catch(function (err) {
+                var responseObj = utils.makeResponse(false, null, err.message);
+                res.json(responseObj);
+            })
     });
     return apiRouter;
 }
