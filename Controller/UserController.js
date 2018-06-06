@@ -151,6 +151,38 @@ module.exports = function (app, express) {
                 res.json(responseObj);
             });
     });
+    // update information
+    apiRouter.post("/update", function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+        var phoneNumber = req.body.phoneNumber;
+        var role = req.body.role;
+        var isActive = req.body.isActive;
+        db.User.where({ "username": username })
+            .fetch()
+            .then(function (collection) {
+                var user = collection.toJSON();
+                if (collection == null) {
+                    var responseObj = utils.makeResponse(false, null, "Username is not exist");
+                    res.json(responseObj);
+                } else {
+                    db.User.where({ "username": username })
+                        .save({ "password": password, "phoneNumber": phoneNumber, "role": role, "isActive": isActive }, { patch: true })
+                        .then(function (model) {
+                            delete model.password;
+                            res.json(utils.makeResponse(true, "Update successfull", null));
+                        })
+                        .catch(function (err) {
+                            var responseObj = utils.makeResponse(false, null, err.message);
+                            res.json(responseObj);
+                        });
+                }
+            })
+            .catch(function (err) {
+                var responseObj = utils.makeResponse(false, null, err.message);
+                res.json(responseObj);
+            });
+    });
     // delete account
     apiRouter.get("/delete", function (req, res) {
         var username = req.query.username;

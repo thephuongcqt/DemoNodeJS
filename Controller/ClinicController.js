@@ -27,7 +27,6 @@ module.exports = function (app, express) {
                             var responseObj = utils.makeResponse(false, null, err);
                             res.json(responseObj);
                         });
-
                 }
             })
             .catch(function (err) {
@@ -35,7 +34,6 @@ module.exports = function (app, express) {
                 res.json(responseObj);
             });
     });
-
 
     apiRouter.get("/getAllClinic", function (req, res) {
         db.User.forge()
