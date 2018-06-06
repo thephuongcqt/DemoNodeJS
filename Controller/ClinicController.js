@@ -141,25 +141,7 @@ module.exports = function (app, express) {
                 res.json(responseObj);
             });
     });
-    //check duplicate username
-    apiRouter.get("/checkDuplicate", function (req, res) {
-        var username = req.query.username;
-        db.User.where({ "username": username })
-            .fetch()
-            .then(function (collection) {
-                if (collection == null) {
-                    var responseObj = utils.makeResponse(false, null, "This account is available");
-                    res.json(responseObj);;
-                } else {
-                    var responseObj = utils.makeResponse(true, "This account have been exist", null);
-                    res.json(responseObj);
-                }
-            })
-            .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
-            });
-    });
+    
 
     // get appointment of clinic
     apiRouter.get("/appointment", async function (req, res) {
