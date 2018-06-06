@@ -32,7 +32,6 @@ module.exports = function (app, express) {
             });
     });
 
-
     apiRouter.get("/getAllClinic", function (req, res) {
         db.User.forge()
             .where("role", Const.ROLE_CLINIC)
