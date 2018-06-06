@@ -1,13 +1,4 @@
 var utils = {
-    // makeResponse: function(success, value, error) {
-    //     var response = {
-    //         "status": success,
-    //         "value": value,
-    //         "error": error
-    //     };
-    //     return response;
-    // },
-
     responseFailure: function(error){
         var response = {
             "status": false,
@@ -18,11 +9,11 @@ var utils = {
     },
     responseSuccess: function(value){
         var response = {
-            "status": false,
+            "status": true,
             "value": value,
             "error": null
         };
-        return response;   
+        return response;
     }
 }
 module.exports = utils;
