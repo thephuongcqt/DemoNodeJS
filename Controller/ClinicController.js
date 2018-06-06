@@ -14,24 +14,21 @@ module.exports = function (app, express) {
             .fetch()
             .then(function (collection) {
                 var user = collection.toJSON();
-                if (collection == null) {
-                    var responseObj = utils.makeResponse(false, null, "Incorrect username or password");
-                    res.json(responseObj);
+                if (collection == null) {                    
+                    res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
                 } else {
                     db.Clinic.where({ "username": username })
                         .save({ "address": address, "clinicName": clinicName }, { patch: true })
-                        .then(function (model) {
-                            res.json(utils.makeResponse(true, model.toJSON(), null));
+                        .then(function (model) {                            
+                            res.json(utils.responseSuccess(model.toJSON()));
                         })
                         .catch(function (err) {
-                            var responseObj = utils.makeResponse(false, null, err);
-                            res.json(responseObj);
+                            res.json(utils.responseFailure(err.message));
                         });
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, "Incorrect username or password");
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
 
@@ -62,19 +59,16 @@ module.exports = function (app, express) {
                                     clinicList.push(user);
                                 }
                             }
-                        }
-                        var responseObj = utils.makeResponse(true, clinicList, null);
-                        res.json(responseObj)
+                        }                        
+                        res.json(utils.responseSuccess(clinicList));
                     })
                     .catch(function (err) {
-                        var responseObj = utils.makeResponse(false, null, err.message);
-                        res.json(responseObj);
+                        res.json(utils.responseFailure(err.message));
                     })
 
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
 
@@ -86,24 +80,22 @@ module.exports = function (app, express) {
             .fetch({ withRelated: ["clinic"] })
             .then(function (model) {
                 if (model == null) {
-                    res.json(utils.makeResponse(false, null, "Incorrect username or password!"));
+                    res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
                 } else {
                     var clinic = model.toJSON();
                     if (clinic.role === Const.ROLE_CLINIC) {
                         clinic.clinicName = clinic.clinic.clinicName;
                         clinic.address = clinic.clinic.address;
                         delete clinic.clinic;
-                        delete clinic.password;
-                        res.json(utils.makeResponse(true, clinic, null));
+                        delete clinic.password;                                                
+                        res.json(utils.responseSuccess(clinic));
                     } else {
-                        res.json(utils.makeResponse(false, null, "Access denied"));
+                        res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
                     }
                 }
             })
             .catch(function (err) {
-                console.log(err);
-                var responseObj = utils.makeResponse(false, null, "Incorrect username or password!");
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     // register
@@ -120,23 +112,19 @@ module.exports = function (app, express) {
                     await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0 })
                         .then(async function (model) {
                             await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": 3000, "expiredLicense": null })
-                                .then(function (model) {
-                                    var responseObj = utils.makeResponse(true, "Register Success", null);
-                                    res.json(responseObj);
+                                .then(function (model) {                                    
+                                    res.json(utils.responseSuccess("Register Success"));
                                 })
                                 .catch(function (err) {
-                                    var responseObj = utils.makeResponse(false, null, err.message);
-                                    res.json(responseObj);
+                                    res.json(utils.responseFailure(err.message));
                                 });
                         })
-                } else {
-                    var responseObj = utils.makeResponse(false, null, "Username have exist");
-                    res.json(responseObj);
+                } else {                    
+                    res.json(utils.responseFailure("Username have exist"));
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     
@@ -165,22 +153,18 @@ module.exports = function (app, express) {
                                     listAppointment.push(appointmentList);
                                 }
                             })
-                            .catch(function (err) {
-                                var responseObj = utils.makeResponse(false, null, err.message);
-                                res.json(responseObj);
+                            .catch(function (err) {                                
+                                res.json(utils.responseFailure(err.message));
                             });
-                    }
-                    var responseObj = utils.makeResponse(true, listAppointment, null);
-                    res.json(responseObj);
+                    }                    
+                    res.json(utils.responseSuccess(listAppointment));
                 } else {
-                    var responseObj = utils.makeResponse(false, null, "This clinic have not exist");
-                    res.json(responseObj);
+                    res.json(utils.responseFailure("This clinic is not exist"));
                 }
             })
-            .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
-            })
+            .catch(function (err) {                
+                res.json(utils.responseFailure(err.message));                
+            });
     });
     return apiRouter;
 }

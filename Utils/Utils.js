@@ -1,9 +1,17 @@
 var utils = {
-    makeResponse: function(success, value, error) {
+    responseFailure: function(error){
         var response = {
-            "status": success,
-            "value": value,
+            "status": false,
+            "value": null,
             "error": error
+        };
+        return response;
+    },
+    responseSuccess: function(value){
+        var response = {
+            "status": true,
+            "value": value,
+            "error": null
         };
         return response;
     }

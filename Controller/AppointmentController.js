@@ -8,13 +8,11 @@ module.exports = function (app, express) {
     apiRouter.get("/getAll", function (req, res) {
         db.Appointment.forge()
             .fetchAll()
-            .then(function (collection) {
-                var responseObj = utils.makeResponse(true, collection.toJSON(), false);
-                res.json(responseObj);
+            .then(function (collection) {                
+                res.json(utils.responseSuccess(collection.toJSON()));
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, err.message, true);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
 
@@ -46,16 +44,15 @@ module.exports = function (app, express) {
                                 delete tmpAppointment.clinicUsername;
                                 delete tmpAppointment.patientID;
                                 results.push(tmpAppointment);
-                            }
-                            res.json(utils.makeResponse(true, results, null));
+                            }                            
+                            res.json(utils.responseSuccess(results));
                         });
-                } else {
-                    res.json(utils.makeResponse(false, null, "Không có cuộc hẹn nào"));
+                } else {                    
+                    res.json(utils.responseFailure("Không có cuộc hẹn nào"));
                 }
             })
-            .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+            .catch(function (err) {                
+                res.json(utils.responseFailure(err.message));
             });
     });
 
