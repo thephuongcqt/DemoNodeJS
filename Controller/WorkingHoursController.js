@@ -10,14 +10,14 @@ module.exports = function (app, express) {
             .fetch({ withRelated: ["clinic"] })
             .then(function (model) {
                 if (model == null) {
-                    res.json(utils.makeResponse(false, null, "This clinic is not exist!"));
+                    res.json(utils.responseFailure("This clinic is not exist!"));
                 } else {
                     var clinic = model.toJSON();
                     new db.Clinic({ "username": username })
                         .fetch({ withRelated: ["workingHours"] })
                         .then(function (model) {
                             if (model == null) {
-                                res.json(utils.makeResponse(false, null, "This clinic is not exist!"));
+                                res.json(utils.responseFailure("This clinic is not exist!"));
                             } else {
                                 var workingHours = model.toJSON();
                                 var workingHoursList = [];
@@ -25,19 +25,17 @@ module.exports = function (app, express) {
                                     var workList = workingHours.workingHours[i];
                                     workingHoursList.push(workList);
                                 }
-                                var responseObj = utils.makeResponse(true, workingHoursList, null);
-                                res.json(responseObj);
+                                
+                                res.json(utils.responseSuccess(workingHoursList))
                             }
                         })
                         .catch(function (err) {
-                            var responseObj = utils.makeResponse(false, null, err);
-                            res.json(responseObj);
+                            res.json(utils.responseFailure(err.message));                            
                         });
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     
@@ -52,35 +50,32 @@ module.exports = function (app, express) {
             .fetch({ withRelated: ["clinic"] })
             .then(function (model) {
                 if (model == null) {
-                    res.json(utils.makeResponse(false, null, "This clinic is not exist!"));
+                    res.json(utils.responseFailure("This clinic is not exist!"));                    
                 } else {
                     var clinic = model.toJSON();
                     new db.Clinic({ "username": username })
                         .fetch({ withRelated: ["workingHours"] })
                         .then(function (model) {
                             if (model == null) {
-                                res.json(utils.makeResponse(false, null, "This clinic is not exist!"));
+                                res.json(utils.responseFailure("This clinic is not exist!"));
                             } else {
                                 db.WorkingHours.where({ "clinicUsername": username })
                                     .save({ "starWorking": starWorking, "endWorking": endWorking, "applyDate": applyDate, "isDayOff": isDayOff }, { patch: true })
                                     .then(function (model) {
-                                        res.json(utils.makeResponse(true, model.toJSON(), null));
+                                        res.json(utils.responseSuccess(model.toJSON()));
                                     })
-                                    .catch(function (err) {
-                                        var responseObj = utils.makeResponse(false, null, err);
-                                        res.json(responseObj);
+                                    .catch(function (err) {                                        
+                                        res.json(utils.responseFailure(err.message));
                                     });
                             }
                         })
                         .catch(function (err) {
-                            var responseObj = utils.makeResponse(false, null, err.message);
-                            res.json(responseObj);
+                            res.json(utils.responseFailure(err.message));
                         });
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     return apiRouter;

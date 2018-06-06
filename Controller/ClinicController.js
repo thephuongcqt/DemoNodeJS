@@ -113,23 +113,19 @@ module.exports = function (app, express) {
                     await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0 })
                         .then(async function (model) {
                             await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": 3000, "expiredLicense": null })
-                                .then(function (model) {
-                                    var responseObj = utils.makeResponse(true, "Register Success", null);
-                                    res.json(responseObj);
+                                .then(function (model) {                                    
+                                    res.json(utils.responseSuccess("Register Success"));
                                 })
                                 .catch(function (err) {
-                                    var responseObj = utils.makeResponse(false, null, err.message);
-                                    res.json(responseObj);
+                                    res.json(utils.responseFailure(err.message));
                                 });
                         })
-                } else {
-                    var responseObj = utils.makeResponse(false, null, "Username have exist");
-                    res.json(responseObj);
+                } else {                    
+                    res.json(utils.responseFailure("Username have exist"));
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     
@@ -158,13 +154,11 @@ module.exports = function (app, express) {
                                     listAppointment.push(appointmentList);
                                 }
                             })
-                            .catch(function (err) {
-                                var responseObj = utils.makeResponse(false, null, err.message);
-                                res.json(responseObj);
+                            .catch(function (err) {                                
+                                res.json(utils.responseFailure(err.message));
                             });
-                    }
-                    var responseObj = utils.makeResponse(true, listAppointment, null);
-                    res.json(responseObj);
+                    }                    
+                    res.json(utils.responseSuccess(listAppointment));
                 } else {
                     res.json(utils.responseFailure("This clinic is not exist"));
                 }

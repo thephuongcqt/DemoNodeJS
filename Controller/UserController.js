@@ -12,22 +12,21 @@ module.exports = function (app, express) {
             .then(function (collection) {
                 var responseObj;
                 if (collection == null) {
-                    responseObj = utils.makeResponse(false, null, "Incorrect username or password!");
+                    responseObj = utils.responseFailure("Incorrect username or password!");
                 } else {
                     if (collection.attributes.role == 0 && collection.attributes.isActive != 0) {
                         var user = collection.toJSON();
                         delete user.password;
-                        responseObj = utils.makeResponse(true, user, null);
+                        responseObj = utils.responseSuccess(user);
                     }
                     else {
-                        responseObj = utils.makeResponse(false, null, "Incorrect username or password!");
+                        responseObj = utils.responseFailure("Incorrect username or password!");
                     }
                 }
                 res.json(responseObj)
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));                
             });
     });
 
@@ -38,12 +37,10 @@ module.exports = function (app, express) {
         db.User.where({ "username": username, "password": password })
             .save({ "password": newPassword }, { patch: true })
             .then(function (model) {
-                var responseObj = utils.makeResponse(true, null, null);
-                res.json(responseObj);
+                res.json(utils.responseSuccess(null));
             })
-            .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, "Incorrect username or password");
-                res.json(responseObj);
+            .catch(function (err) {                
+                res.json(utils.responseFailure("Incorrect username or password"));
             });
     });
 
@@ -52,13 +49,11 @@ module.exports = function (app, express) {
         db.User.forge()
             .where("role", Const.ROLE_ADMIN)
             .fetchAll()
-            .then(function (collection) {
-                var responseObj = utils.makeResponse(true, collection.toJSON(), null);
-                res.json(responseObj)
+            .then(function (collection) {                
+                res.json(utils.responseSuccess(collection.toJSON()));
             })
-            .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+            .catch(function (err) {                
+                res.json(utils.responseFailure(err.message));
             });
     });
     // get all user by role from database
@@ -68,12 +63,10 @@ module.exports = function (app, express) {
                 .where("role", Const.ROLE_ADMIN)
                 .fetchAll()
                 .then(function (collection) {
-                    var responseObj = utils.makeResponse(true, collection.toJSON(), null);
-                    res.json(responseObj)
+                    res.json(utils.responseSuccess(collection.toJSON()));
                 })
                 .catch(function (err) {
-                    var responseObj = utils.makeResponse(false, null, err.message);
-                    res.json(responseObj);
+                    res.json(utils.responseFailure(err.message));
                 });
         }
         else if (req.query.role == 1) {
@@ -81,24 +74,20 @@ module.exports = function (app, express) {
                 .where("role", Const.ROLE_CLINIC)
                 .fetchAll()
                 .then(function (collection) {
-                    var responseObj = utils.makeResponse(true, collection.toJSON(), null);
-                    res.json(responseObj)
+                    res.json(utils.responseSuccess(collection.toJSON()));
                 })
                 .catch(function (err) {
-                    var responseObj = utils.makeResponse(false, null, err.message);
-                    res.json(responseObj);
+                    res.json(utils.responseFailure(err.message));
                 });
         }
         else {
             db.User.forge()
                 .fetchAll()
                 .then(function (collection) {
-                    var responseObj = utils.makeResponse(true, collection.toJSON(), null);
-                    res.json(responseObj)
+                    res.json(utils.responseSuccess(collection.toJSON()));
                 })
                 .catch(function (err) {
-                    var responseObj = utils.makeResponse(false, null, err.message);
-                    res.json(responseObj);
+                    res.json(utils.responseFailure(err.message));
                 });
         }
     });
@@ -115,21 +104,17 @@ module.exports = function (app, express) {
                     db.User.forge({ 'username': username, 'password': '123456', 'phoneNumber': phoneNumber, 'role': role, 'isActive': '1' })
                         .save()
                         .then(function (collection) {
-                            responseObj = utils.makeResponse(true, collection.toJSON(), null);
-                            res.json(responseObj);
+                            res.json(utils.responseSuccess(collection.toJSON()));
                         })
                         .catch(function (err) {
-                            responseObj = utils.makeResponse(false, null, err.message);
-                            res.json(responseObj);
+                            res.json(utils.responseFailure(err.message));
                         });
                 } else {
-                    responseObj = utils.makeResponse(true, collection.toJSON(), null);
-                    res.json(responseObj);
+                    res.json(utils.responseSuccess(collection.toJSON()));
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     //check duplicate username
@@ -140,15 +125,13 @@ module.exports = function (app, express) {
             .then(function (collection) {
                 if (collection == null) {
                     var responseObj = utils.makeResponse(false, null, "This account is available");
-                    res.json(responseObj);;
-                } else {
-                    var responseObj = utils.makeResponse(true, "This account have been exist", null);
-                    res.json(responseObj);
+                    res.json(utils.responseFailure("This account is available"));
+                } else {                    
+                    res.json(utils.responseSuccess("This account have been exist"));
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     // delete account
@@ -165,34 +148,28 @@ module.exports = function (app, express) {
                             db.User.where({ "username": username })
                                 .destroy()
                                 .then(function (model) {
-                                    responseObj = utils.makeResponse(true, "Account have deleted", null);
-                                    res.json(responseObj);
+                                    res.json(utils.responseSuccess("Account have deleted"));
                                 })
                                 .catch(function (err) {
-                                    responseObj = utils.makeResponse(false, false, err.message);
-                                    res.json(responseObj);
+                                    res.json(utils.responseFailure(err.message));
                                 });
                         })
                         .catch(function (err) {
-                            responseObj = utils.makeResponse(false, false, err.message);
-                            res.json(responseObj);
+                            res.json(utils.responseFailure(err.message));
                         });
                 } else if (collection.attributes.role == 0) {
                     db.User.where({ "username": username })
                         .destroy()
                         .then(function (model) {
-                            responseObj = utils.makeResponse(true, "Account have deleted", null);
-                            res.json(responseObj);
+                            res.json(utils.responseSuccess("Account have deleted"));
                         })
                         .catch(function (err) {
-                            responseObj = utils.makeResponse(false, null, err.message);
-                            res.json(responseObj);
+                            res.json(utils.responseFailure(err.message));
                         });
                 }
             })
             .catch(function (err) {
-                responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     return apiRouter;
