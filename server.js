@@ -4,6 +4,7 @@ var userController = require("./Controller/UserController")(app, express);
 var twilioController = require("./Controller/TwilioController")(app, express);
 var clinicController = require("./Controller/ClinicController")(app, express);
 var workController = require("./Controller/WorkingHoursController")(app, express);
+var licenseController = require("./Controller/LicenseController")(app, express);
 // Add headers
 app.use(function (req, res, next) {
 
@@ -62,6 +63,8 @@ app.use("/user", userController);
 app.use("/twilio", twilioController);
 // route to Working Hours Controller
 app.use("/work", workController);
+// route to License Controller
+app.use("/license", licenseController)
 //////////////////////////////////////////////////////////////////////
 
 app.use("/", function(req, res){

@@ -64,7 +64,7 @@ var db = {
   WorkingHours: bookshelf.Model.extend({
     tableName: 'tbl_working_hours',
     clinic: function(){
-      return this.belongsTo(db.Clinic, 'username', 'clinicUsername');
+      return this.belongsTo(db.Clinic, 'clinicUsername', 'username');
     }
   }),
 

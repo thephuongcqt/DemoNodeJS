@@ -112,12 +112,47 @@ var test = function(){
     //             console.log(err);
     //         });
 
-    db.Appointment.query((q) =>{
-        q.where("clinicUsername", "=", clinicUsername),
-        q.where("appointmentTime", "<=", "CURRENT_DATE()") 
-    }).fetch({withRelated: ["patient"]})
-    .then(function(model){
-        console.log(model);        
+    // db.Appointment.query((q) =>{
+    //     q.where("clinicUsername", "=", clinicUsername),
+    //     q.where("appointmentTime", "<=", "CURRENT_DATE()") 
+    // }).fetch({withRelated: ["patient"]})
+    // .then(function(model){
+    //     console.log(model);        
+    // })
+
+
+    // new db.WorkingHours({"clinicUsername": clinicUsername, "applyDate": Const.Day.Mon})
+    // .fetch({withRelated: ["clinic"]})
+    // .then(function(model){
+    //     var configWorking = model.toJSON();
+    //     console.log(configWorking);
+    //     // var startWorking = configWorking.startWorking;
+    //     // var endWorking = configWorking.endWorking;
+        
+    //     // console.log(startWorking + " | " + endWorking);
+    // })
+    // .catch(function(err){
+    //     console.log(err.message);
+    // })
+
+    new db.WorkingHours({"clinicUsername": clinicUsername, "applyDate": Const.Day.Mon})
+    .fetch({withRelated: ["clinic"]})
+    .then(function(model){        
+        var configClinic = model.toJSON();
+        var sql = "clinicUsername = ? AND DATE(appointmentTime) = CURRENT_DATE()";
+        db.knex("tbl_appointment")
+        .whereRaw(sql, [clinicUsername])
+        .count("* as count")
+        .then(function(collection){
+            var bookedAppointment = collection[0].count;
+        })
+        .catch(function(err){
+            console.log(err.message);
+        })
     })
+    .catch(function(err){
+        console.log(err.message);
+    });
+    
 };
 test();
