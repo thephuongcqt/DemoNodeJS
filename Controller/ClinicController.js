@@ -14,12 +14,12 @@ module.exports = function (app, express) {
             .fetch()
             .then(function (collection) {
                 var user = collection.toJSON();
-                if (collection == null) {                    
+                if (collection == null) {
                     res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
                 } else {
                     db.Clinic.where({ "username": username })
                         .save({ "address": address, "clinicName": clinicName }, { patch: true })
-                        .then(function (model) {                            
+                        .then(function (model) {
                             res.json(utils.responseSuccess(model.toJSON()));
                         })
                         .catch(function (err) {
@@ -59,7 +59,7 @@ module.exports = function (app, express) {
                                     clinicList.push(user);
                                 }
                             }
-                        }                        
+                        }
                         res.json(utils.responseSuccess(clinicList));
                     })
                     .catch(function (err) {
@@ -87,7 +87,7 @@ module.exports = function (app, express) {
                         clinic.clinicName = clinic.clinic.clinicName;
                         clinic.address = clinic.clinic.address;
                         delete clinic.clinic;
-                        delete clinic.password;                                                
+                        delete clinic.password;
                         res.json(utils.responseSuccess(clinic));
                     } else {
                         res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
@@ -98,7 +98,7 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
             });
     });
-    
+
     // register
     apiRouter.post("/register", async function (req, res) {
         var username = req.body.username;
@@ -113,14 +113,14 @@ module.exports = function (app, express) {
                     await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0 })
                         .then(async function (model) {
                             await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": 3000, "expiredLicense": null })
-                                .then(function (model) {                                    
+                                .then(function (model) {
                                     res.json(utils.responseSuccess("Register Success"));
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err.message));
                                 });
                         })
-                } else {                    
+                } else {
                     res.json(utils.responseFailure("Username have exist"));
                 }
             })
@@ -128,7 +128,56 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
             });
     });
-    
+    // update information clinic
+    apiRouter.post("/update", function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+        var fullName = req.body.fullName;
+        var address = req.body.address;
+        var clinicName = req.body.clinicName;
+        var phoneNumber = req.body.phoneNumber;
+        var role = req.body.role;
+        var isActive = req.body.isActive;
+        db.User.where({ "username": username })
+            .fetch()
+            .then(function (collection) {
+                var user = collection.toJSON();
+                if (collection == null) {
+                    res.json(utils.responseFailure("Username is not exist"));
+                } else {
+                    db.User.where({ "username": username })
+                        .save({ "password": password, "fullName": fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive }, { patch: true })
+                        .then(function (model) {
+                            db.Clinic.where({ "username": username })
+                                .fetch()
+                                .then(function (collection) {
+                                    var user = collection.toJSON();
+                                    if (collection == null) {
+                                        res.json(utils.responseFailure("Username is not exist"));
+                                    } else {
+                                        db.Clinic.where({ "username": username })
+                                            .save({ "address": address, "clinicName": clinicName}, { patch: true })
+                                            .then(function (model) {
+                                                res.json(utils.responseSuccess("Update Clinic successfull"));
+                                            })
+                                            .catch(function (err) {
+                                                res.json(utils.responseFailure(err.message));
+                                            });
+                                    }
+                                })
+                                .catch(function (err) {
+                                    res.json(utils.responseFailure(err.message));
+                                });
+                        })
+                        .catch(function (err) {
+                            res.json(utils.responseFailure(err.message));
+                        });
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+            });
+    });
 
     // get appointment of clinic
     apiRouter.get("/appointment", async function (req, res) {
@@ -154,17 +203,17 @@ module.exports = function (app, express) {
                                     listAppointment.push(appointmentList);
                                 }
                             })
-                            .catch(function (err) {                                
+                            .catch(function (err) {
                                 res.json(utils.responseFailure(err.message));
                             });
-                    }                    
+                    }
                     res.json(utils.responseSuccess(listAppointment));
                 } else {
                     res.json(utils.responseFailure("This clinic is not exist"));
                 }
             })
-            .catch(function (err) {                
-                res.json(utils.responseFailure(err.message));                
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
             });
     });
     return apiRouter;
