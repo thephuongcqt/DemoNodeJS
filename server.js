@@ -29,8 +29,6 @@ app.use(function (req, res, next) {
 // var usersController = require("./Controller/UserController");
 // require to AppointmentController
 var appointmentController = require("./Controller/AppointmentController")(app, express);
-// require to AppointmentController
-var twilioControllers = require("./Controller/TwilioControllers");
 // parse request to json
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({
