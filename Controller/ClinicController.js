@@ -10,6 +10,7 @@ module.exports = function (app, express) {
         var password = req.body.password;
         var address = req.body.address;
         var clinicName = req.body.clinicName;
+        var examinationDuration = req.body.examinationDuration;
         db.User.where({ "username": username, "password": password })
             .fetch()
             .then(function (collection) {
@@ -18,7 +19,7 @@ module.exports = function (app, express) {
                     res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
                 } else {
                     db.Clinic.where({ "username": username })
-                        .save({ "address": address, "clinicName": clinicName }, { patch: true })
+                        .save({ "address": address, "clinicName": clinicName, "examinationDuration":examinationDuration }, { patch: true })
                         .then(function (model) {                            
                             res.json(utils.responseSuccess(model.toJSON()));
                         })
