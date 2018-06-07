@@ -22,7 +22,7 @@ module.exports = function (app, express) {
             .then(function (collection) {
                 var license = collection.toJSON();
                 if (collection == null) {
-                    res.json(utils.responseFailure("Create mot success"));
+                    res.json(utils.responseSuccess("Create mot success"));
                 } else {
                     res.json(utils.responseSuccess(collection.toJSON()));
                 }
