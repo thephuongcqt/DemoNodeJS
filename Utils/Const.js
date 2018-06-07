@@ -3,7 +3,8 @@ module.exports = {
     ROLE_CLINIC: 1,
     ACTIVATION: 1,
     DEACTIVATION: 0,
-
+    FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",
+    
     Day: {
         Sun: 0,
         Mon: 1,
