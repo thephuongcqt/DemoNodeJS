@@ -18,12 +18,12 @@ module.exports = {
         var mEnd = Moment(endWorking, "HH:mm:ss");
         var mDuration = Moment(duration, "HH:mm:ss");
     
-        var miliseconds = getTotalDuration(count + 1, mDuration);
+        var miliseconds = getTotalDuration(count, mDuration);
     
         var mExpectation = Moment(startWorking, "HH:mm:ss");
         mExpectation.add(miliseconds, "milliseconds");
         
-        if (mExpectation <= mEnd) {
+        if (mExpectation < mEnd) {
             return mExpectation.toDate();
             console.log(mExpectation);
         } else{
