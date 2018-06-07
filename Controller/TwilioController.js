@@ -44,13 +44,11 @@ module.exports = function (app, express) {
     return apiRouter;
 };
 
-function sendSMSToPatient(clinic, patient, appointment) {    
-    var timeAppointment = dateFormat(appointment.timeAppointment, "dd-mm-yyyy HH:MM");
-    var messageBody = patient.fullName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + clinic.clinic.clinicName + ' ngày ' + timeAppointment;
+function sendSMSToPatient(user, patient, appointment, messageBody) {        
     //  Send SMS to announcement appointment for patient has book successfull 
     client.messages.create({
         body: messageBody,
-        from: clinic.phoneNumber,
+        from: user.phoneNumber,
         to: patient.phoneNumber
     }).then(messages => { })
         .catch(function (err) {
@@ -59,13 +57,13 @@ function sendSMSToPatient(clinic, patient, appointment) {
         .done();
 }
 
-function saveDataWhenBookingSuccess(clinic, patient, bookedTime) {
+function saveDataWhenBookingSuccess(user, patient, bookedTime) {
     db.Patient.forge(patient)
         .save()
         .then(function (model) {
             var newPatient = model.toJSON();
             var newAppointment = {
-                "clinicUsername": clinic.username,
+                "clinicUsername": user.clinic.username,
                 "patientID": newPatient.id,
                 "appointmentTime": bookedTime,
             };
@@ -76,7 +74,9 @@ function saveDataWhenBookingSuccess(clinic, patient, bookedTime) {
                     var appointment = model.toJSON();
                     //need to notify to clinic
                     console.log(appointment);
-                    sendSMSToPatient(clinic, patient, appointment);
+                    var timeAppointment = dateFormat(appointment.timeAppointment, "dd-mm-yyyy HH:MM");
+                    var messageBody = patient.fullName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + timeAppointment;
+                    sendSMSToPatient(user, patient, appointment, messageBody);
                 })
                 .catch(function (err) {
                     //save appointment fail;
@@ -87,11 +87,10 @@ function saveDataWhenBookingSuccess(clinic, patient, bookedTime) {
         });
 }
 
-function verifyData(clinic, patient) {
-    var bookingDate = new Date().getDay();
-    console.log(bookingDate);    
+function verifyData(user, patient) {
+    var bookingDate = new Date().getDay();    
     // var clinicUsername = "hoanghoa";
-    var clinicUsername = clinic.clinicUsername;
+    var clinicUsername = user.clinic.username;
 
     new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": bookingDate })
         .fetch({ withRelated: ["clinic"] })
@@ -108,7 +107,7 @@ function verifyData(clinic, patient) {
                         //send err message
                         console.log("Đã hết slot");
                     } else {
-                        saveDataWhenBookingSuccess(clinic, patient, bookedTime);
+                        saveDataWhenBookingSuccess(user, patient, bookedTime);
                     }
                 })
                 .catch(function (err) {
@@ -129,15 +128,15 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
         .fetch({withRelated: ["clinic"]})
         .then(function (model) {
             if (model != null) {
-                var clinic = model.toJSON();
-                clinic.phoneNumber = clinicPhone;
+                var user = model.toJSON();
+                // user.phoneNumber = clinicPhone;
                 var patient = {
                     "phoneNumber": patientPhone,
                     "fullName": patientName,
                     "totalAppointment": 0, // chua test ten nay da ton tai hay chua
                     "abortedAppointment": 0
                 };
-                verifyData(clinic, patient);
+                verifyData(user, patient);
             } else {
                 console.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone);
             }
