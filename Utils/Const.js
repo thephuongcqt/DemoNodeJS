@@ -1,6 +1,8 @@
 module.exports = {
     ROLE_ADMIN: 0,
     ROLE_CLINIC: 1,
+    ACTIVATION: 1,
+    DEACTIVATION: 0,
 
     Day: {
         Sun: 0,

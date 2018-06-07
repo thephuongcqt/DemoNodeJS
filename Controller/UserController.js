@@ -59,7 +59,7 @@ module.exports = function (app, express) {
     // get all user by role from database
     apiRouter.get("/getAllUser", function (req, res) {
         if (req.query.role == 0) {
-            db.User.forge()
+            db.User.forge({"isActive": Const.ACTIVATION})
                 .where("role", Const.ROLE_ADMIN)
                 .fetchAll()
                 .then(function (collection) {
