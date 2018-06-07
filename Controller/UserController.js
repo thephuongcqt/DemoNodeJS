@@ -100,7 +100,7 @@ module.exports = function (app, express) {
             .then(function (collection) {
                 var responseObj;
                 if (collection == null) {
-                    db.User.forge({ 'username': username, 'password': '123456','fullName': fullName, 'phoneNumber': phoneNumber, 'role': 0, 'isActive': '1' })
+                    db.User.forge({ 'username': username, 'password': '123456','fullName': fullName, 'phoneNumber': phoneNumber, 'role': 0, 'isActive': 1 })
                         .save()
                         .then(function (collection) {
                             res.json(utils.responseSuccess(collection.toJSON()));
