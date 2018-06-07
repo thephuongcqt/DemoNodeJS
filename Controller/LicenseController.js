@@ -22,7 +22,7 @@ module.exports = function (app, express) {
             .then(function (collection) {
                 var license = collection.toJSON();
                 if (collection == null) {
-                    res.json(utils.responseSuccess("Create mot success"));
+                    res.json(utils.responseFailure("Create mot success"));
                 } else {
                     res.json(utils.responseSuccess(collection.toJSON()));
                 }
@@ -42,7 +42,7 @@ module.exports = function (app, express) {
                     db.License.where({ "licenseID": req.body.licenseID })
                         .save({ "price": req.body.price, "duration": req.body.duration, "name": req.body.name, "description": req.body.description }, { patch: true })
                         .then(function (collection) {
-                            res.json(utils.responseFailure(collection));
+                            res.json(utils.responseSuccess(collection));
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
