@@ -1,13 +1,13 @@
 const knex = require('knex')({
   client: 'mysql',
   connection: {
-    // host: '27.74.245.84',
+    host: '27.74.245.84',
     // host: '203.205.29.13',
-    host: 'localhost',
+    // host: 'localhost',
     port: '3306',
     user: 'root',
-    // password: '123456',
-    password: '',
+    password: '123456',
+    // password: '',
     database: 'callcenter',
     charset: 'utf8'
   }
