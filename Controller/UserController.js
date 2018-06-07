@@ -46,8 +46,7 @@ module.exports = function (app, express) {
 
     // get all admin from database
     apiRouter.get("/getAllAdmin", function (req, res) {
-        db.User.forge()
-            .where("role", Const.ROLE_ADMIN)
+        db.User.where({"role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION})
             .fetchAll()
             .then(function (collection) {                
                 res.json(utils.responseSuccess(collection.toJSON()));
