@@ -59,7 +59,7 @@ module.exports = function (app, express) {
     // get all user by role from database
     apiRouter.get("/getAllUser", function (req, res) {
         if (req.query.role == 0) {
-            db.User.forge()
+            db.User.forge({"isActive": Const.ACTIVATION})
                 .where("role", Const.ROLE_ADMIN)
                 .fetchAll()
                 .then(function (collection) {
@@ -101,7 +101,7 @@ module.exports = function (app, express) {
             .then(function (collection) {
                 var responseObj;
                 if (collection == null) {
-                    db.User.forge({ 'username': username, 'password': '123456', 'phoneNumber': phoneNumber, 'role': role, 'isActive': '1' })
+                    db.User.forge({ 'username': username, 'password': '123456', 'phoneNumber': phoneNumber, 'role': role, 'isActive': Const.ACTIVATION })
                         .save()
                         .then(function (collection) {
                             res.json(utils.responseSuccess(collection.toJSON()));
@@ -123,8 +123,7 @@ module.exports = function (app, express) {
         db.User.where({ "username": username })
             .fetch()
             .then(function (collection) {
-                if (collection == null) {
-                    var responseObj = utils.makeResponse(false, null, "This account is available");
+                if (collection == null) {                    
                     res.json(utils.responseFailure("This account is available"));
                 } else {                    
                     res.json(utils.responseSuccess("This account have been exist"));
@@ -145,25 +144,22 @@ module.exports = function (app, express) {
             .fetch()
             .then(function (collection) {
                 var user = collection.toJSON();
-                if (collection == null) {
-                    var responseObj = utils.makeResponse(false, null, "Username is not exist");
-                    res.json(responseObj);
+                if (collection == null) {                    
+                    res.json(utils.responseFailure("Username is not exist"));
                 } else {
                     db.User.where({ "username": username })
                         .save({ "password": password, "phoneNumber": phoneNumber, "role": role, "isActive": isActive }, { patch: true })
                         .then(function (model) {
                             delete model.password;
-                            res.json(utils.makeResponse(true, "Update successfull", null));
+                            res.json(utils.responseSuccess("Update successfull"));
                         })
-                        .catch(function (err) {
-                            var responseObj = utils.makeResponse(false, null, err.message);
-                            res.json(responseObj);
+                        .catch(function (err) {                            
+                            res.json(utils.responseFailure(err.message));
                         });
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     // delete account
