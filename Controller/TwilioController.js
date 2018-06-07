@@ -44,12 +44,12 @@ module.exports = function (app, express) {
     return apiRouter;
 };
 
-function sendSMSToPatient(user, patient, appointment, messageBody) {        
+function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {        
     //  Send SMS to announcement appointment for patient has book successfull 
     client.messages.create({
         body: messageBody,
-        from: user.phoneNumber,
-        to: patient.phoneNumber
+        from: clinicPhone,
+        to: patientPhone
     }).then(messages => { })
         .catch(function (err) {
             console.log(err);
@@ -76,7 +76,7 @@ function saveDataWhenBookingSuccess(user, patient, bookedTime) {
                     var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
                     var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
                     var messageBody = patient.fullName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
-                    sendSMSToPatient(user, patient, appointment, messageBody);
+                    sendSMSToPatient(user.phoneNumber, patient.phoneNumber, messageBody);
                 })
                 .catch(function (err) {
                     //save appointment fail;
@@ -103,10 +103,11 @@ function verifyData(user, patient) {
                     var bookedAppointment = collection[0].count;
                     var bookedTime = scheduler.getExpectationTime(config.startWorking, config.endWorking, bookedAppointment, config.clinic.examinationDuration);
                     if (bookedTime == null) {
-                        //send err message
-                        console.log("Đã hết slot");
+                        //send err message                                         
+                        sendSMSToPatient(user.phoneNumber, patient.phoneNumber, Const.FullSlot);
                     } else {
                         saveDataWhenBookingSuccess(user, patient, bookedTime);
+                        //need to send notify to clinic
                     }
                 })
                 .catch(function (err) {
@@ -118,8 +119,6 @@ function verifyData(user, patient) {
             console.log(err.message);
         });
 }
-
-
 
 function makeAppointment(patientPhone, patientName, clinicPhone) {
     //get clinicUsername from phoneNumber
