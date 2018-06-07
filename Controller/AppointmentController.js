@@ -37,7 +37,6 @@ module.exports = function (app, express) {
                             for (var i in result) {
                                 var tmpAppointment = JSON.parse(JSON.stringify(result[i]));
                                 var convertTime = moment(tmpAppointment.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
-                                // console.log(tmpAppointment);
                                 for (j in patientsResult.models) {
                                     var tmpPatient = patientsResult.models[j].toJSON();
                                     if (tmpAppointment.patientID == tmpPatient.patientID) {
