@@ -31,5 +31,27 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
             });
     });
+    // update license
+    apiRouter.post("/update", function (req, res) {
+        db.License.where({ "licenseID": req.body.licenseID })
+            .fetchAll()
+            .then(function (collection) {
+                if (collection == null) {
+                    res.json(utils.responseFailure("License is not exist"));
+                } else {
+                    db.License.where({ "licenseID": req.body.licenseID })
+                        .save({ "price": req.body.price, "duration": req.body.duration, "name": req.body.name, "description": req.body.description }, { patch: true })
+                        .then(function (collection) {
+                            res.json(utils.responseFailure(collection));
+                        })
+                        .catch(function (err) {
+                            res.json(utils.responseFailure(err.message));
+                        });
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+            });
+    });
     return apiRouter;
 }
