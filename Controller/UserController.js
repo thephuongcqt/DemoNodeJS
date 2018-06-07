@@ -26,7 +26,7 @@ module.exports = function (app, express) {
                 res.json(responseObj)
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err.message));                
+                res.json(utils.responseFailure(err.message));
             });
     });
 
@@ -39,26 +39,26 @@ module.exports = function (app, express) {
             .then(function (model) {
                 res.json(utils.responseSuccess(null));
             })
-            .catch(function (err) {                
+            .catch(function (err) {
                 res.json(utils.responseFailure("Incorrect username or password"));
             });
     });
 
     // get all admin from database
     apiRouter.get("/getAllAdmin", function (req, res) {
-        db.User.where({"role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION})
+        db.User.where({ "role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION })
             .fetchAll()
-            .then(function (collection) {                
+            .then(function (collection) {
                 res.json(utils.responseSuccess(collection.toJSON()));
             })
-            .catch(function (err) {                
+            .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
             });
     });
     // get all user by role from database
     apiRouter.get("/getAllUser", function (req, res) {
         if (req.query.role == 0) {
-            db.User.forge({"isActive": Const.ACTIVATION})
+            db.User.forge({ "isActive": Const.ACTIVATION })
                 .where("role", Const.ROLE_ADMIN)
                 .fetchAll()
                 .then(function (collection) {
@@ -122,9 +122,8 @@ module.exports = function (app, express) {
             .fetch()
             .then(function (collection) {
                 if (collection == null) {
-                    var responseObj = utils.makeResponse(false, null, "This account is available");
                     res.json(utils.responseFailure("This account is available"));
-                } else {                    
+                } else {
                     res.json(utils.responseSuccess("This account have been exist"));
                 }
             })
@@ -144,24 +143,21 @@ module.exports = function (app, express) {
             .then(function (collection) {
                 var user = collection.toJSON();
                 if (collection == null) {
-                    var responseObj = utils.makeResponse(false, null, "Username is not exist");
-                    res.json(responseObj);
+                    res.json(utils.responseFailure("Username is not exist"));
                 } else {
                     db.User.where({ "username": username })
                         .save({ "password": password, "phoneNumber": phoneNumber, "role": role, "isActive": isActive }, { patch: true })
                         .then(function (model) {
                             delete model.password;
-                            res.json(utils.makeResponse(true, "Update successfull", null));
+                            res.json(utils.responseSuccess("Update successfull"));
                         })
                         .catch(function (err) {
-                            var responseObj = utils.makeResponse(false, null, err.message);
-                            res.json(responseObj);
+                            res.json(utils.responseFailure(err.message));
                         });
                 }
             })
             .catch(function (err) {
-                var responseObj = utils.makeResponse(false, null, err.message);
-                res.json(responseObj);
+                res.json(utils.responseFailure(err.message));
             });
     });
     // delete account
