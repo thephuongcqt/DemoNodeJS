@@ -39,7 +39,7 @@ module.exports = function (app, express) {
                                 for (j in patientsResult.models) {
                                     var tmpPatient = patientsResult.models[j].toJSON();
                                     if (tmpAppointment.patientID == tmpPatient.patientID) {
-                                        tmpAppointment.appointmentTime = dateFormat(tmpAppointment.appointmentTime, "dd-mm-yyyy HH:MM:ss");
+                                        tmpAppointment.appointmentTime = dateFormat(tmpAppointment.appointmentTime, "yyyy-MM-dd'T'HH:mm:ss.'000Z'");
                                         tmpAppointment.patient = tmpPatient;
                                     }
                                 }
