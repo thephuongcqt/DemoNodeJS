@@ -10,6 +10,7 @@ module.exports = function (app, express) {
         var password = req.body.password;
         var address = req.body.address;
         var clinicName = req.body.clinicName;
+        var examinationDuration = req.body.examinationDuration;
         db.User.where({ "username": username, "password": password })
             .fetch()
             .then(function (collection) {
@@ -18,7 +19,7 @@ module.exports = function (app, express) {
                     res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
                 } else {
                     db.Clinic.where({ "username": username })
-                        .save({ "address": address, "clinicName": clinicName }, { patch: true })
+                        .save({ "address": address, "clinicName": clinicName, "examinationDuration": examinationDuration }, { patch: true })
                         .then(function (model) {
                             res.json(utils.responseSuccess(model.toJSON()));
                         })
@@ -33,8 +34,7 @@ module.exports = function (app, express) {
     });
 
     apiRouter.get("/getAllClinic", function (req, res) {
-        db.User.forge()
-            .where("role", Const.ROLE_CLINIC)
+        db.User.where({ "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION })
             .fetchAll()
             .then(function (collection) {
                 var userList = collection.toJSON();
@@ -86,6 +86,8 @@ module.exports = function (app, express) {
                     if (clinic.role === Const.ROLE_CLINIC) {
                         clinic.clinicName = clinic.clinic.clinicName;
                         clinic.address = clinic.clinic.address;
+                        clinic.examinationDuration = clinic.clinic.examinationDuration;
+                        clinic.expiredLicense = clinic.clinic.expiredLicense;
                         delete clinic.clinic;
                         delete clinic.password;
                         res.json(utils.responseSuccess(clinic));

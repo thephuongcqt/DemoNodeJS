@@ -2,6 +2,7 @@ var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 const dateFormat = require('dateformat');
+var moment = require('moment');
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -9,7 +10,7 @@ module.exports = function (app, express) {
     apiRouter.get("/getAll", function (req, res) {
         db.Appointment.forge()
             .fetchAll()
-            .then(function (collection) {                
+            .then(function (collection) {
                 res.json(utils.responseSuccess(collection.toJSON()));
             })
             .catch(function (err) {
@@ -35,25 +36,25 @@ module.exports = function (app, express) {
                             var results = [];
                             for (var i in result) {
                                 var tmpAppointment = JSON.parse(JSON.stringify(result[i]));
-                                // console.log(tmpAppointment);
+                                var convertTime = moment(tmpAppointment.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
                                 for (j in patientsResult.models) {
                                     var tmpPatient = patientsResult.models[j].toJSON();
                                     if (tmpAppointment.patientID == tmpPatient.patientID) {
-                                        tmpAppointment.appointmentTime = dateFormat(tmpAppointment.appointmentTime, "yyyy-MM-dd'T'HH:mm:ss.'000Z'");
-                                        tmpAppointment.patient = tmpPatient;
+                                            tmpAppointment.appointmentTime = convertTime;
+                                            tmpAppointment.patient = tmpPatient;
                                     }
                                 }
                                 delete tmpAppointment.clinicUsername;
                                 delete tmpAppointment.patientID;
                                 results.push(tmpAppointment);
-                            }                            
+                            }
                             res.json(utils.responseSuccess(results));
                         });
-                } else {                    
+                } else {
                     res.json(utils.responseFailure("Không có cuộc hẹn nào"));
                 }
             })
-            .catch(function (err) {                
+            .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
             });
     });
