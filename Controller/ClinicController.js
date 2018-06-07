@@ -86,6 +86,8 @@ module.exports = function (app, express) {
                     if (clinic.role === Const.ROLE_CLINIC) {
                         clinic.clinicName = clinic.clinic.clinicName;
                         clinic.address = clinic.clinic.address;
+                        clinic.examinationDuration = clinic.clinic.examinationDuration;
+                        clinic.expiredLicense = clinic.clinic.expiredLicense;
                         delete clinic.clinic;
                         delete clinic.password;                                                
                         res.json(utils.responseSuccess(clinic));
