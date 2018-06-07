@@ -76,7 +76,7 @@ function saveDataWhenBookingSuccess(user, patient, bookedTime) {
                     console.log(appointment);
                     var timeAppointment = dateFormat(appointment.timeAppointment, "dd-mm-yyyy HH:MM");
                     var messageBody = patient.fullName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + timeAppointment;
-                    sendSMSToPatient(user, patient, appointment, messageBody);
+                    sendSMSToPatient(user, patient, appointment, messageBody);// sửa lại giờ
                 })
                 .catch(function (err) {
                     //save appointment fail;

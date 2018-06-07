@@ -98,6 +98,7 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
             });
     });
+    
     // register
     apiRouter.post("/register", async function (req, res) {
         var username = req.body.username;

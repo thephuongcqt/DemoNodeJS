@@ -95,13 +95,12 @@ module.exports = function (app, express) {
     apiRouter.post("/create", function (req, res) {
         var username = req.body.username;
         var phoneNumber = req.body.phoneNumber;
-        var role = req.body.role;
         db.User.forge({ "username": username })
             .fetch()
             .then(function (collection) {
                 var responseObj;
                 if (collection == null) {
-                    db.User.forge({ 'username': username, 'password': '123456', 'phoneNumber': phoneNumber, 'role': role, 'isActive': '1' })
+                    db.User.forge({ 'username': username, 'password': '123456', 'phoneNumber': phoneNumber, 'role': 0, 'isActive': '1' })
                         .save()
                         .then(function (collection) {
                             res.json(utils.responseSuccess(collection.toJSON()));
