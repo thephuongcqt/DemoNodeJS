@@ -73,10 +73,10 @@ function saveDataWhenBookingSuccess(user, patient, bookedTime) {
                 .then(function (model) {
                     var appointment = model.toJSON();
                     //need to notify to clinic
-                    console.log(appointment);
-                    var timeAppointment = dateFormat(appointment.timeAppointment, "dd-mm-yyyy HH:MM");
-                    var messageBody = patient.fullName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + timeAppointment;
-                    sendSMSToPatient(user, patient, appointment, messageBody);// sửa lại giờ
+                    var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
+                    var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
+                    var messageBody = patient.fullName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
+                    sendSMSToPatient(user, patient, appointment, messageBody);
                 })
                 .catch(function (err) {
                     //save appointment fail;
@@ -89,7 +89,6 @@ function saveDataWhenBookingSuccess(user, patient, bookedTime) {
 
 function verifyData(user, patient) {
     var bookingDate = new Date().getDay();    
-    // var clinicUsername = "hoanghoa";
     var clinicUsername = user.clinic.username;
 
     new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": bookingDate })
