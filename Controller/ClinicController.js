@@ -15,12 +15,12 @@ module.exports = function (app, express) {
             .fetch()
             .then(function (collection) {
                 var user = collection.toJSON();
-                if (collection == null) {                    
+                if (collection == null) {
                     res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
                 } else {
                     db.Clinic.where({ "username": username })
-                        .save({ "address": address, "clinicName": clinicName, "examinationDuration":examinationDuration }, { patch: true })
-                        .then(function (model) {                            
+                        .save({ "address": address, "clinicName": clinicName, "examinationDuration": examinationDuration }, { patch: true })
+                        .then(function (model) {
                             res.json(utils.responseSuccess(model.toJSON()));
                         })
                         .catch(function (err) {
@@ -34,8 +34,7 @@ module.exports = function (app, express) {
     });
 
     apiRouter.get("/getAllClinic", function (req, res) {
-        db.User.forge()
-            .where("role", Const.ROLE_CLINIC)
+        db.User.where({ "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION })
             .fetchAll()
             .then(function (collection) {
                 var userList = collection.toJSON();
@@ -60,7 +59,7 @@ module.exports = function (app, express) {
                                     clinicList.push(user);
                                 }
                             }
-                        }                        
+                        }
                         res.json(utils.responseSuccess(clinicList));
                     })
                     .catch(function (err) {
@@ -90,7 +89,7 @@ module.exports = function (app, express) {
                         clinic.examinationDuration = clinic.clinic.examinationDuration;
                         clinic.expiredLicense = clinic.clinic.expiredLicense;
                         delete clinic.clinic;
-                        delete clinic.password;                                                
+                        delete clinic.password;
                         res.json(utils.responseSuccess(clinic));
                     } else {
                         res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
@@ -101,7 +100,7 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
             });
     });
-    
+
     // register
     apiRouter.post("/register", async function (req, res) {
         var username = req.body.username;
@@ -116,14 +115,14 @@ module.exports = function (app, express) {
                     await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0 })
                         .then(async function (model) {
                             await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": 3000, "expiredLicense": null })
-                                .then(function (model) {                                    
+                                .then(function (model) {
                                     res.json(utils.responseSuccess("Register Success"));
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err.message));
                                 });
                         })
-                } else {                    
+                } else {
                     res.json(utils.responseFailure("Username have exist"));
                 }
             })
@@ -131,7 +130,6 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
             });
     });
-    
 
     // get appointment of clinic
     apiRouter.get("/appointment", async function (req, res) {
@@ -157,17 +155,17 @@ module.exports = function (app, express) {
                                     listAppointment.push(appointmentList);
                                 }
                             })
-                            .catch(function (err) {                                
+                            .catch(function (err) {
                                 res.json(utils.responseFailure(err.message));
                             });
-                    }                    
+                    }
                     res.json(utils.responseSuccess(listAppointment));
                 } else {
                     res.json(utils.responseFailure("This clinic is not exist"));
                 }
             })
-            .catch(function (err) {                
-                res.json(utils.responseFailure(err.message));                
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
             });
     });
     return apiRouter;
