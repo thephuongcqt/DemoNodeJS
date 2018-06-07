@@ -94,12 +94,13 @@ module.exports = function (app, express) {
     apiRouter.post("/create", function (req, res) {
         var username = req.body.username;
         var phoneNumber = req.body.phoneNumber;
+        var fullName = req.body.fullName;
         db.User.forge({ "username": username })
             .fetch()
             .then(function (collection) {
                 var responseObj;
                 if (collection == null) {
-                    db.User.forge({ 'username': username, 'password': '123456', 'phoneNumber': phoneNumber, 'role': 0, 'isActive': '1' })
+                    db.User.forge({ 'username': username, 'password': '123456','fullName': fullName, 'phoneNumber': phoneNumber, 'role': 0, 'isActive': '1' })
                         .save()
                         .then(function (collection) {
                             res.json(utils.responseSuccess(collection.toJSON()));
@@ -135,6 +136,7 @@ module.exports = function (app, express) {
     apiRouter.post("/update", function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
+        var fullName = req.body.fullName;
         var phoneNumber = req.body.phoneNumber;
         var role = req.body.role;
         var isActive = req.body.isActive;
@@ -146,7 +148,7 @@ module.exports = function (app, express) {
                     res.json(utils.responseFailure("Username is not exist"));
                 } else {
                     db.User.where({ "username": username })
-                        .save({ "password": password, "phoneNumber": phoneNumber, "role": role, "isActive": isActive }, { patch: true })
+                        .save({ "password": password,"fullName":fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive }, { patch: true })
                         .then(function (model) {
                             delete model.password;
                             res.json(utils.responseSuccess("Update successfull"));
