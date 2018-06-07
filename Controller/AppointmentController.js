@@ -1,6 +1,7 @@
 var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
+const dateFormat = require('dateformat');
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -38,6 +39,7 @@ module.exports = function (app, express) {
                                 for (j in patientsResult.models) {
                                     var tmpPatient = patientsResult.models[j].toJSON();
                                     if (tmpAppointment.patientID == tmpPatient.patientID) {
+                                        tmpAppointment.appointmentTime = dateFormat(tmpAppointment.appointmentTime, "dd-mm-yyyy HH:MM:ss");
                                         tmpAppointment.patient = tmpPatient;
                                     }
                                 }
