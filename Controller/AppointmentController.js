@@ -40,8 +40,8 @@ module.exports = function (app, express) {
                                 for (j in patientsResult.models) {
                                     var tmpPatient = patientsResult.models[j].toJSON();
                                     if (tmpAppointment.patientID == tmpPatient.patientID) {
-                                            tmpAppointment.appointmentTime = convertTime;
-                                            tmpAppointment.patient = tmpPatient;
+                                        tmpAppointment.appointmentTime = convertTime;
+                                        tmpAppointment.patient = tmpPatient;
                                     }
                                 }
                                 delete tmpAppointment.clinicUsername;
@@ -58,6 +58,55 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
             });
     });
-
+    // get appointment of clinic
+    apiRouter.get("/findAppointmentByDate", async function (req, res) {
+        var username = req.query.username;
+        await new db.User({ "username": username })
+            .fetch({ withRelated: ["clinic"] })
+            .then(async function (model) {
+                if (model == null) {
+                    res.json(utils.responseFailure("Clinic is not exist"));
+                } else {
+                    var clinic = model.toJSON();
+                    var listAppointment = [];
+                    await new db.Clinic({ "username": username })
+                        .fetch({ withRelated: ["appointments"] })
+                        .then(async function (model) {
+                            var appointment = model.toJSON();
+                            if (appointment.appointments.length > 0) {
+                                var date = new Date().toDateString();
+                                for (var i in appointment.appointments) {
+                                    var appointmentList = appointment.appointments[i];
+                                    await new db.Appointment(appointmentList)
+                                        .fetch({ withRelated: ["patient"] })
+                                        .then(function (collection) {
+                                            var patient = collection.toJSON();
+                                            var dateAppointment = patient.appointmentTime.toDateString();
+                                            var convertTime = moment(patient.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
+                                            patient.appointmentTime = convertTime;
+                                            if (dateAppointment == date) {
+                                                delete patient.clinicUsername;
+                                                delete patient.patientID;
+                                                listAppointment.push(patient);
+                                            }
+                                        })
+                                        .catch(function (err) {
+                                            res.json(utils.responseFailure(err.message));
+                                        });
+                                }
+                                res.json(utils.responseSuccess(listAppointment));
+                            } else {
+                                res.json(utils.responseFailure("Clinic have not appointment"));
+                            }
+                        })
+                        .catch(function (err) {
+                            res.json(utils.responseFailure(err.message));
+                        });
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+            });
+    });
     return apiRouter;
 }
