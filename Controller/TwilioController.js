@@ -58,7 +58,7 @@ function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
         .done();
 }
 
-function saveDataWhenBookingSuccess(user, patient, bookedTime) {
+function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount) {
     db.Patient.forge(patient)
         .save()
         .then(function (model) {
@@ -76,7 +76,7 @@ function saveDataWhenBookingSuccess(user, patient, bookedTime) {
                     //need to notify to clinic
                     var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
                     var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
-                    var messageBody = patient.fullName + ' mã số ' + appointment.id + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
+                    var messageBody = patient.fullName + ' mã số ' + bookingCount + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
                     sendSMSToPatient(user.phoneNumber, patient.phoneNumber, messageBody);
                 })
                 .catch(function (err) {
@@ -107,7 +107,7 @@ function verifyData(user, patient) {
                         //send err message                                         
                         sendSMSToPatient(user.phoneNumber, patient.phoneNumber, Const.FullSlot);
                     } else {
-                        saveDataWhenBookingSuccess(user, patient, bookedTime);
+                        saveDataWhenBookingSuccess(user, patient, bookedTime, bookedAppointment + 1);
                         //need to send notify to clinic
                     }
                 })
