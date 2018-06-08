@@ -25,6 +25,7 @@ module.exports = function (app, express) {
     });
     // speech to text
     apiRouter.post("/Recorded", function (req, res) {
+        res.set('Content-Type', 'text/xml');
         res.end();
         speechToText.getTextFromVoice(req.body.RecordingUrl, function (err, patientName) {
             client.calls(req.body.CallSid)
@@ -112,6 +113,7 @@ function verifyData(user, patient) {
                 })
                 .catch(function (err) {
                     console.log(err.message);
+                    sendSMSToPatient(user.phoneNumber, patient.phoneNumber, Const.FullSlot);
                 });
 
         })
