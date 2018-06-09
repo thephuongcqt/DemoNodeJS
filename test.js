@@ -3,6 +3,8 @@ var db = require("./Utils/DBUtils");
 var utils = require("./Utils/Utils");
 var Moment = require('moment');
 
+var Excel = require("exceljs");
+
 var test = function () {
     // new db.License({"licenseID": 1})
     //     .fetch()
@@ -137,66 +139,128 @@ var test = function () {
     // })
 
 
-    new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": Const.Day.Mon })
-        .fetch({ withRelated: ["clinic"] })
-        .then(function (model) {
-            var configClinic = model.toJSON();
-            var sql = "clinicUsername = ? AND DATE(appointmentTime) = CURRENT_DATE()";
-            db.knex("tbl_appointment")
-                .whereRaw(sql, [clinicUsername])
-                .count("* as count")
-                .then(function (collection) {
-                    var bookedAppointment = collection[0].count;
+    // new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": Const.Day.Mon })
+    //     .fetch({ withRelated: ["clinic"] })
+    //     .then(function (model) {
+    //         var configClinic = model.toJSON();
+    //         var sql = "clinicUsername = ? AND DATE(appointmentTime) = CURRENT_DATE()";
+    //         db.knex("tbl_appointment")
+    //             .whereRaw(sql, [clinicUsername])
+    //             .count("* as count")
+    //             .then(function (collection) {
+    //                 var bookedAppointment = collection[0].count;
 
-                    var mStart = Moment(configClinic.startWorking, "HH:mm:ss");
-                    // var mEnd = Moment(configClinic.endWorking, "HH:mm:ss");
-                    // var mDuration = Moment(configClinic.clinic.examinationDuration, "HH:mm:ss");
+    //                 var mStart = Moment(configClinic.startWorking, "HH:mm:ss");
+    //                 // var mEnd = Moment(configClinic.endWorking, "HH:mm:ss");
+    //                 // var mDuration = Moment(configClinic.clinic.examinationDuration, "HH:mm:ss");
 
-                    // var miliseconds = getTotalDuration(bookedAppointment + 1, mDuration);
+    //                 // var miliseconds = getTotalDuration(bookedAppointment + 1, mDuration);
 
-                    // var mExpectation = Moment(configClinic.startWorking, "HH:mm:ss");
-                    // mExpectation.add(miliseconds, "milliseconds");
+    //                 // var mExpectation = Moment(configClinic.startWorking, "HH:mm:ss");
+    //                 // mExpectation.add(miliseconds, "milliseconds");
 
-                    // if (mExpectation <= mEnd) {
-                    //     console.log(mExpectation);
-                    // }
-                    var result = getExpectationTime(configClinic.startWorking, configClinic.endWorking, bookedAppointment, configClinic.clinic.examinationDuration);
-                    console.log(mStart.toDate());
-                    console.log(result);
-                })
-                .catch(function (err) {
-                    console.log(err.message);
-                })
-        })
-        .catch(function (err) {
-            console.log(err.message);
-        });
+    //                 // if (mExpectation <= mEnd) {
+    //                 //     console.log(mExpectation);
+    //                 // }
+    //                 var result = getExpectationTime(configClinic.startWorking, configClinic.endWorking, bookedAppointment, configClinic.clinic.examinationDuration);
+    //                 console.log(mStart.toDate());
+    //                 console.log(result);
+    //             })
+    //             .catch(function (err) {
+    //                 console.log(err.message);
+    //             })
+    //     })
+    //     .catch(function (err) {
+    //         console.log(err.message);
+    //     });
+
+    // var workbook = new Excel.Workbook();
+
+    // workbook.creator = 'PhuongNT';
+    // workbook.lastModifiedBy = 'SomeOne';
+    // workbook.created = new Date(1985, 8, 30);
+    // workbook.modified = new Date();
+    // workbook.lastPrinted = new Date(2016, 9, 27);
+    // // Set workbook dates to 1904 date system
+    // workbook.properties.date1904 = true;
+
+    // var worksheet = workbook.addWorksheet('Lịch khám Bệnh');
+    // //Begin Column
+    // worksheet.columns = [
+    //     { header: 'STT', key: 'id', width: 10 },
+    //     { header: 'Tên Bệnh Nhân', key: 'name', width: 50 },
+    //     { header: 'Số điện thoại', key: 'phoneNumber', width: 15 },
+    //     { header: 'Giờ đặt khám', key: 'time', width: 15 }
+    // ];
+
+    // // Access an individual columns by key, letter and 1-based column number
+    // var idCol = worksheet.getColumn('id');
+    // var nameCol = worksheet.getColumn('name');
+    // var phoneCol = worksheet.getColumn('phoneNumber');
+    // var timeCol = worksheet.getColumn('time');
+
+    // var rowObj = { id: "001", name: "Nguyễn Thế Phương", phoneNumber: "0961924132", time: new Date() };
+
+    // insertData(worksheet, workbook);
+
+    //create file
+
+    
 
 };
 test();
 
-function miliseconds(hours, minutes, seconds) {
-    return ((hours * 60 * 60 + minutes * 60 + seconds) * 1000);
+function insertData(worksheet, workbook) {
+//     var clinicUsername = "hoanghoa";
+//     var sql = "SELECT * FROM tbl_appointment WHERE clinicUsername = '" + clinicUsername + "' AND DATE(appointmentTime) = CURRENT_DATE()";
+//     db.knex.raw(sql)
+//         .then(function (collection) {
+//             result = collection[0];
+//             if (result.length > 0) {
+//                 var tmp = [];
+//                 for (var i in result) {
+//                     tmp.push(result[i].patientID);
+//                 }
+//                 db.Patient.forge()
+//                     .where("patientID", "in", tmp)
+//                     .fetchAll()
+//                     .then(function (patientsResult) {
+//                         var results = [];
+//                         for (var i in result) {
+//                             var tmpAppointment = JSON.parse(JSON.stringify(result[i]));
+//                             var convertTime = Moment(tmpAppointment.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
+//                             for (j in patientsResult.models) {
+//                                 var tmpPatient = patientsResult.models[j].toJSON();
+//                                 if (tmpAppointment.patientID == tmpPatient.patientID) {
+//                                     tmpAppointment.appointmentTime = convertTime;
+//                                     tmpAppointment.patient = tmpPatient;
+//                                 }
+//                             }
+//                             var row = {
+//                                 id: tmpAppointment.appointmentID,
+//                                 name: tmpAppointment.patient.fullName,
+//                                 phoneNumber: tmpAppointment.patient.phoneNumber,
+//                                 time: convertTime
+//                             };
+//                             worksheet.addRow(row);
+//                         }
+//                         // workbook.xlsx.writeFile("FirstExcel.xlsx")
+//                         //     .then(function () {
+//                         //         // use workbook
+//                         //         console.log("done");
+//                         //     });
+
+//                         workbook.csv.writeFile("/Users/PhuongNT/Desktop/FirstCSV.csv")
+//                             .then(function () {
+//                                 // done
+//                                 console.log("csv");
+//                             });
+//                     });
+//             } else {
+
+//             }
+//         })
+//         .catch(function (err) {
+
+//         });
 }
-
-function getTotalDuration(count, duration) {
-    var times = miliseconds(duration.hour(), duration.minute(), duration.second());
-    return count * times;
-}
-
-function getExpectationTime(startWorking, endWorking, count, duration) {
-    var mStart = Moment(startWorking, "HH:mm:ss");
-    var mEnd = Moment(endWorking, "HH:mm:ss");
-    var mDuration = Moment(duration, "HH:mm:ss");
-
-    var miliseconds = getTotalDuration(count + 1, mDuration);
-
-    var mExpectation = Moment(startWorking, "HH:mm:ss");
-    mExpectation.add(miliseconds, "milliseconds");
-
-    if (mExpectation <= mEnd) {
-        return mExpectation.toDate();
-    }
-    return null;
-}
-
