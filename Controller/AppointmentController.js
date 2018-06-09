@@ -60,8 +60,9 @@ module.exports = function (app, express) {
             });
     });
     // get appointment of clinic
-    apiRouter.get("/findAppointmentByDate", async function (req, res) {
-        var username = req.query.username;
+    apiRouter.post("/findAppointmentByDate", async function (req, res) {
+        var username = req.body.username;
+        var dateSearch = req.body.dateSearch;
         await new db.User({ "username": username })
             .fetch({ withRelated: ["clinic"] })
             .then(async function (model) {
@@ -75,7 +76,11 @@ module.exports = function (app, express) {
                         .then(async function (model) {
                             var appointment = model.toJSON();
                             if (appointment.appointments.length > 0) {
-                                var date = new Date().toDateString();
+                                if (dateSearch == null) {
+                                    dateSearch = new Date().toDateString();
+                                } else {
+                                    dateSearch = new Date(dateSearch).toDateString();
+                                }
                                 for (var i in appointment.appointments) {
                                     var appointmentList = appointment.appointments[i];
                                     await new db.Appointment(appointmentList)
@@ -85,7 +90,7 @@ module.exports = function (app, express) {
                                             var dateAppointment = patient.appointmentTime.toDateString();
                                             var convertTime = moment(patient.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
                                             patient.appointmentTime = convertTime;
-                                            if (dateAppointment == date) {
+                                            if (dateAppointment == dateSearch) {
                                                 delete patient.clinicUsername;
                                                 delete patient.patientID;
                                                 listAppointment.push(patient);
