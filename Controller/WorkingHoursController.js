@@ -25,12 +25,11 @@ module.exports = function (app, express) {
                                     var workList = workingHours.workingHours[i];
                                     workingHoursList.push(workList);
                                 }
-                                
                                 res.json(utils.responseSuccess(workingHoursList))
                             }
                         })
                         .catch(function (err) {
-                            res.json(utils.responseFailure(err.message));                            
+                            res.json(utils.responseFailure(err.message));
                         });
                 }
             })
@@ -38,35 +37,34 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
             });
     });
-    
+
     // update working hours
     apiRouter.post("/update", function (req, res) {
         var username = req.body.username;
-        var starWorking = req.body.starWorking;
+        var startWorking = req.body.startWorking;
         var endWorking = req.body.endWorking;
-        var applyDate = req.body.applyDate;
+        var applyDates = req.body.applyDate.split(",");
         var isDayOff = req.body.isDayOff;
         new db.User({ "username": username })
             .fetch({ withRelated: ["clinic"] })
             .then(function (model) {
                 if (model == null) {
-                    res.json(utils.responseFailure("This clinic is not exist!"));                    
+                    res.json(utils.responseFailure("This clinic is not exist!"));
                 } else {
                     var clinic = model.toJSON();
+                    delete clinic.password;
                     new db.Clinic({ "username": username })
                         .fetch({ withRelated: ["workingHours"] })
                         .then(function (model) {
                             if (model == null) {
                                 res.json(utils.responseFailure("This clinic is not exist!"));
                             } else {
-                                db.WorkingHours.where({ "clinicUsername": username })
-                                    .save({ "starWorking": starWorking, "endWorking": endWorking, "applyDate": applyDate, "isDayOff": isDayOff }, { patch: true })
-                                    .then(function (model) {
-                                        res.json(utils.responseSuccess(model.toJSON()));
-                                    })
-                                    .catch(function (err) {                                        
-                                        res.json(utils.responseFailure(err.message));
-                                    });
+                                for (var i in applyDates) {
+                                    var applyDate = applyDates[i];
+                                    db.WorkingHours.where({ "clinicUsername": username, "applyDate": applyDate })
+                                        .save({ "startWorking": startWorking, "endWorking": endWorking, "isDayOff": isDayOff }, { patch: true });
+                                }
+                                res.json(utils.responseSuccess("Update Working Hours Successfull"));
                             }
                         })
                         .catch(function (err) {

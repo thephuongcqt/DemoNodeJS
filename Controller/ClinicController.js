@@ -83,17 +83,31 @@ module.exports = function (app, express) {
                     res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
                 } else {
                     var clinic = model.toJSON();
-                    if (clinic.role === Const.ROLE_CLINIC) {
-                        clinic.clinicName = clinic.clinic.clinicName;
-                        clinic.address = clinic.clinic.address;
-                        clinic.examinationDuration = clinic.clinic.examinationDuration;
-                        clinic.expiredLicense = clinic.clinic.expiredLicense;
-                        delete clinic.clinic;
-                        delete clinic.password;
-                        res.json(utils.responseSuccess(clinic));
-                    } else {
-                        res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
-                    }
+                    new db.Clinic({ "username": username })
+                        .fetch({ withRelated: ["workingHours"] })
+                        .then(function (model) {
+                            var workingHour = model.toJSON();
+                            for(var i in workingHour.workingHours){
+                                var work = workingHour.workingHours[i];
+                                delete work.id;
+                                delete work.clinicUsername;
+                            }
+                            if (clinic.role === Const.ROLE_CLINIC) {
+                                clinic.clinicName = clinic.clinic.clinicName;
+                                clinic.address = clinic.clinic.address;
+                                clinic.examinationDuration = clinic.clinic.examinationDuration;
+                                clinic.expiredLicense = clinic.clinic.expiredLicense;
+                                clinic.workingHours = workingHour.workingHours;
+                                delete clinic.clinic;
+                                delete clinic.password;
+                                res.json(utils.responseSuccess(clinic));
+                            } else {
+                                res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
+                            }
+                        })
+                        .catch(function (err) {
+                            res.json(utils.responseFailure(err.message));
+                        });
                 }
             })
             .catch(function (err) {
@@ -107,21 +121,35 @@ module.exports = function (app, express) {
         var password = req.body.password;
         var clinicName = req.body.clinicName;
         var address = req.body.address;
-        var expiredLicense = req.body.expiredLicense;
         await new db.User({ "username": username })
             .fetch({ withRelated: ["clinic"] })
             .then(async function (model) {
                 if (model == null) {
-                    await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0 })
+                    await new db.Clinic({ "username": username })
+                        .fetch({ withRelated: ["workingHours"] })
                         .then(async function (model) {
-                            await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": 3000, "expiredLicense": null })
-                                .then(function (model) {
-                                    res.json(utils.responseSuccess("Register Success"));
+                            await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0 })
+                                .then(async function (model) {
+                                    await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": "00:30:00", "expiredLicense": null })
+                                        .then(async function (model) {
+                                            var applyDateList = [0, 1, 2, 3, 4, 5, 6];
+                                            for (var i in applyDateList) {
+                                                var applyDate = applyDateList[i];
+                                                await new db.WorkingHours().save({ "clinicUsername": model.attributes.username, "startWorking": "06:30:00", "endWorking": "17:00:00", "applyDate": applyDate, "isDayOff": 0 })
+                                            }
+                                            res.json(utils.responseSuccess("Register Success"));
+                                        })
+                                        .catch(function (err) {
+                                            res.json(utils.responseFailure(err.message));
+                                        });
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err.message));
                                 });
                         })
+                        .catch(function (err) {
+
+                        });
                 } else {
                     res.json(utils.responseFailure("Username have exist"));
                 }
@@ -158,7 +186,7 @@ module.exports = function (app, express) {
                                         res.json(utils.responseFailure("Username is not exist"));
                                     } else {
                                         db.Clinic.where({ "username": username })
-                                            .save({ "address": address, "clinicName": clinicName}, { patch: true })
+                                            .save({ "address": address, "clinicName": clinicName }, { patch: true })
                                             .then(function (model) {
                                                 res.json(utils.responseSuccess("Update Clinic successfull"));
                                             })
