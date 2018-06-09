@@ -2,7 +2,7 @@ var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 const dateFormat = require('dateformat');
-var moment = require('moment');
+var Moment = require('moment');
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -36,7 +36,7 @@ module.exports = function (app, express) {
                             var results = [];
                             for (var i in result) {
                                 var tmpAppointment = JSON.parse(JSON.stringify(result[i]));
-                                var convertTime = moment(tmpAppointment.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
+                                var convertTime = Moment(tmpAppointment.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
                                 for (j in patientsResult.models) {
                                     var tmpPatient = patientsResult.models[j].toJSON();
                                     if (tmpAppointment.patientID == tmpPatient.patientID) {
@@ -46,6 +46,7 @@ module.exports = function (app, express) {
                                 }
                                 delete tmpAppointment.clinicUsername;
                                 delete tmpAppointment.patientID;
+                                tmpAppointment.currentTime = Moment(new Date()).format('YYYY-MM-DDTHH:mm:ss.sssZ');
                                 results.push(tmpAppointment);
                             }
                             res.json(utils.responseSuccess(results));

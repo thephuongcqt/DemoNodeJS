@@ -64,9 +64,10 @@ function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount) {
         .then(function (model) {
             var newPatient = model.toJSON();
             var newAppointment = {
-                "clinicUsername": user.clinic.username,
-                "patientID": newPatient.id,
-                "appointmentTime": bookedTime,
+                clinicUsername: user.clinic.username,
+                patientID: newPatient.id,
+                appointmentTime: bookedTime,
+                no: bookingCount
             };
             // insert Appointment                        
             db.Appointment.forge(newAppointment)
@@ -133,8 +134,6 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                 var patient = {
                     "phoneNumber": patientPhone,
                     "fullName": patientName,
-                    "totalAppointment": 0, // chua test ten nay da ton tai hay chua
-                    "abortedAppointment": 0
                 };
                 verifyData(user, patient);
             } else {
