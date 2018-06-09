@@ -1,31 +1,30 @@
-var paypal = require('paypal-rest-sdk');
-var braintree = require('braintree');
-
-paypal.configure({
-    'mode': 'sandbox', //sandbox or live
-    'client_id': 'AeNoWVMyCSKtV55KaRHZ03_3o89NE068ltb-UIXeaCSNEAyX-viiU5o3DAP5YmMR2L7tIcWkZycw6r65',
-    'client_secret': 'EEq53_vyRg33XFYhB2socXGHu0EHqY4r73Pe_hcGGs6LalgXfgL2s2iAgJLeu6PV0IBIl8ADfS2TJ-rv'
-});
+var braintree = require("braintree");
+var db = require("../Utils/DBUtils");
+var utils = require("../Utils/Utils");
+var Const = require("../Utils/Const");
 
 var gateway = braintree.connect({
-    mode: "sandbox",
-    client_id: "AeNoWVMyCSKtV55KaRHZ03_3o89NE068ltb-UIXeaCSNEAyX-viiU5o3DAP5YmMR2L7tIcWkZycw6r65",
-    client_secret: "EEq53_vyRg33XFYhB2socXGHu0EHqY4r73Pe_hcGGs6LalgXfgL2s2iAgJLeu6PV0IBIl8ADfS2TJ-rv"
+    environment: braintree.Environment.Sandbox,
+    merchantId: "pfg7tm6zrnm22cjc",
+    publicKey: "f5b3g3dznrmgqwxj",
+    privateKey: "b305cabe62b01c1cc1d6c37b575139b8"
 });
 
-// gateway.oauth.createTokenFromCode({
-//     code: codeFromQueryString
-// }, function (err, response) {
 
-//     var accessToken = response.credentials.accessToken;
-//     var expiresAt = response.credentials.expiresAt;
-//     var refreshToken = response.credentials.refreshToken;
 
-//     console.log(response);
-// });
+module.exports = function (app, express) {
+    var apiRouter = express.Router();
+    
+    apiRouter.get("/getToken", function(req, res){
+        gateway.clientToken.generate({}, function (err, response) {    
+            if(typeof response !== 'undefined'){                
+                res.json(utils.responseSuccess(response));
+            } else{       
+                res.json(utils.responseFailure(err.message)); 
+                console.log(err);
+            }   
+        });
+    });
 
-gateway.clientToken.generate({}, function (err, response) {
-    var clientToken = response.clientToken
-    console.log(response);
-  });
-  
+    return apiRouter;
+}
