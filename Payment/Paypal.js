@@ -11,10 +11,10 @@ var gateway = braintree.connect({
 });
 
 var gateway = braintree.connect({
-    environment:  braintree.Environment.Sandbox,
-    merchantId:   'pfg7tm6zrnm22cjc',
-    publicKey:    'f5b3g3dznrmgqwxj',
-    privateKey:   'b305cabe62b01c1cc1d6c37b575139b8'
+    environment: braintree.Environment.Sandbox,
+    merchantId: 'pfg7tm6zrnm22cjc',
+    publicKey: 'f5b3g3dznrmgqwxj',
+    privateKey: 'b305cabe62b01c1cc1d6c37b575139b8'
 });
 
 
@@ -23,21 +23,43 @@ module.exports = function (app, express) {
     var apiRouter = express.Router();
 
     apiRouter.get("/getToken", function (req, res) {
-        gateway.clientToken.generate({}, function (err, response) {
+        gateway.clientToken.generate({ customerId: 520840836 }, function (err, response) {
             if (typeof response !== 'undefined') {
                 res.json(utils.responseSuccess(response));
             } else {
                 res.json(utils.responseFailure(err.message));
                 console.log(err);
             }
-        });
+        });        
     });
 
-    apiRouter.post("/checkout", function(req, res){
+    apiRouter.post("/checkout", function (req, res) {
         var username = req.body.username;
         var licenseID = req.body.licenseID;
         var nonce = req.body.nonce;
-        res.end();
+        console.log(nonce);
+        var saleRequest = {
+            amount: 1,
+            paymentMethodNonce: nonce,
+            orderId: "Mapped to PayPal Invoice Number",
+            options: {
+                submitForSettlement: true,
+                paypal: {
+                    customField: "PayPal custom field PhuongNT",
+                    description: "Description for PayPal email receipt PhuongNT",
+                },
+            }
+        };
+        gateway.transaction.sale(saleRequest, function (err, result) {
+            if (err) {
+                console.log("Error: " + err);
+            } else if (result.success) {
+                console.log(result.transaction.id);
+            } else {
+                console.log("Message: " + result.message);
+            }
+            res.end();
+        })
     });
 
     // apiRouter.get("/getTokenForCustomer", function (req, res) {
