@@ -82,7 +82,6 @@ module.exports = function (app, express) {
                                             delete workList.id;
                                             delete workList.clinicUsername;
                                         }
-                                        console.log(workingList);
                                         res.json(utils.responseSuccess(workingList));
                                     })
                                     .catch(function (err) {
