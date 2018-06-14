@@ -205,12 +205,36 @@ var test = function () {
 
     //create file
 
-    
+    // console.log(utils.checkNumberInArray("   +18326735555   ", Const.randomPhones));
+    // console.log(utils.getFakePhoneNumber(Const.randomNumbers, Const.randomNumbers));
 
+
+    // db.Patient.forge({phoneNumber: "969345159"})
+    // .fetch()
+    // .then(function(model){
+    //     console.log(model.toJSON());
+    // })
+    var patientPhone = "+18327795475";
+    
+    utils.getBookedNumbers("hoanghoa")
+    .then(function(result){
+        var isBooked = utils.checkNumberInArray(patientPhone, result);
+        if(isBooked){
+            var fakePhoneNumber = utils.getFakePhoneNumber(result, Const.randomNumbers);
+            console.log(fakePhoneNumber);
+        }
+    })
+    .catch(function(err){
+        console.log(err);
+    })
 };
 test();
 
-function insertData(worksheet, workbook) {
+
+
+
+
+// function insertData(worksheet, workbook) {
 //     var clinicUsername = "hoanghoa";
 //     var sql = "SELECT * FROM tbl_appointment WHERE clinicUsername = '" + clinicUsername + "' AND DATE(appointmentTime) = CURRENT_DATE()";
 //     db.knex.raw(sql)
@@ -263,4 +287,4 @@ function insertData(worksheet, workbook) {
 //         .catch(function (err) {
 
 //         });
-}
+// }

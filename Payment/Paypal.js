@@ -3,21 +3,19 @@ var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 
-var gateway = braintree.connect({
-    environment: braintree.Environment.Sandbox,
-    merchantId: "pfg7tm6zrnm22cjc",
-    publicKey: "f5b3g3dznrmgqwxj",
-    privateKey: "b305cabe62b01c1cc1d6c37b575139b8"
-});
+// var gateway = braintree.connect({
+//     environment: braintree.Environment.Sandbox,
+//     merchantId: "pfg7tm6zrnm22cjc",
+//     publicKey: "f5b3g3dznrmgqwxj",
+//     privateKey: "b305cabe62b01c1cc1d6c37b575139b8"
+// });
 
 var gateway = braintree.connect({
-    environment: braintree.Environment.Sandbox,
-    merchantId: 'pfg7tm6zrnm22cjc',
-    publicKey: 'f5b3g3dznrmgqwxj',
-    privateKey: 'b305cabe62b01c1cc1d6c37b575139b8'
+    environment:  braintree.Environment.Sandbox,
+    merchantId:   'pfg7tm6zrnm22cjc',
+    publicKey:    'bwf663qdgns9n55z',
+    privateKey:   'f4b52632c8ff7c83bde508f03531dff2'
 });
-
-
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();

@@ -13,7 +13,6 @@ function getTotalDuration(count, duration) {
 
 module.exports = {
     getExpectationTime: function (startWorking, endWorking, count, duration) {
-
         var mStart = Moment(startWorking, "HH:mm:ss");
         var mEnd = Moment(endWorking, "HH:mm:ss");
         var mDuration = Moment(duration, "HH:mm:ss");
@@ -25,7 +24,6 @@ module.exports = {
         
         if (mExpectation < mEnd) {
             return mExpectation.toDate();
-            console.log(mExpectation);
         } else{
             return null;
         }
