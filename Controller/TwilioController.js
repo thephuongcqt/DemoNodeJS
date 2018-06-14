@@ -124,7 +124,7 @@ function verifyData(user, patient, patientPhone) {
         });
 }
 
-function makeAppointment(patientPhone, patientName, clinicPhxone) {
+function makeAppointment(patientPhone, patientName, clinicPhone) {
     if(!patientName.trim()){
         //Patient name is empty
         var message = "Vui lòng nhập tên để đăng ký khám bệnh";
