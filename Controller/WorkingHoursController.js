@@ -1,6 +1,7 @@
 var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
+var Moment = require('moment');
 module.exports = function (app, express) {
     apiRouter = express.Router();
     // get working hours
@@ -45,7 +46,9 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var startWorking = req.body.startWorking;
         var endWorking = req.body.endWorking;
-        var applyDates = req.body.applyDate.split(",");
+        var parseStartWorking = Moment(startWorking, "h:mm:ss A").format("HH:mm:ss");
+        var parseEndWorking = Moment(endWorking, "h:mm:ss A").format("HH:mm:ss");
+        var applyDates = req.body.applyDate;
         var isDayOff = req.body.isDayOff;
         new db.User({ "username": username })
             .fetch({ withRelated: ["clinic"] })
@@ -64,7 +67,7 @@ module.exports = function (app, express) {
                                 for (var i in applyDates) {
                                     var applyDate = applyDates[i];
                                     db.WorkingHours.where({ "clinicUsername": username, "applyDate": applyDate })
-                                        .save({ "startWorking": startWorking, "endWorking": endWorking, "isDayOff": isDayOff }, { patch: true });
+                                        .save({ "startWorking": parseStartWorking, "endWorking": parseEndWorking, "isDayOff": isDayOff }, { patch: true });
                                 }
                                 db.WorkingHours.where({ "clinicUsername": username })
                                     .fetch()
