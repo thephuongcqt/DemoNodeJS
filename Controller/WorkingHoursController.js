@@ -66,8 +66,10 @@ module.exports = function (app, express) {
                             } else {
                                 for (var i in applyDates) {
                                     var applyDate = applyDates[i];
-                                    db.WorkingHours.where({ "clinicUsername": username, "applyDate": applyDate })
-                                        .save({ "startWorking": parseStartWorking, "endWorking": parseEndWorking, "isDayOff": isDayOff }, { patch: true });
+                                    if (!isNaN(applyDate)) {
+                                        db.WorkingHours.where({ "clinicUsername": username, "applyDate": applyDate })
+                                            .save({ "startWorking": parseStartWorking, "endWorking": parseEndWorking, "isDayOff": isDayOff }, { patch: true });
+                                    }
                                 }
                                 db.WorkingHours.where({ "clinicUsername": username })
                                     .fetchAll()
@@ -80,6 +82,7 @@ module.exports = function (app, express) {
                                             delete workList.id;
                                             delete workList.clinicUsername;
                                         }
+                                        console.log(workingList);
                                         res.json(utils.responseSuccess(workingList));
                                     })
                                     .catch(function (err) {
