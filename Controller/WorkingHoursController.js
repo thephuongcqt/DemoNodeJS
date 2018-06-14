@@ -1,6 +1,7 @@
 var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
+var Moment = require('moment');
 module.exports = function (app, express) {
     apiRouter = express.Router();
     // get working hours
@@ -24,8 +25,10 @@ module.exports = function (app, express) {
                                 for (var i in workingHours.workingHours) {
                                     var workList = workingHours.workingHours[i];
                                     workingHoursList.push(workList);
+                                    delete workList.id;
+                                    delete workList.clinicUsername;
                                 }
-                                res.json(utils.responseSuccess(workingHoursList))
+                                res.json(utils.responseSuccess(workingHoursList));
                             }
                         })
                         .catch(function (err) {
@@ -43,7 +46,9 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var startWorking = req.body.startWorking;
         var endWorking = req.body.endWorking;
-        var applyDates = req.body.applyDate.split(",");
+        var parseStartWorking = Moment(startWorking, "h:mm:ss A").format("HH:mm:ss");
+        var parseEndWorking = Moment(endWorking, "h:mm:ss A").format("HH:mm:ss");
+        var applyDates = req.body.applyDate;
         var isDayOff = req.body.isDayOff;
         new db.User({ "username": username })
             .fetch({ withRelated: ["clinic"] })
@@ -61,10 +66,27 @@ module.exports = function (app, express) {
                             } else {
                                 for (var i in applyDates) {
                                     var applyDate = applyDates[i];
-                                    db.WorkingHours.where({ "clinicUsername": username, "applyDate": applyDate })
-                                        .save({ "startWorking": startWorking, "endWorking": endWorking, "isDayOff": isDayOff }, { patch: true });
+                                    if (!isNaN(applyDate)) {
+                                        db.WorkingHours.where({ "clinicUsername": username, "applyDate": applyDate })
+                                            .save({ "startWorking": parseStartWorking, "endWorking": parseEndWorking, "isDayOff": isDayOff }, { patch: true });
+                                    }
                                 }
-                                res.json(utils.responseSuccess("Update Working Hours Successfull"));
+                                db.WorkingHours.where({ "clinicUsername": username })
+                                    .fetchAll()
+                                    .then(function (collection) {
+                                        var workingHours = collection.toJSON();
+                                        var workingList = [];
+                                        for (var i in workingHours) {
+                                            var workList = workingHours[i];
+                                            workingList.push(workList);
+                                            delete workList.id;
+                                            delete workList.clinicUsername;
+                                        }
+                                        res.json(utils.responseSuccess(workingList));
+                                    })
+                                    .catch(function (err) {
+                                        res.json(utils.responseFailure(err.message));
+                                    });
                             }
                         })
                         .catch(function (err) {
