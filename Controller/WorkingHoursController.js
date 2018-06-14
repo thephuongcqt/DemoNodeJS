@@ -24,8 +24,10 @@ module.exports = function (app, express) {
                                 for (var i in workingHours.workingHours) {
                                     var workList = workingHours.workingHours[i];
                                     workingHoursList.push(workList);
+                                    delete workList.id;
+                                    delete workList.clinicUsername;
                                 }
-                                res.json(utils.responseSuccess(workingHoursList))
+                                res.json(utils.responseSuccess(workingHoursList));
                             }
                         })
                         .catch(function (err) {
@@ -64,7 +66,23 @@ module.exports = function (app, express) {
                                     db.WorkingHours.where({ "clinicUsername": username, "applyDate": applyDate })
                                         .save({ "startWorking": startWorking, "endWorking": endWorking, "isDayOff": isDayOff }, { patch: true });
                                 }
-                                res.json(utils.responseSuccess("Update Working Hours Successfull"));
+                                db.WorkingHours.where({ "clinicUsername": username })
+                                    .fetch()
+                                    .then(function (collection) {
+                                        var workingHours = model.toJSON();
+                                        var workingHoursList = [];
+                                        for (var i in workingHours.workingHours) {
+                                            var workList = workingHours.workingHours[i];
+                                            workingHoursList.push(workList);
+                                            delete workList.id;
+                                            delete workList.clinicUsername;
+                                        }
+                                        res.json(utils.responseSuccess(workingHoursList));
+                                    })
+                                    .catch(function (err) {
+                                        res.json(utils.responseFailure(err.message));
+                                    });
+
                             }
                         })
                         .catch(function (err) {
