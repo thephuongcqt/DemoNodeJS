@@ -124,7 +124,13 @@ function verifyData(user, patient, patientPhone) {
         });
 }
 
-function makeAppointment(patientPhone, patientName, clinicPhone) {
+function makeAppointment(patientPhone, patientName, clinicPhxone) {
+    if(!patientName.trim()){
+        //Patient name is empty
+        var message = "Vui lòng nhập tên để đăng ký khám bệnh";
+        sendSMSToPatient(clinicPhone, patientPhone, message);
+        return;
+    }
     //get clinicUsername from phoneNumber
     db.User.forge({ "phoneNumber": clinicPhone })
         .fetch({ withRelated: ["clinic"] })
