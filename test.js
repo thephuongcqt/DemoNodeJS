@@ -216,17 +216,28 @@ var test = function () {
     // })
     var patientPhone = "+18327795475";
     
-    utils.getBookedNumbers("hoanghoa")
-    .then(function(result){
-        var isBooked = utils.checkNumberInArray(patientPhone, result);
-        if(isBooked){
-            var fakePhoneNumber = utils.getFakePhoneNumber(result, Const.randomNumbers);
-            console.log(fakePhoneNumber);
-        }
-    })
-    .catch(function(err){
-        console.log(err);
-    })
+    // utils.getBookedNumbers("hoanghoa")
+    // .then(function(result){
+    //     var isBooked = utils.checkNumberInArray(patientPhone, result);
+    //     if(isBooked){
+    //         var fakePhoneNumber = utils.getFakePhoneNumber(result, Const.randomNumbers);
+    //         console.log(fakePhoneNumber);
+    //     }
+    // })
+    // .catch(function(err){
+    //     console.log(err);
+    // })
+    var clinicUsername = "hoanghoa";
+    var bookingDate = 4;
+    new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": bookingDate })
+        .fetch({ withRelated: ["clinic"] })
+        .then(function(model) {
+            var config = model.toJSON();
+            console.log(config);
+        })
+        .catch(function(err){
+            console.log(err);
+        });
 };
 test();
 

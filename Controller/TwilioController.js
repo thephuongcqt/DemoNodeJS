@@ -147,8 +147,7 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                             return;
                         }
                         if (isBooked) {
-                            var fakePhoneNumber = utils.getFakePhoneNumber(result, Const.randomNumbers);
-                            console.log(fakePhoneNumber);
+                            var fakePhoneNumber = utils.getFakePhoneNumber(result, Const.randomNumbers);                            
                             patient.phoneNumber = fakePhoneNumber;
                         }                        
                         verifyData(user, patient, patientPhone);
