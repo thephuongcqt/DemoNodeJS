@@ -70,22 +70,21 @@ module.exports = function (app, express) {
                                         .save({ "startWorking": parseStartWorking, "endWorking": parseEndWorking, "isDayOff": isDayOff }, { patch: true });
                                 }
                                 db.WorkingHours.where({ "clinicUsername": username })
-                                    .fetch()
+                                    .fetchAll()
                                     .then(function (collection) {
-                                        var workingHours = model.toJSON();
-                                        var workingHoursList = [];
-                                        for (var i in workingHours.workingHours) {
-                                            var workList = workingHours.workingHours[i];
-                                            workingHoursList.push(workList);
+                                        var workingHours = collection.toJSON();
+                                        var workingList = [];
+                                        for (var i in workingHours) {
+                                            var workList = workingHours[i];
+                                            workingList.push(workList);
                                             delete workList.id;
                                             delete workList.clinicUsername;
                                         }
-                                        res.json(utils.responseSuccess(workingHoursList));
+                                        res.json(utils.responseSuccess(workingList));
                                     })
                                     .catch(function (err) {
                                         res.json(utils.responseFailure(err.message));
                                     });
-
                             }
                         })
                         .catch(function (err) {
