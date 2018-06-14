@@ -246,5 +246,47 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
             });
     });
+
+    apiRouter.post("/getInformation", function (req, res) {
+        var username = req.body.username;        
+
+        new db.User({ "username": username})
+            .fetch({ withRelated: ["clinic"] })
+            .then(function (model) {
+                if (model == null) {
+                    res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
+                } else {
+                    var clinic = model.toJSON();
+                    new db.Clinic({ "username": username })
+                        .fetch({ withRelated: ["workingHours"] })
+                        .then(function (model) {
+                            var workingHour = model.toJSON();
+                            for(var i in workingHour.workingHours){
+                                var work = workingHour.workingHours[i];
+                                delete work.id;
+                                delete work.clinicUsername;
+                            }
+                            if (clinic.role === Const.ROLE_CLINIC) {
+                                clinic.clinicName = clinic.clinic.clinicName;
+                                clinic.address = clinic.clinic.address;
+                                clinic.examinationDuration = clinic.clinic.examinationDuration;
+                                clinic.expiredLicense = clinic.clinic.expiredLicense;
+                                clinic.workingHours = workingHour.workingHours;
+                                delete clinic.clinic;
+                                delete clinic.password;
+                                res.json(utils.responseSuccess(clinic));
+                            } else {
+                                res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
+                            }
+                        })
+                        .catch(function (err) {
+                            res.json(utils.responseFailure(err.message));
+                        });
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+            });
+    });
     return apiRouter;
 }
