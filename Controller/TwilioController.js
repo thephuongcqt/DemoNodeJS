@@ -1,12 +1,14 @@
 var speechToText = require("./SpeechToTextController");
-const accountSid = 'AC0182c9b950c8fe1229f93aeb40900a5d';
-const authToken = '903448ab8b8a1e8a59bf62126841bd10';
-const client = require('twilio')(accountSid, authToken);
 var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 const dateFormat = require('dateformat');
 var scheduler = require("../Utils/Scheduler");
+var configUtils = require("../Utils/ConfigUtils");
+
+// const accountSid = 'AC0182c9b950c8fe1229f93aeb40900a5d';
+// const authToken = '903448ab8b8a1e8a59bf62126841bd10';
+// const client = require('twilio')(accountSid, authToken);
 
 module.exports = function(app, express) {
     var apiRouter = express.Router();
@@ -27,6 +29,8 @@ module.exports = function(app, express) {
     apiRouter.post("/Recorded", function(req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
+        
+        var client = configUtils.getTwilioByID(req.body.AccountSid);
         speechToText.getTextFromVoice(req.body.RecordingUrl, function(err, patientName) {
             client.calls(req.body.CallSid)
                 .fetch()
@@ -47,6 +51,7 @@ module.exports = function(app, express) {
 
 function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
     //  Send SMS to announcement appointment for patient has book successfull 
+    var client = configUtils.getTwilioByPhone(clinicPhone);
     client.messages.create({
         body: messageBody,
         from: clinicPhone,

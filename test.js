@@ -213,89 +213,10 @@ var test = function () {
     // .fetch()
     // .then(function(model){
     //     console.log(model.toJSON());
-    // })
-    var patientPhone = "+18327795475";
-    
-    // utils.getBookedNumbers("hoanghoa")
-    // .then(function(result){
-    //     var isBooked = utils.checkNumberInArray(patientPhone, result);
-    //     if(isBooked){
-    //         var fakePhoneNumber = utils.getFakePhoneNumber(result, Const.randomNumbers);
-    //         console.log(fakePhoneNumber);
-    //     }
-    // })
-    // .catch(function(err){
-    //     console.log(err);
-    // })
-    var clinicUsername = "hoanghoa";
-    var bookingDate = 4;
-    new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": bookingDate })
-        .fetch({ withRelated: ["clinic"] })
-        .then(function(model) {
-            var config = model.toJSON();
-            console.log(config);
-        })
-        .catch(function(err){
-            console.log(err);
-        });
+    // })    
+
+    var fs = require('fs');
+    var obj = JSON.parse(fs.readFileSync('./AppConfig/config.txt', 'utf8'));
+    console.log(obj);
 };
 test();
-
-
-
-
-
-// function insertData(worksheet, workbook) {
-//     var clinicUsername = "hoanghoa";
-//     var sql = "SELECT * FROM tbl_appointment WHERE clinicUsername = '" + clinicUsername + "' AND DATE(appointmentTime) = CURRENT_DATE()";
-//     db.knex.raw(sql)
-//         .then(function (collection) {
-//             result = collection[0];
-//             if (result.length > 0) {
-//                 var tmp = [];
-//                 for (var i in result) {
-//                     tmp.push(result[i].patientID);
-//                 }
-//                 db.Patient.forge()
-//                     .where("patientID", "in", tmp)
-//                     .fetchAll()
-//                     .then(function (patientsResult) {
-//                         var results = [];
-//                         for (var i in result) {
-//                             var tmpAppointment = JSON.parse(JSON.stringify(result[i]));
-//                             var convertTime = Moment(tmpAppointment.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
-//                             for (j in patientsResult.models) {
-//                                 var tmpPatient = patientsResult.models[j].toJSON();
-//                                 if (tmpAppointment.patientID == tmpPatient.patientID) {
-//                                     tmpAppointment.appointmentTime = convertTime;
-//                                     tmpAppointment.patient = tmpPatient;
-//                                 }
-//                             }
-//                             var row = {
-//                                 id: tmpAppointment.appointmentID,
-//                                 name: tmpAppointment.patient.fullName,
-//                                 phoneNumber: tmpAppointment.patient.phoneNumber,
-//                                 time: convertTime
-//                             };
-//                             worksheet.addRow(row);
-//                         }
-//                         // workbook.xlsx.writeFile("FirstExcel.xlsx")
-//                         //     .then(function () {
-//                         //         // use workbook
-//                         //         console.log("done");
-//                         //     });
-
-//                         workbook.csv.writeFile("/Users/PhuongNT/Desktop/FirstCSV.csv")
-//                             .then(function () {
-//                                 // done
-//                                 console.log("csv");
-//                             });
-//                     });
-//             } else {
-
-//             }
-//         })
-//         .catch(function (err) {
-
-//         });
-// }
