@@ -21,16 +21,14 @@ var config = {
     getTwilioByPhone: function(phoneNumber){
         var config = getConfigJson();
         var twilios = config.twilios;
-        var twilio = twilios[phoneNumber];
-        console.log(twilio);
+        var twilio = twilios[phoneNumber];        
         return getTwilioAccount(twilio.accountSid, twilio.authToken);
     }, 
     getTwilioByID: function(id){
         var config = getConfigJson();
         var twilios = config.twilios;
         for(var i in twilios){            
-            if(twilios[i].accountSid.trim() === id.trim()){
-                console.log(twilios[i]);
+            if(twilios[i].accountSid.trim() === id.trim()){                
                 return getTwilioAccount(twilios[i].accountSid, twilios[i].authToken);
             }
         }

@@ -6,10 +6,6 @@ const dateFormat = require('dateformat');
 var scheduler = require("../Utils/Scheduler");
 var configUtils = require("../Utils/ConfigUtils");
 
-// const accountSid = 'AC0182c9b950c8fe1229f93aeb40900a5d';
-// const authToken = '903448ab8b8a1e8a59bf62126841bd10';
-// const client = require('twilio')(accountSid, authToken);
-
 module.exports = function(app, express) {
     var apiRouter = express.Router();
     // book appointment by Call
