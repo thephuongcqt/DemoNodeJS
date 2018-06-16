@@ -109,7 +109,7 @@ module.exports = function (app, express) {
                             res.json(utils.responseFailure(err.message));
                         });
                 } else {
-                    res.json(utils.responseSuccess(collection.toJSON()));
+                    res.json(utils.responseFailure("This username have been exist"));
                 }
             })
             .catch(function (err) {
