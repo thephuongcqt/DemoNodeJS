@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "callcenter-capstone",
+  "private_key_id": "ae651017ca10dade3641b73a0345ae9f8a016b46",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCRjnf+9KloTmk7\nLyaLlDQa0QVDwig+mg1TGTGKUwFlvyTdo3TDL1oGLZgLI2W+AOjlsCgMAdsUIziS\nlY8EHyRSjt1Xc8NFqIHxSYvzjN4IlTBNY5mtHo3W/RiMquem5f3wYaVtTOwnPSYm\nhhbU80Q9z3lib4igQvxMF7KqhvpDO8ftyjVt0NcpUWo2borKKRIwTKyyHvWHZtF9\ncrzpW8MNCIbo0A9jjgBCPsOMHz4E+zwAoL5TOhJtR3O2F1Vn0KF8XvL9jflV0yGT\nuvlMKYLqhWPpy0JH0Hwcd+4hBwY+lWNtxjSnI4ZgVxLMiazSQqoTVrXPfiJ0YDSH\n4wPc03jrAgMBAAECggEAI6hqPxxC0Bm9b9FKORFyfktMZeAPqd5le0EFwOQ6yGk+\nJ8neVd6oyDCtObVPPG/Onk48UUy3FcTXHBnlclYKuOrk0IK8iLkSNEEXNvAAiMu7\njInk4ONGTi+srvFDVMCtKBFTzGX2yFoTmYZp23tI8Xd9Ph8islgWpLF9hIcSkhuZ\na7lCIPK6w2MZn7GpZeGAauFHlZP5QZFdOrR/qlBXiXAxDj4DgK03Ap1eFW+oUOr8\nLOBnqcNQydTawOCd1OQAkKKBl6GQJyKPHc9bevZeR23Q0vZpqBMXL1mTss24/eC7\n58THOoVD4IQC2tVbq5oD/0A6Y7RkvT+Xybw53heOqQKBgQDHLVHwFkDopK0ZGywz\nDHThXO/gA/If8sB30KQyHnKEKLuBrnnLu4MYBYDq6kfOb5KraK3iAVoz0Ws3k/WV\noC8AlCnstXBRCdWqzaet/fpywNAExd8aX8Wfd9+gpFdnK2BpP47jwlJ5br/DUa2S\nQHaTw5DJolpK47gWPqQq6tLXdQKBgQC7FQhCHilsuPG7BIhfXsB6ziMmeFHAA55R\nMOrCXVXuMltc+7gXkqokDOZmTu5B5DiBKSsPDgMZggz8Z5lf5K+nLecEXbgXCn3q\nFVz8+kAzSxy1V/Km0oU8sJLVLK6q/hFoMb64+q9+3BEcH3l5iiobPANx4LfaqgUs\ngQWDzxNi3wKBgDeu8eNfNVJVB5enQxoad2qx4tYMBFruMOTOTbk9TeKoyJMexiox\nCBtlHn+Oc/jAtI57O3Gd0yv9di4ZjWUBXWKaCYaFyxq81yFjUWeRQ71lLkLHVvI2\nqDdG+hwdFdpgBBoojLgcEZalYbMnWJE0uHHjEM1uODQLqeF+LcNZ1wwpAoGBAInF\nkGJYofsOK/6k9OT++1K00c/31YRJZeK22nuujqSu8veD7Gt3t9J6qYX4ZJ+juTTt\nI2ef0wqK6pNKm/mxiOXd+P4PIo3dTSMA/ozSokrj6s1lai4OZM5v3oIcuLj2B82q\nrKC/BFSxLex/BU9LP3z08jh/3AWtJchDb9NEwSsTAoGBALruU8WWH6EPXOt4Iggp\nul8IqGwVjL7JLL3kNMpyK7Dz4l2tx0MmmbXC0fp0k2oC0KeKk4zkLl59zynKsQfl\nyXiiLY2chwFee53fy73RkDgN10agIca4ou1MFvrkeGFUDh5jchuhJkI+l75Bv8Yu\n/6SXKtRNUWnEY1RBDGmCoqcX\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-dsn16@callcenter-capstone.iam.gserviceaccount.com",
+  "client_id": "104937400944112478529",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-dsn16%40callcenter-capstone.iam.gserviceaccount.com"
+}

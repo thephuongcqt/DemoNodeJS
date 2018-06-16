@@ -2,7 +2,7 @@ const speech = require('@google-cloud/speech');
 const https = require('https');
 
 const googleClient = new speech.SpeechClient({
-    keyFilename: './Certificate/callcenter.json'    
+    keyFilename: './Certificate/GGSpeechToText.json'    
 });
 
 var sttFunctions = {

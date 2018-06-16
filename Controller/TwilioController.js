@@ -8,6 +8,7 @@ var configUtils = require("../Utils/ConfigUtils");
 
 module.exports = function(app, express) {
     var apiRouter = express.Router();
+
     // book appointment by Call
     apiRouter.get("/Voice", function(req, res) {
         res.set('Content-Type', 'text/xml');
@@ -21,7 +22,8 @@ module.exports = function(app, express) {
         });
         res.end(twiml.toString());
     });
-    // speech to text
+
+    // Receive record and make appointment with google speech to text
     apiRouter.post("/Recorded", function(req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
@@ -36,6 +38,7 @@ module.exports = function(app, express) {
                 .done();
         });
     });
+
     // book appointment by SMS
     apiRouter.post("/Message", function(req, res) {
         res.set('Content-Type', 'text/xml');
@@ -44,6 +47,8 @@ module.exports = function(app, express) {
     });
     return apiRouter;
 };
+
+//--------------------------------------------- Twilio Utilities method ---------------------------------------------//
 
 function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
     //  Send SMS to announcement appointment for patient has book successfull 

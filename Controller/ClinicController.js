@@ -249,7 +249,6 @@ module.exports = function (app, express) {
 
     apiRouter.post("/getInformation", function (req, res) {
         var username = req.body.username;        
-
         new db.User({ "username": username})
             .fetch({ withRelated: ["clinic"] })
             .then(function (model) {

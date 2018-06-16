@@ -30,7 +30,6 @@ module.exports = function (app, express) {
             res.json(utils.responseFailure(err));
         });
     });
-
     return apiRouter;
 };
 
