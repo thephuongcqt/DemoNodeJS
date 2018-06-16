@@ -18,6 +18,10 @@
         "+18443948383": {
             "accountSid": "AC5b4d2c6c96b684d25b283d49f138cbd1",
             "authToken": "08fc749849bb4d6ce4948003bdd47363"
+        },
+        "+12762547405": {
+            "accountSid": "ACd57d3cc272b9a0819318bb5dbce84417",
+            "authToken": "877e4a0c9a528ba5356e45961365a084"
         }
     }
 }
