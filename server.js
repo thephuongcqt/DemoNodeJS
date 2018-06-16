@@ -9,7 +9,6 @@ var paypalController = require("./Payment/Paypal")(app, express);
 var appointmentController = require("./Controller/AppointmentController")(app, express);
 // Add headers
 app.use(function (req, res, next) {
-
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -53,7 +52,9 @@ app.use("/paypal", paypalController);
 
 app.use("/", function(req, res){
     res.json({
-        "default": "default"
+        "success": false,
+        "value": null,
+        "error": "Someting went wrong!!! this is a default route"
     });
 });
 

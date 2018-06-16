@@ -14,6 +14,10 @@
         "+18882013125": {
             "accountSid": "ACc88bee4677419771e935b7379886d9a7",
             "authToken": "2fd20252aa10273209df7d91f09af47d"
+        },
+        "+18443948383": {
+            "accountSid": "AC5b4d2c6c96b684d25b283d49f138cbd1",
+            "authToken": "08fc749849bb4d6ce4948003bdd47363"
         }
     }
 }
