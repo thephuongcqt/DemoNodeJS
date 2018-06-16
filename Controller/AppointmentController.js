@@ -3,6 +3,7 @@ var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 const dateFormat = require('dateformat');
 var Moment = require('moment');
+var logger = require("../Utils/Logger");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -28,6 +29,7 @@ module.exports = function (app, express) {
         })
         .catch(function(err){
             res.json(utils.responseFailure(err));
+            logger.log(err.message, "getAppointmentsListByDate");
         });
     });
     return apiRouter;

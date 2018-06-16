@@ -1,6 +1,8 @@
 var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
+var logger = require("../Utils/Logger");
+
 module.exports = function (app, express) {
     var apiRouter = express.Router();
     // login
@@ -27,6 +29,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "Login", "UserController");
             });
     });
 
@@ -41,6 +44,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure("Incorrect username or password"));
+                logger.log(err.message, "changePassword", "UserController");
             });
     });
 
@@ -53,6 +57,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "getAllAdmin", "UserController");
             });
     });
     // get all user by role from database
@@ -66,6 +71,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err.message));
+                    logger.log(err.message, "getAllUser", "UserController");
                 });
         }
         else if (req.query.role == 1) {
@@ -77,6 +83,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err.message));
+                    logger.log(err.message, "getAllUser", "UserController");
                 });
         }
         else {
@@ -87,6 +94,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err.message));
+                    logger.log(err.message, "getAllUser", "UserController");
                 });
         }
     });
@@ -130,6 +138,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "checkDuplicate", "UserController");
             });
     });
     // update information
@@ -155,11 +164,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "update", "UserController");
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "update", "UserController");
             });
     });
     // delete account
@@ -180,10 +191,12 @@ module.exports = function (app, express) {
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err.message));
+                                    logger.log(err.message, "delete", "UserController");
                                 });
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "delete", "UserController");
                         });
                 } else if (collection.attributes.role == 0) {
                     db.User.where({ "username": username })
@@ -193,11 +206,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "delete", "UserController");
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "delete", "UserController");
             });
     });
     return apiRouter;

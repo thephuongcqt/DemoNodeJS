@@ -6,12 +6,13 @@ const dateFormat = require('dateformat');
 var scheduler = require("../Utils/Scheduler");
 var configUtils = require("../Utils/ConfigUtils");
 var firebase = require("../Notification/FirebaseAdmin");
+var logger = require("../Utils/Logger");
 
-module.exports = function(app, express) {
+module.exports = function (app, express) {
     var apiRouter = express.Router();
 
     // book appointment by Call
-    apiRouter.get("/Voice", function(req, res) {
+    apiRouter.get("/Voice", function (req, res) {
         res.set('Content-Type', 'text/xml');
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
         var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
@@ -25,12 +26,12 @@ module.exports = function(app, express) {
     });
 
     // Receive record and make appointment with google speech to text
-    apiRouter.post("/Recorded", function(req, res) {
+    apiRouter.post("/Recorded", function (req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
-        
+
         var client = configUtils.getTwilioByID(req.body.AccountSid);
-        speechToText.getTextFromVoice(req.body.RecordingUrl, function(err, patientName) {
+        speechToText.getTextFromVoice(req.body.RecordingUrl, function (err, patientName) {
             client.calls(req.body.CallSid)
                 .fetch()
                 .then(call => {
@@ -41,7 +42,7 @@ module.exports = function(app, express) {
     });
 
     // book appointment by SMS
-    apiRouter.post("/Message", function(req, res) {
+    apiRouter.post("/Message", function (req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
         makeAppointment(req.body.From, req.body.Body, req.body.To);
@@ -60,7 +61,7 @@ function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
         to: patientPhone
     }).then(messages => { })
         .catch(function (err) {
-            console.log(err);            
+            logger.log(err.message, "sendSMSToPatient");
         })
         .done();
 }
@@ -68,7 +69,7 @@ function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
 function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount, patientPhone) {
     db.Patient.forge(patient)
         .save()
-        .then(function(model) {
+        .then(function (model) {
             var newPatient = model.toJSON();
             var newAppointment = {
                 clinicUsername: user.clinic.username,
@@ -79,7 +80,7 @@ function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount, pat
             // insert Appointment                        
             db.Appointment.forge(newAppointment)
                 .save()
-                .then(function(model) {
+                .then(function (model) {
                     var appointment = model.toJSON();
                     //Begin send SMS to patient
                     var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
@@ -95,12 +96,13 @@ function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount, pat
                     firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
                     //End send notification to Clinic
                 })
-                .catch(function(err) {
+                .catch(function (err) {
+                    logger.log(err.message, "saveDataWhenBookingSuccess");
                     //save appointment fail;
                 });
         })
-        .catch(function(err) {
-            console.log(err);
+        .catch(function (err) {
+            logger.log(err.message, "saveDataWhenBookingSuccess");
             // save patient fail
         });
 }
@@ -111,13 +113,13 @@ function verifyData(user, patient, patientPhone) {
 
     new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": bookingDate })
         .fetch({ withRelated: ["clinic"] })
-        .then(function(model) {
+        .then(function (model) {
             var config = model.toJSON();
             var sql = "clinicUsername = ? AND DATE(appointmentTime) = CURRENT_DATE()";
             db.knex("tbl_appointment")
                 .whereRaw(sql, [clinicUsername])
                 .count("* as count")
-                .then(function(collection) {
+                .then(function (collection) {
                     var bookedAppointment = collection[0].count;
                     var bookedTime = scheduler.getExpectationTime(config.startWorking, config.endWorking, bookedAppointment, config.clinic.examinationDuration);
                     if (bookedTime == null) {
@@ -128,19 +130,19 @@ function verifyData(user, patient, patientPhone) {
                         //need to send notify to clinic
                     }
                 })
-                .catch(function(err) {
-                    console.log(err.message);
+                .catch(function (err) {
                     sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
+                    logger.log(err.message, "verifyData");
                 });
 
         })
-        .catch(function(err) {
-            console.log(err.message);
+        .catch(function (err) {
+            logger.log(err.message, "verifyData");
         });
 }
 
 function makeAppointment(patientPhone, patientName, clinicPhone) {
-    if(!patientName.trim()){
+    if (!patientName.trim()) {
         //Patient name is empty
         var message = "Vui lòng nhập tên để đăng ký khám bệnh";
         sendSMSToPatient(clinicPhone, patientPhone, message);
@@ -149,39 +151,39 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
     //get clinicUsername from phoneNumber
     db.User.forge({ "phoneNumber": clinicPhone })
         .fetch({ withRelated: ["clinic"] })
-        .then(function(model) {
+        .then(function (model) {
             if (model != null) {
                 var user = model.toJSON();
                 var patient = {
                     "phoneNumber": patientPhone,
-                    "fullName": patientName,                    
+                    "fullName": patientName,
                 };
                 //begin fake patient phone number
                 utils.getBookedNumbers(user.clinic.username)
-                    .then(function(result) {
+                    .then(function (result) {
                         var isBooked = utils.checkNumberInArray(patientPhone, result);
-                        var isTestNumber = utils.checkNumberInArray(patientPhone, Const.testNumbers);
-                        if(isBooked && !isTestNumber){
+                        var isTestNumber = utils.checkNumberInArray(patientPhone, configUtils.getTestNumbers());
+                        if (isBooked && !isTestNumber) {
                             //Hard code
                             var message = "Hôm nay bạn đã đặt hẹn rồi! xin vui lòng kiểm tra lại thông tin";
                             sendSMSToPatient(clinicPhone, patientPhone, message);
                             return;
                         }
                         if (isBooked) {
-                            var fakePhoneNumber = utils.getFakePhoneNumber(result, Const.randomNumbers);                            
+                            var fakePhoneNumber = utils.getFakePhoneNumber(result, configUtils.getRandomNumbers());
                             patient.phoneNumber = fakePhoneNumber;
-                        }                        
+                        }
                         verifyData(user, patient, patientPhone);
                     })
-                    .catch(function(err) {
-                        console.log(err);
+                    .catch(function (err) {
+                        logger.log(err.message, "makeAppointment");
                     })
                 //end fake patient phone number                
             } else {
-                console.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone);
+                logger.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone, "makeAppointment");
             }
         })
-        .catch(function(err) {
-            console.log(err.message);
+        .catch(function (err) {
+            logger.log(err.message, "makeAppointment");
         });
 }

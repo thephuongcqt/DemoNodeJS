@@ -1,6 +1,7 @@
 var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
+var logger = require("../Utils/Logger");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -17,6 +18,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "getAllLicense", "LicenseController");
             });
     });
     // create license
@@ -33,6 +35,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "create", "LicenseController");
             });
     });
     // update license
@@ -50,11 +53,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "update", "LicenseController");
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "update", "LicenseController");
             });
     });
     // delete license
@@ -88,6 +93,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "delete", "LicenseController");
             });
     });
     return apiRouter;

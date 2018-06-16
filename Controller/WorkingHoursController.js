@@ -2,6 +2,8 @@ var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var Moment = require('moment');
+var logger = require("../Utils/Logger");
+
 module.exports = function (app, express) {
     apiRouter = express.Router();
     // get working hours
@@ -33,11 +35,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "getworkinghours");
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "getworkinghours");
             });
     });
 
@@ -91,11 +95,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "update", "WorkingHoursController");
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "update", "WorkingHoursController");
             });
     });
     return apiRouter;

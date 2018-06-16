@@ -1,6 +1,7 @@
 var db = require("../Utils/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
+var logger = require("../Utils/Logger");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -25,11 +26,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "changeInformation");
                         });                        
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "changeInformation");
             });
     });
 
@@ -64,11 +67,13 @@ module.exports = function (app, express) {
                     })
                     .catch(function (err) {
                         res.json(utils.responseFailure(err.message));
+                        logger.log(err.message, "getAllClinic");
                     })
 
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "getAllClinic");
             });
     });
 
@@ -107,11 +112,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "Login");
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "Login");
             });
     });
 
@@ -141,14 +148,16 @@ module.exports = function (app, express) {
                                         })
                                         .catch(function (err) {
                                             res.json(utils.responseFailure(err.message));
+                                            logger.log(err.message, "Register");
                                         });
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err.message));
+                                    logger.log(err.message, "Register");
                                 });
                         })
                         .catch(function (err) {
-
+                            logger.log(err.message, "Register");
                         });
                 } else {
                     res.json(utils.responseFailure("Username have exist"));
@@ -156,6 +165,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "Register");
             });
     });
     // update information clinic
@@ -192,20 +202,24 @@ module.exports = function (app, express) {
                                             })
                                             .catch(function (err) {
                                                 res.json(utils.responseFailure(err.message));
+                                                logger.log(err.message, "update");
                                             });
                                     }
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err.message));
+                                    logger.log(err.message, "update");
                                 });
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "update");
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "update");
             });
     });
 
@@ -235,6 +249,7 @@ module.exports = function (app, express) {
                             })
                             .catch(function (err) {
                                 res.json(utils.responseFailure(err.message));
+                                logger.log(err.message, "appointment");
                             });
                     }
                     res.json(utils.responseSuccess(listAppointment));
@@ -244,6 +259,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "appointment");
             });
     });
 
@@ -280,11 +296,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "getInformation");
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "getInformation");
             });
     });
     return apiRouter;

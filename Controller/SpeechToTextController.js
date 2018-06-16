@@ -1,5 +1,6 @@
 const speech = require('@google-cloud/speech');
 const https = require('https');
+var logger = require("../Utils/Logger");
 
 const googleClient = new speech.SpeechClient({
     keyFilename: './Certificate/GGSpeechToText.json'    
@@ -39,7 +40,7 @@ var sttFunctions = {
                         callBackMethod(null, transcription);
                     })
                     .catch(err => {
-                        console.error('ERROR:', err);
+                        logger.log(err.message, "getTextFromVoice", "SpeechToTextController");
                         callBackMethod(err, null);
                     });
             });

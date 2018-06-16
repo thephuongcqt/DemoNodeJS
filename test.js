@@ -216,7 +216,9 @@ var test = function () {
     // })    
 
     var fs = require('fs');
-    var obj = JSON.parse(fs.readFileSync('./AppConfig/config.txt', 'utf8'));
-    console.log(obj);
+    var path = "log.txt";
+    var message = "new data";
+    message = "\n" + message;
+    fs.appendFileSync(path, message);
 };
 test();
