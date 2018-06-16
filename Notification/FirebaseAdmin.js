@@ -3,29 +3,28 @@ var serviceAccount = require("../Certificate/firebaseadmin.json");
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://callcenter-capstone.firebaseio.com"
+    databaseURL: "https://callcenter2-79faf.firebaseio.com"
 });
 
 var firebaseAdmin = {
-    notifyToClinic: function () {                
-        var message = {
+    notifyToClinic: function (clinicUsername, notifyTitle, notifyMessage) {
+        var message = {            
             android: {
                 ttl: 3600 * 1000, // 1 hour in milliseconds
-                priority: 'normal',
+                priority: 'high',
                 notification: {
-                  title: '$GOOG up 1.43% on the day',
-                  body: '$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.',
-                  icon: 'stock_ticker_update',
-                  color: '#f45342'
+                    title: notifyTitle,
+                    body: notifyMessage,
+                    icon: 'stock_ticker_update',
+                    color: '#f45342'
                 }
-              },
-            topic: 'hoanghoa'
+            },
+            topic: clinicUsername
         };
         // Send a message to devices subscribed to the provided topic.
         admin.messaging().send(message)
-            .then((response) => {
-                // Response is a message ID string.
-                console.log('Successfully sent message:', response);
+            .then((response) => {                
+                //send success
             })
             .catch((error) => {
                 console.log('Error sending message:', error);
@@ -33,5 +32,3 @@ var firebaseAdmin = {
     }
 };
 module.exports = firebaseAdmin;
-
-firebaseAdmin.notifyToClinic();

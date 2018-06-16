@@ -25,7 +25,7 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
-                        });
+                        });                        
                 }
             })
             .catch(function (err) {

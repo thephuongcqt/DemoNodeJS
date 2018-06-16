@@ -5,6 +5,7 @@ var Const = require("../Utils/Const");
 const dateFormat = require('dateformat');
 var scheduler = require("../Utils/Scheduler");
 var configUtils = require("../Utils/ConfigUtils");
+var firebase = require("../Notification/FirebaseAdmin");
 
 module.exports = function(app, express) {
     var apiRouter = express.Router();
@@ -80,11 +81,19 @@ function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount, pat
                 .save()
                 .then(function(model) {
                     var appointment = model.toJSON();
-                    //need to notify to clinic
+                    //Begin send SMS to patient
                     var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
                     var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
                     var messageBody = patient.fullName + ' mã số ' + bookingCount + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
                     sendSMSToPatient(user.phoneNumber, patientPhone, messageBody);
+                    //End send SMS to patient
+
+                    //Begin send notification to Clinic
+                    var notifyMessage = patient.fullName + " mã số " + bookingCount + " đã đặt lịch khám thành công ngày " + bookedDate + ' lúc ' + bookedTime;
+                    var notifyTitle = "Lịch hẹn đặt thành công";
+                    var topic = user.username;
+                    firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
+                    //End send notification to Clinic
                 })
                 .catch(function(err) {
                     //save appointment fail;
