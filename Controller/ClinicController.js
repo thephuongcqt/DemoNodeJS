@@ -105,6 +105,9 @@ module.exports = function (app, express) {
                                 clinic.workingHours = workingHour.workingHours;
                                 delete clinic.clinic;
                                 delete clinic.password;
+                                clinic.workingHours.sort(function (a, b) {
+                                    return a.applyDate - b.applyDate;
+                                });
                                 res.json(utils.responseSuccess(clinic));
                             } else {
                                 res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
