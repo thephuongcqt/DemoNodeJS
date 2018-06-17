@@ -89,6 +89,9 @@ module.exports = function (app, express) {
                                             delete workList.id;
                                             delete workList.clinicUsername;
                                         }
+                                        workingList.sort(function (a, b) {
+                                            return a.applyDate - b.applyDate;
+                                        });
                                         res.json(utils.responseSuccess(workingList));
                                     })
                                     .catch(function (err) {
