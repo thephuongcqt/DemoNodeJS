@@ -114,25 +114,27 @@ module.exports = function (app, express) {
     apiRouter.post("/updateAll", async function (req, res) {
         var username = req.body.username;
         // var listValue = [{
-        //     "startWorking": "06:00:00",
-        //     "endWorking": "18:00:00",
-        //     "applyDate": 1,
-        //     "isDayOff": 0
+        //     "startWorking": "06:00:00 AM",
+        //     "endWorking": "6:00:00 PM",
+        //     "applyDate": 1
         // },
         // {
-        //     "startWorking": "06:00:00",
-        //     "endWorking": "18:00:00",
-        //     "applyDate": 0,
-        //     "isDayOff": 1
+        //     "startWorking": "06:00:00 AM",
+        //     "endWorking": "6:00:00 PM",
+        //     "applyDate": 0
         // }];
         var listValue = req.body.values;
-        for (var i = 0; i < listValue.length; i++) {
-            var applyDate = listValue[i].applyDate;
-            var isDayOff = listValue[i].isDayOff;
-            var startWorking = listValue[i].startWorking;
-            var endWorking = listValue[i].endWorking;
-            await db.WorkingHours.where({ "clinicUsername": username, "applyDate": applyDate })
-                .save({ "startWorking": startWorking, "endWorking": endWorking, "isDayOff": isDayOff }, { patch: true });
+        if (listValue.length > 0) {
+            for (var i = 0; i < listValue.length; i++) {
+                var applyDate = listValue[i].applyDate;
+                // var isDayOff = listValue[i].isDayOff;
+                var startWorking = listValue[i].startWorking;
+                var parseStartWorking = Moment(startWorking, "h:mm:ss A").format("HH:mm:ss");
+                var endWorking = listValue[i].endWorking;
+                var parseEndWorking = Moment(endWorking, "h:mm:ss A").format("HH:mm:ss");
+                await db.WorkingHours.where({ "clinicUsername": username, "applyDate": applyDate })
+                    .save({ "startWorking": parseStartWorking, "endWorking": parseEndWorking }, { patch: true });
+            }
         }
         await db.WorkingHours.where({ "clinicUsername": username })
             .fetchAll()
