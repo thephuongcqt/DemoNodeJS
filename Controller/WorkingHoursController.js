@@ -30,6 +30,9 @@ module.exports = function (app, express) {
                                     delete workList.id;
                                     delete workList.clinicUsername;
                                 }
+                                workingHoursList.sort(function (a, b) {
+                                    return a.applyDate - b.applyDate;
+                                });
                                 res.json(utils.responseSuccess(workingHoursList));
                             }
                         })
@@ -110,13 +113,13 @@ module.exports = function (app, express) {
         // var listValue = [{
         //     "startWorking": "06:00:00",
         //     "endWorking": "18:00:00",
-        //     "applyDate": 0,
+        //     "applyDate": 1,
         //     "isDayOff": 0
         // },
         // {
         //     "startWorking": "06:00:00",
         //     "endWorking": "18:00:00",
-        //     "applyDate": 1,
+        //     "applyDate": 0,
         //     "isDayOff": 1
         // }];
         var listValue = req.body.values;
@@ -139,10 +142,14 @@ module.exports = function (app, express) {
                     delete workList.id;
                     delete workList.clinicUsername;
                 }
+                workingList.sort(function (a, b) {
+                    return a.applyDate - b.applyDate;
+                });
                 res.json(utils.responseSuccess(workingList));
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "update", "WorkingHoursController");
             });
     });
     return apiRouter;
