@@ -159,26 +159,39 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                     "fullName": patientName,
                 };
                 //begin fake patient phone number
-                utils.getBookedNumbers(user.clinic.username)
+                // utils.getBookedNumbers(user.clinic.username)
+                //     .then(function (result) {
+                //         var isBooked = utils.checkNumberInArray(patientPhone, result);
+                //         var isTestNumber = utils.checkNumberInArray(patientPhone, configUtils.getTestNumbers());
+                //         if (isBooked && !isTestNumber) {
+                //             //Hard code
+                //             var message = "Hôm nay bạn đã đặt hẹn rồi! xin vui lòng kiểm tra lại thông tin";
+                //             sendSMSToPatient(clinicPhone, patientPhone, message);
+                //             return;
+                //         }
+                //         if (isBooked) {
+                //             var fakePhoneNumber = utils.getFakePhoneNumber(result, configUtils.getRandomNumbers());
+                //             patient.phoneNumber = fakePhoneNumber;
+                //         }
+                //         verifyData(user, patient, patientPhone);
+                //     })
+                //     .catch(function (err) {
+                //         logger.log(err.message, "makeAppointment");
+                //     })
+                //end fake patient phone number  
+                checkDuplicatePatient(user.clinic.username, patientPhone, patientName)
                     .then(function (result) {
-                        var isBooked = utils.checkNumberInArray(patientPhone, result);
-                        var isTestNumber = utils.checkNumberInArray(patientPhone, configUtils.getTestNumbers());
-                        if (isBooked && !isTestNumber) {
-                            //Hard code
-                            var message = "Hôm nay bạn đã đặt hẹn rồi! xin vui lòng kiểm tra lại thông tin";
-                            sendSMSToPatient(clinicPhone, patientPhone, message);
-                            return;
+                        if (result != null) {
+                            res.json(utils.responseSuccess(result));
+                        } else {
+                            verifyData(user, patient, patientPhone);
                         }
-                        if (isBooked) {
-                            var fakePhoneNumber = utils.getFakePhoneNumber(result, configUtils.getRandomNumbers());
-                            patient.phoneNumber = fakePhoneNumber;
-                        }
-                        verifyData(user, patient, patientPhone);
+
                     })
                     .catch(function (err) {
-                        logger.log(err.message, "makeAppointment");
-                    })
-                //end fake patient phone number                
+                        res.json(utils.responseFailure(err));
+                        logger.log(err.message, "getAppointmentsListByDate");
+                    });
             } else {
                 logger.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone, "makeAppointment");
             }
@@ -186,4 +199,39 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
         .catch(function (err) {
             logger.log(err.message, "makeAppointment");
         });
+}
+
+// check Duplicate Patient
+function checkDuplicatePatient(username, patientPhone, patientName) {
+    return new Promise((resolve, reject) => {
+        db.Appointment.forge()
+            .query(function (appointment) {
+                appointment.where("clinicUsername", username);
+            })
+            .fetchAll({ withRelated: ["patient"] })
+            .then(function (model) {
+                var appointments = model.toJSON();
+                if (appointments.length == 0) {
+                    reject("Không có cuộc hẹn nào");
+                    return;
+                }
+                var currentDate = new Date(2018, 05, 09).toDateString();
+                for (var i in appointments) {
+                    var appointment = appointments[i];
+                    var apppointmentTime = appointment.appointmentTime.toDateString();
+                    var patientsName = appointment.patient.fullName;
+                    var patientsPhone = appointment.patient.phoneNumber;
+                    if (patientName == patientsName && patientPhone == patientsPhone && apppointmentTime == currentDate) {
+                        delete appointment.clinicUsername;
+                        delete appointment.patientID;
+                        appointment.appointmentTime = Moment(appointment.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
+                        resolve(appointment);
+                        return;
+                    }
+                }
+            })
+            .catch(function (err) {
+                reject(err.message);
+            });
+    });
 }
