@@ -1,0 +1,13 @@
+
+2018-06-18 09:38:43
+	 Method: getAppointmentsListByDate
+	 Error: undefined
+2018-06-18 09:38:50
+	 Method: getAppointmentsListByDate
+	 Error: undefined
+2018-06-18 09:39:06
+	 Method: getAppointmentsListByDate
+	 Error: undefined
+2018-06-18 09:40:15
+	 Method: getAppointmentsListByDate
+	 Error: undefined
