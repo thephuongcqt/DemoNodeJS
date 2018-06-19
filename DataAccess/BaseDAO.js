@@ -7,7 +7,7 @@ var dao = {
                     resolve(model.toJSON());
                 })
                 .catch(err => {
-                    reject(err.message);
+                    reject(err);
                 })
         });
     },
@@ -17,13 +17,13 @@ var dao = {
         existedObj[idName] = json[idName];
         delete json[idName];
         return new Promise((resolve, reject) => {
-            table.forge(existedObj)
+            table.where(existedObj)
             .save(json, { patch: true })
             .then(model => {
-                resovle(model.toJSON());
+                resolve(model.toJSON());
             })
             .catch(err => {
-                reject(err.message);
+                reject(err);
             });
         });
     },
@@ -33,7 +33,7 @@ var dao = {
         json[idName] = id;
 
         return new Promise((resolve, reject) => {
-            table.forge(json)
+            table.where(json)
             .destroy()
             .then(model => {
                 resolve(model.toJSON());
@@ -55,21 +55,34 @@ var dao = {
                     resolve(model.toJSON());
                 })
                 .catch(err => {
-                    reject(err.message);
+                    reject(err);
                 });
         });
     },
     findByProperties: function (table, json) {
         return new Promise((resolve, reject) => {
-            table.forge(json)
+            table.where(json)
                 .fetchAll()
                 .then(model => {
                     resolve(model.toJSON());
                 })
                 .catch(err => {
-                    reject(err.message);
+                    reject(err);
                 })
         });
+    },
+    
+    findAll: function(table){
+        return new Promise((resolve, reject) => {
+            table.forge()
+            .fetchAll()
+            .then(collection => {
+                resolve(collection.toJSON());
+            })
+            .catch(err => {
+                reject(err);
+            })
+        })
     }
 };
 
