@@ -2,7 +2,7 @@ var fs = require('fs');
 var Moment = require('moment');
 
 function getFilePath(){    
-    return "./Log/" + Moment(new Date()).format('YYYY-MM-DD') + ".txt";
+    return "./Logs/" + Moment(new Date()).format('YYYY-MM-DD') + ".log";
 }
 
 var logger = {

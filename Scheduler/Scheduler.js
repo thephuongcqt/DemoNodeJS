@@ -1,5 +1,5 @@
-var Const = require("./Const");
-var utils = require("./Utils");
+var Const = require("../Utils/Const");
+var utils = require("../Utils/Utils");
 var Moment = require('moment');
 
 function miliseconds(hours, minutes, seconds) {
@@ -14,7 +14,7 @@ function getTotalDuration(count, duration) {
 module.exports = {
     getExpectationTime: function (startWorking, endWorking, count, duration) {
         var mCurrentTime = Moment(new Date(), "HH:mm:ss");
-        if(endWorking < currentTime){            
+        if(endWorking < mCurrentTime){            
             return null;
         }
         var mStart = Moment(startWorking, "HH:mm:ss");
