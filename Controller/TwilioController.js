@@ -3,7 +3,7 @@ var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 const dateFormat = require('dateformat');
-var scheduler = require("../Utils/Scheduler");
+var scheduler = require("../Scheduler/Scheduler");
 var configUtils = require("../Utils/ConfigUtils");
 var firebase = require("../Notification/FirebaseAdmin");
 var logger = require("../Utils/Logger");
@@ -159,39 +159,39 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                     "fullName": patientName,
                 };
                 //begin fake patient phone number
-                // utils.getBookedNumbers(user.clinic.username)
-                //     .then(function (result) {
-                //         var isBooked = utils.checkNumberInArray(patientPhone, result);
-                //         var isTestNumber = utils.checkNumberInArray(patientPhone, configUtils.getTestNumbers());
-                //         if (isBooked && !isTestNumber) {
-                //             //Hard code
-                //             var message = "Hôm nay bạn đã đặt hẹn rồi! xin vui lòng kiểm tra lại thông tin";
-                //             sendSMSToPatient(clinicPhone, patientPhone, message);
-                //             return;
-                //         }
-                //         if (isBooked) {
-                //             var fakePhoneNumber = utils.getFakePhoneNumber(result, configUtils.getRandomNumbers());
-                //             patient.phoneNumber = fakePhoneNumber;
-                //         }
-                //         verifyData(user, patient, patientPhone);
-                //     })
-                //     .catch(function (err) {
-                //         logger.log(err.message, "makeAppointment");
-                //     })
-                //end fake patient phone number  
-                checkDuplicatePatient(user.clinic.username, patientPhone, patientName)
+                utils.getBookedNumbers(user.clinic.username)
                     .then(function (result) {
-                        if (result != null) {
-                            res.json(utils.responseSuccess(result));
-                        } else {
-                            verifyData(user, patient, patientPhone);
+                        var isBooked = utils.checkNumberInArray(patientPhone, result);
+                        var isTestNumber = utils.checkNumberInArray(patientPhone, configUtils.getTestNumbers());
+                        if (isBooked && !isTestNumber) {
+                            //Hard code
+                            var message = "Hôm nay bạn đã đặt hẹn rồi! xin vui lòng kiểm tra lại thông tin";
+                            sendSMSToPatient(clinicPhone, patientPhone, message);
+                            return;
                         }
-
+                        if (isBooked) {
+                            var fakePhoneNumber = utils.getFakePhoneNumber(result, configUtils.getRandomNumbers());
+                            patient.phoneNumber = fakePhoneNumber;
+                        }
+                        verifyData(user, patient, patientPhone);
                     })
                     .catch(function (err) {
-                        res.json(utils.responseFailure(err));
-                        logger.log(err.message, "getAppointmentsListByDate");
-                    });
+                        logger.log(err.message, "makeAppointment");
+                    })
+                //end fake patient phone number  
+                // checkDuplicatePatient(user.clinic.username, patientPhone, patientName)
+                //     .then(function (result) {
+                //         if (result != null) {
+                //             res.json(utils.responseSuccess(result));
+                //         } else {
+                //             verifyData(user, patient, patientPhone);
+                //         }
+
+                //     })
+                //     .catch(function (err) {
+                //         res.json(utils.responseFailure(err));
+                //         logger.log(err.message, "getAppointmentsListByDate");
+                //     });
             } else {
                 logger.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone, "makeAppointment");
             }
