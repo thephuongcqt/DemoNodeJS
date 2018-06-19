@@ -141,6 +141,42 @@ module.exports = function (app, express) {
                 logger.log(err.message, "checkDuplicate", "UserController");
             });
     });
+    //check password
+    apiRouter.post("/checkPassword", function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+        db.User.where({ "username": username,"password": password })
+            .fetch()
+            .then(function (collection) {
+                if (collection == null) {
+                    res.json(utils.responseFailure("This password is not correct"));
+                } else {
+                    res.json(utils.responseSuccess("This password is correct"));
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "checkPassword", "UserController");
+            });
+    });
+    // //reset password
+    // apiRouter.post("/resetPassword", function (req, res) {
+    //     var username = req.body.username;
+    //     var email = req.body.email;
+    //     db.User.where({ "username": username,"password": password })
+    //         .fetch()
+    //         .then(function (collection) {
+    //             if (collection == null) {
+    //                 res.json(utils.responseFailure("This password is not correct"));
+    //             } else {
+    //                 res.json(utils.responseSuccess("This password is correct"));
+    //             }
+    //         })
+    //         .catch(function (err) {
+    //             res.json(utils.responseFailure(err.message));
+    //             logger.log(err.message, "checkPassword", "UserController");
+    //         });
+    // });
     // update information
     apiRouter.post("/update", function (req, res) {
         var username = req.body.username;
