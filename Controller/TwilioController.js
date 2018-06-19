@@ -8,6 +8,7 @@ var configUtils = require("../Utils/ConfigUtils");
 var firebase = require("../Notification/FirebaseAdmin");
 var logger = require("../Utils/Logger");
 var patientDao = require("../DataAccess/PatientDAO");
+var baseDao = require("../DataAccess/BaseDAO");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -62,50 +63,48 @@ function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
         to: patientPhone
     }).then(messages => { })
         .catch(function (err) {
-            logger.log(err.message, "sendSMSToPatient");
+            logger.log(err, "sendSMSToPatient");
         })
         .done();
 }
 
 function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount, patientPhone) {
-    db.Patient.forge(patient)
-        .save()
-        .then(function (model) {
-            var newPatient = model.toJSON();
-            var newAppointment = {
-                clinicUsername: user.clinic.username,
-                patientID: newPatient.id,
-                appointmentTime: bookedTime,
-                no: bookingCount
-            };
-            // insert Appointment                        
-            db.Appointment.forge(newAppointment)
-                .save()
-                .then(function (model) {
-                    var appointment = model.toJSON();
-                    //Begin send SMS to patient
-                    var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
-                    var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
-                    var messageBody = patient.fullName + ' mã số ' + bookingCount + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
-                    sendSMSToPatient(user.phoneNumber, patientPhone, messageBody);
-                    //End send SMS to patient
+    patientDao.insertNotExistedPatient(patient)
+    .then(newPatient => {
+        var newAppointment = {
+            clinicUsername: user.clinic.username,
+            patientID: newPatient.id,
+            appointmentTime: bookedTime,
+            no: bookingCount
+        };
+        // insert Appointment                        
+        db.Appointment.forge(newAppointment)
+            .save()
+            .then(function (model) {
+                var appointment = model.toJSON();
+                //Begin send SMS to patient
+                var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
+                var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
+                var messageBody = patient.fullName + ' mã số ' + bookingCount + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
+                sendSMSToPatient(user.phoneNumber, patientPhone, messageBody);
+                //End send SMS to patient
 
-                    //Begin send notification to Clinic
-                    var notifyMessage = patient.fullName + " mã số " + bookingCount + " đã đặt lịch khám thành công ngày " + bookedDate + ' lúc ' + bookedTime;
-                    var notifyTitle = "Lịch hẹn đặt thành công";
-                    var topic = user.username;
-                    firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
-                    //End send notification to Clinic
-                })
-                .catch(function (err) {
-                    logger.log(err.message, "saveDataWhenBookingSuccess");
-                    //save appointment fail;
-                });
-        })
-        .catch(function (err) {
-            logger.log(err.message, "saveDataWhenBookingSuccess");
-            // save patient fail
-        });
+                //Begin send notification to Clinic
+                var notifyMessage = patient.fullName + " mã số " + bookingCount + " đã đặt lịch khám thành công ngày " + bookedDate + ' lúc ' + bookedTime;
+                var notifyTitle = "Lịch hẹn đặt thành công";
+                var topic = user.username;
+                firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
+                //End send notification to Clinic
+            })
+            .catch(function (err) {
+                logger.log(err, "saveDataWhenBookingSuccess");
+                //save appointment fail;
+            });
+    })
+    .catch(err => {
+        logger.log(err);
+        // error 
+    });
 }
 
 function verifyData(user, patient, patientPhone) {
