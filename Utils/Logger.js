@@ -15,7 +15,7 @@ var logger = {
         if(method){
             logMessage += "\r\n\t Method: " + method;
         }
-        logMessage += "\r\n\t Error: " + message;
+        logMessage += "\r\n\t" + message;
 
         var filePath = getFilePath();
         fs.appendFileSync(filePath, logMessage);

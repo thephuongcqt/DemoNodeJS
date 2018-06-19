@@ -2,6 +2,7 @@ var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var logger = require("../Utils/Logger");
+var Moment = require("moment");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -101,8 +102,9 @@ module.exports = function (app, express) {
                                 clinic.clinicName = clinic.clinic.clinicName;
                                 clinic.address = clinic.clinic.address;
                                 clinic.examinationDuration = clinic.clinic.examinationDuration;
-                                clinic.expiredLicense = clinic.clinic.expiredLicense;
+                                clinic.expiredLicense = Moment(clinic.clinic.expiredLicense).format();
                                 clinic.workingHours = workingHour.workingHours;
+                                clinic.currentTime = Moment(new Date()).format();
                                 delete clinic.clinic;
                                 delete clinic.password;
                                 clinic.workingHours.sort(function (a, b) {
@@ -290,8 +292,9 @@ module.exports = function (app, express) {
                                 clinic.clinicName = clinic.clinic.clinicName;
                                 clinic.address = clinic.clinic.address;
                                 clinic.examinationDuration = clinic.clinic.examinationDuration;
-                                clinic.expiredLicense = clinic.clinic.expiredLicense;
+                                clinic.expiredLicense = Moment(clinic.clinic.expiredLicense).format();
                                 clinic.workingHours = workingHour.workingHours;
+                                clinic.currentTime = Moment(new Date()).format();
                                 delete clinic.clinic;
                                 delete clinic.password;
                                 res.json(utils.responseSuccess(clinic));

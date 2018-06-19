@@ -2,20 +2,23 @@ var db = require("./DBUtils");
 var logger = require("../Utils/Logger");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
+var dao = require("./BaseDAO");
 
-var dao = {
-    checkDuplicationPatient = async function(phoneNumber, fullName){
-        var patient = {"phoneNumber": phoneNumber, "fullName": fullName};
-        new db.Patient(patient)
-        .fetch()
-        .then(model => {
-            return model.toJSON();
+var patientDao = {
+    checkExistedPatient: function(phoneNumber, fullName){
+        var json = {"phoneNumber": phoneNumber, "fullName": fullName};
+        dao.findByProperties(db.Patient, json)
+        .then(collection => {
+            if(collection.length > 0){
+                return collection[0];
+            }
+            return null;
         })
         .catch(err => {
+            logger.log(err);
             return null;
-            logger.log(err.message, "checkDuplicationPatient", "PatientDAO");
         });
     }
 };
 
-module.exports = dao;
+module.exports = patientDao; 
