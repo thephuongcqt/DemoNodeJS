@@ -1,7 +1,7 @@
 var db = require("../DataAccess/DBUtils");
 var Moment = require("moment");
 var utils = {
-    responseFailure: function(error){
+    responseFailure: function (error) {
         var response = {
             "status": false,
             "value": null,
@@ -9,7 +9,7 @@ var utils = {
         };
         return response;
     },
-    responseSuccess: function(value){
+    responseSuccess: function (value) {
         var response = {
             "status": true,
             "value": value,
@@ -18,29 +18,29 @@ var utils = {
         return response;
     },
 
-    checkNumberInArray: function(phoneNumber, array){
-        for(var i in array){
-            if(phoneNumber.trim() === array[i].trim()){
+    checkNumberInArray: function (phoneNumber, array) {
+        for (var i in array) {
+            if (phoneNumber.trim() === array[i].trim()) {
                 return true;
             }
         }
         return false;
     },
 
-    getFakePhoneNumber: function(bookedNumbers, randomNumbers){
-        for(var i in randomNumbers){
-            if(!this.checkNumberInArray(randomNumbers[i], bookedNumbers))
+    getFakePhoneNumber: function (bookedNumbers, randomNumbers) {
+        for (var i in randomNumbers) {
+            if (!this.checkNumberInArray(randomNumbers[i], bookedNumbers))
                 return randomNumbers[i].trim();
         }
         return null;
     },
 
-    getBookedNumbers: function(clinicUsername) {
+    getBookedNumbers: function (clinicUsername) {
         var startCurrentDay = new Date();
         startCurrentDay.setHours(0, 0, 0, 0);
         var endCurrentDay = new Date();
         endCurrentDay.setHours(23, 59, 59, 999);
-    
+
         return new Promise((resolve, reject) => {
             db.Appointment.forge()
                 .query(function (appointment) {
@@ -54,19 +54,31 @@ var utils = {
                     for (var i in appointments) {
                         bookedNumbers.push(appointments[i].patient.phoneNumber);
                     }
-                    resolve(bookedNumbers);                
+                    resolve(bookedNumbers);
                 })
-                .catch(function(err){
+                .catch(function (err) {
                     reject(bookedNumbers);
                 })
         });
     },
-    
-    parseDate: function(date){
-        if(date){
+
+    parseDate: function (date) {
+        if (date) {
             return Moment(date).format("YYYY-MM-DDTHH:mm:ss.sssZ");
-        } 
-        return null;        
+        }
+        return null;
+    },
+
+    toUpperCaseForName: function (name) {
+        var splitStr = name.toLowerCase().split(' ');
+        for (var i = 0; i < splitStr.length; i++) {
+            // You do not need to check if i is larger than splitStr length, as your for does that for you
+            // Assign it back to the array
+            splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+        }
+        // Directly return the joined string
+        return splitStr.join(' ');
     }
+
 }
 module.exports = utils;

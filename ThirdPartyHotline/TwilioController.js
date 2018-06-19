@@ -148,7 +148,8 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
         sendSMSToPatient(clinicPhone, patientPhone, message);
         return;
     }
-    //get clinicUsername from phoneNumber
+    patientName = utils.toUpperCaseForName(patientName);
+    //get clinicUsername from phoneNumber    
     db.User.forge({ "phoneNumber": clinicPhone })
         .fetch({ withRelated: ["clinic"] })
         .then(function (model) {
