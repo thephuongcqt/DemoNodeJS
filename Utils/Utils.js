@@ -1,4 +1,4 @@
-var db = require("./DBUtils");
+var db = require("../DataAccess/DBUtils");
 var utils = {
     responseFailure: function(error){
         var response = {
@@ -57,7 +57,7 @@ var utils = {
                 })
                 .catch(function(err){
                     reject(bookedNumbers);
-                })        
+                })
         });
     }
 }
