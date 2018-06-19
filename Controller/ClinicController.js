@@ -1,4 +1,4 @@
-var db = require("../Utils/DBUtils");
+var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var logger = require("../Utils/Logger");

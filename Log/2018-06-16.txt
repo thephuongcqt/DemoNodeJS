@@ -1,4 +1,3 @@
-
 2018-06-16 20:01:08
 	 Method: someMethod
 	 Error: this is my first time
