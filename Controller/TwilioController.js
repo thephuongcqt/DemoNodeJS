@@ -7,6 +7,7 @@ var scheduler = require("../Scheduler/Scheduler");
 var configUtils = require("../Utils/ConfigUtils");
 var firebase = require("../Notification/FirebaseAdmin");
 var logger = require("../Utils/Logger");
+var patientDao = require("../DataAccess/PatientDAO");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -158,40 +159,36 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                     "phoneNumber": patientPhone,
                     "fullName": patientName,
                 };
-                //begin fake patient phone number
-                utils.getBookedNumbers(user.clinic.username)
-                    .then(function (result) {
-                        var isBooked = utils.checkNumberInArray(patientPhone, result);
-                        var isTestNumber = utils.checkNumberInArray(patientPhone, configUtils.getTestNumbers());
-                        if (isBooked && !isTestNumber) {
-                            //Hard code
-                            var message = "Hôm nay bạn đã đặt hẹn rồi! xin vui lòng kiểm tra lại thông tin";
-                            sendSMSToPatient(clinicPhone, patientPhone, message);
-                            return;
-                        }
-                        if (isBooked) {
-                            var fakePhoneNumber = utils.getFakePhoneNumber(result, configUtils.getRandomNumbers());
-                            patient.phoneNumber = fakePhoneNumber;
-                        }
+                patientDao.checkPatientBooked(user.username, patientPhone, patientName)
+                .then(booked => {
+                    if(booked){
+                        var message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi, Xin quý khách vui lòng quay lại vào hôm sau.";
+                        sendSMSToPatient(clinicPhone, patientPhone, message);
+                    } else{
                         verifyData(user, patient, patientPhone);
-                    })
-                    .catch(function (err) {
-                        logger.log(err.message, "makeAppointment");
-                    })
-                //end fake patient phone number  
-                // checkDuplicatePatient(user.clinic.username, patientPhone, patientName)
+                    }
+                })                
+                //begin fake patient phone number
+                // utils.getBookedNumbers(user.clinic.username)
                 //     .then(function (result) {
-                //         if (result != null) {
-                //             res.json(utils.responseSuccess(result));
-                //         } else {
-                //             verifyData(user, patient, patientPhone);
+                //         var isBooked = utils.checkNumberInArray(patientPhone, result);
+                //         var isTestNumber = utils.checkNumberInArray(patientPhone, configUtils.getTestNumbers());
+                //         if (isBooked && !isTestNumber) {
+                //             //Hard code
+                //             var message = "Hôm nay bạn đã đặt hẹn rồi! xin vui lòng kiểm tra lại thông tin";
+                //             sendSMSToPatient(clinicPhone, patientPhone, message);
+                //             return;
                 //         }
-
+                //         if (isBooked) {
+                //             var fakePhoneNumber = utils.getFakePhoneNumber(result, configUtils.getRandomNumbers());
+                //             patient.phoneNumber = fakePhoneNumber;
+                //         }
+                //         verifyData(user, patient, patientPhone);
                 //     })
                 //     .catch(function (err) {
-                //         res.json(utils.responseFailure(err));
-                //         logger.log(err.message, "getAppointmentsListByDate");
-                //     });
+                //         logger.log(err.message, "makeAppointment");
+                //     })
+                //begin fake patient phone number
             } else {
                 logger.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone, "makeAppointment");
             }

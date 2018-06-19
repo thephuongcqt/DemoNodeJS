@@ -53,8 +53,8 @@ function getAppointmentsList(username, startDate, endDate){
                     var appointment = appointments[i];
                     delete appointment.clinicUsername;
                     delete appointment.patientID;
-                    appointment.currentTime = Moment(new Date()).format('YYYY-MM-DDTHH:mm:ss.sssZ');
-                    appointment.appointmentTime = Moment(appointment.appointmentTime).format('YYYY-MM-DDTHH:mm:ss.sssZ');
+                    appointment.currentTime = utils.parseDate(new Date());
+                    appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
                 }
                 resolve(appointments);
             })

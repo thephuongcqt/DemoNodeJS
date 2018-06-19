@@ -25,7 +25,7 @@ var utils = {
             }
         }
         return false;
-    }, 
+    },
 
     getFakePhoneNumber: function(bookedNumbers, randomNumbers){
         for(var i in randomNumbers){
@@ -61,6 +61,7 @@ var utils = {
                 })
         });
     },
+    
     parseDate: function(date){
         if(date){
             return Moment(date).format("YYYY-MM-DDTHH:mm:ss.sssZ");
