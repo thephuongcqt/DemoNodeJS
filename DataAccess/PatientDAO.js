@@ -14,7 +14,7 @@ var patientDao = {
                     resolve(patient);
                     return;
                 } else{
-                    dao.create(db.Patient, patient)
+                    dao.create(db.Patient, newPatient)
                     .then(model => {
                         newPatient.patientID = model.id;
                         resolve(newPatient);
