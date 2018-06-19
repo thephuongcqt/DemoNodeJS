@@ -6,6 +6,7 @@ var dao = require("./BaseDAO");
 
 var patientDao = {
     insertNotExistedPatient: function(patient){
+        var newPatient = patient;
         return new Promise((resolve, reject) => {
             this.checkExistedPatient(patient.phoneNumber, patient.fullName)
             .then(patient => {
@@ -15,8 +16,8 @@ var patientDao = {
                 } else{
                     dao.create(db.Patient, patient)
                     .then(model => {
-                        patient.patientID = model.id;
-                        resolve(patient);
+                        newPatient.patientID = model.id;
+                        resolve(newPatient);
                     })
                     .catch(err => {
                         reject(err);
