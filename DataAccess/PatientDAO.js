@@ -15,7 +15,8 @@ var patientDao = {
                 } else{
                     dao.create(db.Patient, patient)
                     .then(model => {
-                        resolve(model);
+                        patient.patientID = model.id;
+                        resolve(patient);
                     })
                     .catch(err => {
                         reject(err);
