@@ -1,7 +1,7 @@
 var express = require("express");
 var app = express();
 var userController = require("./Controller/UserController")(app, express);
-var twilioController = require("./Controller/TwilioController")(app, express);
+var twilioController = require("./ThirdPartyHotline/TwilioController")(app, express);
 var clinicController = require("./Controller/ClinicController")(app, express);
 var workController = require("./Controller/WorkingHoursController")(app, express);
 var licenseController = require("./Controller/LicenseController")(app, express);
