@@ -1,4 +1,5 @@
 var db = require("../DataAccess/DBUtils");
+var Moment = require("moment");
 var utils = {
     responseFailure: function(error){
         var response = {
@@ -59,6 +60,12 @@ var utils = {
                     reject(bookedNumbers);
                 })
         });
+    },
+    parseDate: function(date){
+        if(date){
+            return Moment(date).format("YYYY-MM-DDTHH:mm:ss.sssZ");
+        } 
+        return null;        
     }
 }
 module.exports = utils;

@@ -102,9 +102,9 @@ module.exports = function (app, express) {
                                 clinic.clinicName = clinic.clinic.clinicName;
                                 clinic.address = clinic.clinic.address;
                                 clinic.examinationDuration = clinic.clinic.examinationDuration;
-                                clinic.expiredLicense = Moment(clinic.clinic.expiredLicense).format();
+                                clinic.expiredLicense = utils.parseDate(clinic.clinic.expiredLicense);
                                 clinic.workingHours = workingHour.workingHours;
-                                clinic.currentTime = Moment(new Date()).format();
+                                clinic.currentTime = utils.parseDate(new Date());
                                 delete clinic.clinic;
                                 delete clinic.password;
                                 clinic.workingHours.sort(function (a, b) {
@@ -292,9 +292,9 @@ module.exports = function (app, express) {
                                 clinic.clinicName = clinic.clinic.clinicName;
                                 clinic.address = clinic.clinic.address;
                                 clinic.examinationDuration = clinic.clinic.examinationDuration;
-                                clinic.expiredLicense = Moment(clinic.clinic.expiredLicense).format();
+                                clinic.expiredLicense = utils.parseDate(clinic.clinic.expiredLicense);
                                 clinic.workingHours = workingHour.workingHours;
-                                clinic.currentTime = Moment(new Date()).format();
+                                clinic.currentTime = utils.parseDate(new Date());
                                 delete clinic.clinic;
                                 delete clinic.password;
                                 res.json(utils.responseSuccess(clinic));
