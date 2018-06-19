@@ -103,12 +103,13 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var phoneNumber = req.body.phoneNumber;
         var fullName = req.body.fullName;
+        var email = req.body.email;
         db.User.forge({ "username": username })
             .fetch()
             .then(function (collection) {
                 var responseObj;
                 if (collection == null) {
-                    db.User.forge({ 'username': username, 'password': '123456','fullName': fullName, 'phoneNumber': phoneNumber, 'role': 0, 'isActive': 1 })
+                    db.User.forge({ 'username': username, 'password': '123456', 'fullName': fullName, 'phoneNumber': phoneNumber, 'role': 0, 'isActive': 1, "email": email })
                         .save()
                         .then(function (collection) {
                             res.json(utils.responseSuccess(collection.toJSON()));
@@ -145,7 +146,7 @@ module.exports = function (app, express) {
     apiRouter.post("/checkPassword", function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
-        db.User.where({ "username": username,"password": password })
+        db.User.where({ "username": username, "password": password })
             .fetch()
             .then(function (collection) {
                 if (collection == null) {
@@ -159,24 +160,42 @@ module.exports = function (app, express) {
                 logger.log(err.message, "checkPassword", "UserController");
             });
     });
-    // //reset password
-    // apiRouter.post("/resetPassword", function (req, res) {
-    //     var username = req.body.username;
-    //     var email = req.body.email;
-    //     db.User.where({ "username": username,"password": password })
-    //         .fetch()
-    //         .then(function (collection) {
-    //             if (collection == null) {
-    //                 res.json(utils.responseFailure("This password is not correct"));
-    //             } else {
-    //                 res.json(utils.responseSuccess("This password is correct"));
-    //             }
-    //         })
-    //         .catch(function (err) {
-    //             res.json(utils.responseFailure(err.message));
-    //             logger.log(err.message, "checkPassword", "UserController");
-    //         });
-    // });
+    //reset password
+    apiRouter.post("/resetPassword", function (req, res) {
+        var username = req.body.username;
+        var email = req.body.email;
+        db.User.where({ "username": username, "email": email })
+            .fetch()
+            .then(function (collection) {
+                if (collection == null) {
+                    res.json(utils.responseFailure("This email is not exist"));
+                } else {
+                    var user = collection.toJSON();
+                    if (user.isActive == Const.DEACTIVATION) {
+                        res.json(utils.responseFailure("This account is not active"));
+                    } else {
+                        var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+                        // Generate random number, eg: 0.123456
+                        // Convert  to base-36 : "0.4fzyo82mvyr"
+                        // Cut off last 8 characters : "yo82mvyr"
+                        var randomstring = Math.random().toString(36).slice(-8);
+                        db.User.where({ "username": username, "password": user.password })
+                            .save({ "password": randomstring }, { patch: true })
+                            .then(function (model) {
+                                res.json(utils.responseSuccess("Reset password successful"));
+                            })
+                            .catch(function (err) {
+                                res.json(utils.responseFailure("Reset password fail"));
+                                logger.log(err.message, "checkPassword", "UserController");
+                            });
+                    }
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "checkPassword", "UserController");
+            });
+    });
     // update information
     apiRouter.post("/update", function (req, res) {
         var username = req.body.username;
@@ -185,6 +204,7 @@ module.exports = function (app, express) {
         var phoneNumber = req.body.phoneNumber;
         var role = req.body.role;
         var isActive = req.body.isActive;
+        var email = req.body.email;
         db.User.where({ "username": username })
             .fetch()
             .then(function (collection) {
@@ -193,7 +213,7 @@ module.exports = function (app, express) {
                     res.json(utils.responseFailure("Username is not exist"));
                 } else {
                     db.User.where({ "username": username })
-                        .save({ "password": password,"fullName":fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive }, { patch: true })
+                        .save({ "password": password, "fullName": fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive, "email": email }, { patch: true })
                         .then(function (model) {
                             delete model.password;
                             res.json(utils.responseSuccess("Update successfull"));

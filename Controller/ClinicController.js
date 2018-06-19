@@ -131,6 +131,7 @@ module.exports = function (app, express) {
         var password = req.body.password;
         var clinicName = req.body.clinicName;
         var address = req.body.address;
+        var email = req.body.email;
         await new db.User({ "username": username })
             .fetch({ withRelated: ["clinic"] })
             .then(async function (model) {
@@ -138,7 +139,7 @@ module.exports = function (app, express) {
                     await new db.Clinic({ "username": username })
                         .fetch({ withRelated: ["workingHours"] })
                         .then(async function (model) {
-                            await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0 })
+                            await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0, "email":email })
                                 .then(async function (model) {
                                     await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": "00:30:00", "expiredLicense": null })
                                         .then(async function (model) {
@@ -181,6 +182,7 @@ module.exports = function (app, express) {
         var phoneNumber = req.body.phoneNumber;
         var role = req.body.role;
         var isActive = req.body.isActive;
+        var email = req.body.email;
         db.User.where({ "username": username })
             .fetch()
             .then(function (collection) {
@@ -189,7 +191,7 @@ module.exports = function (app, express) {
                     res.json(utils.responseFailure("Username is not exist"));
                 } else {
                     db.User.where({ "username": username })
-                        .save({ "password": password, "fullName": fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive }, { patch: true })
+                        .save({ "password": password, "fullName": fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive, "email":email }, { patch: true })
                         .then(function (model) {
                             db.Clinic.where({ "username": username })
                                 .fetch()

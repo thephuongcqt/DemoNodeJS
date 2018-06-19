@@ -82,6 +82,7 @@ module.exports = function (app, express) {
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err.message));
+                                    logger.log(err.message, "delete", "LicenseController");
                                 });
                         } else {
                             res.json(utils.responseFailure("Can not delete this license"));
