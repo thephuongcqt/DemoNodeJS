@@ -8,14 +8,14 @@ function getFilePath(){
 var logger = {
     log: function(message, method, file){
         var time = Moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
-        var logMessage = "\n" + time;
+        var logMessage = "\r\n" + time;
         if(file){
-            logMessage += "\n\t File: " + file;
+            logMessage += "\r\n\t File: " + file;
         }
         if(method){
-            logMessage += "\n\t Method: " + method;
+            logMessage += "\r\n\t Method: " + method;
         }
-        logMessage += "\n\t Error: " + message;
+        logMessage += "\r\n\t Error: " + message;
 
         var filePath = getFilePath();
         fs.appendFileSync(filePath, logMessage);
