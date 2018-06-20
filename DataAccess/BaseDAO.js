@@ -59,10 +59,25 @@ var dao = {
                 });
         });
     },
+
     findByProperties: function (table, json) {
         return new Promise((resolve, reject) => {
             table.where(json)
                 .fetchAll()
+                .then(model => {
+                    resolve(model.toJSON());
+                })
+                .catch(err => {
+                    reject(err);
+                })
+        });
+    },
+
+    findByPropertiesWithRelated: function (table, json, related){
+        var relatedJson = { withRelated: [related] };
+        return new Promise((resolve, reject) => {
+            table.where(json)
+                .fetchAll(relatedJson)
                 .then(model => {
                     resolve(model.toJSON());
                 })
