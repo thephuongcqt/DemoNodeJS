@@ -9,6 +9,7 @@ var firebase = require("../Notification/FirebaseAdmin");
 var logger = require("../Utils/Logger");
 var patientDao = require("../DataAccess/PatientDAO");
 var baseDao = require("../DataAccess/BaseDAO");
+var clinicDao = require("../DataAccess/ClinicDAO");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -68,43 +69,33 @@ function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
         .done();
 }
 
-function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount, patientPhone) {
-    patientDao.insertNotExistedPatient(patient)
-    .then(newPatient => {
+async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount, patientPhone) {
+    try {
+        var newPatient = await patientDao.insertNotExistedPatient(patient);
         var newAppointment = {
             clinicUsername: user.clinic.username,
             patientID: newPatient.patientID,
             appointmentTime: bookedTime,
             no: bookingCount
         };
-        // insert Appointment                        
-        db.Appointment.forge(newAppointment)
-            .save()
-            .then(function (model) {
-                var appointment = model.toJSON();
-                //Begin send SMS to patient
-                var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
-                var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
-                var messageBody = patient.fullName + ' mã số ' + bookingCount + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
-                sendSMSToPatient(user.phoneNumber, patientPhone, messageBody);
-                //End send SMS to patient
+        var appointment = await baseDao.create(db.Appointment, newAppointment);
+        //Begin send SMS to patient
+        var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
+        var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
+        var messageBody = patient.fullName + ' mã số ' + bookingCount + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
+        sendSMSToPatient(user.phoneNumber, patientPhone, messageBody);
+        //End send SMS to patient
 
-                //Begin send notification to Clinic
-                var notifyMessage = patient.fullName + " mã số " + bookingCount + " đã đặt lịch khám thành công ngày " + bookedDate + ' lúc ' + bookedTime;
-                var notifyTitle = "Lịch hẹn đặt thành công";
-                var topic = user.username;
-                firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
-                //End send notification to Clinic
-            })
-            .catch(function (err) {
-                logger.log(err, "saveDataWhenBookingSuccess");
-                //save appointment fail;
-            });
-    })
-    .catch(err => {
-        logger.log(err);
-        // error 
-    });
+        //Begin send notification to Clinic
+        var notifyMessage = patient.fullName + " mã số " + bookingCount + " đã đặt lịch khám thành công ngày " + bookedDate + ' lúc ' + bookedTime;
+        var notifyTitle = "Lịch hẹn đặt thành công";
+        var topic = user.username;
+        firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
+        //End send notification to Clinic        
+    } catch (error) {
+        sendSMSToPatient(user.phoneNumber, patientPhone, Const.BookAppointmentFailure);
+        logger.log(error);
+    }    
 }
 
 function verifyData(user, patient, patientPhone) {
@@ -141,7 +132,7 @@ function verifyData(user, patient, patientPhone) {
         });
 }
 
-function makeAppointment(patientPhone, patientName, clinicPhone) {
+async function makeAppointment(patientPhone, patientName, clinicPhone) {
     if (!patientName.trim()) {
         //Patient name is empty
         var message = "Vui lòng nhập tên để đăng ký khám bệnh";
@@ -150,25 +141,27 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
     }
     patientName = utils.toUpperCaseForName(patientName);
     //get clinicUsername from phoneNumber    
-    db.User.forge({ "phoneNumber": clinicPhone })
-        .fetch({ withRelated: ["clinic"] })
-        .then(function (model) {
-            if (model != null) {
-                var user = model.toJSON();
-                var patient = {
-                    "phoneNumber": patientPhone,
-                    "fullName": patientName,
-                };
-                patientDao.checkPatientBooked(user.username, patientPhone, patientName)
-                .then(booked => {
-                    if(booked){
-                        var message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi, Xin quý khách vui lòng quay lại vào hôm sau.";
-                        sendSMSToPatient(clinicPhone, patientPhone, message);
-                    } else{
-                        verifyData(user, patient, patientPhone);
-                    }
-                })                
-                //begin fake patient phone number
+    var userClinic = clinicDao.findClinicByPhone(clinicPhone);
+    if (userClinic) {
+        var patient = {
+            "phoneNumber": patientPhone,
+            "fullName": patientName,
+        };
+        var booked = await patientDao.checkPatientBooked(userClinic.username, patientPhone, patientName);
+        if (booked) {
+            var message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi, Xin quý khách vui lòng quay lại vào hôm sau.";
+            sendSMSToPatient(clinicPhone, patientPhone, message);
+        } else {
+            verifyData(userClinic, patient, patientPhone);
+        }
+    } else {
+        sendSMSToPatient(clinicPhone, patientPhone, Const.BookAppointmentFailure);
+        logger.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone, "makeAppointment");
+    }
+}
+
+
+//begin fake patient phone number
                 // utils.getBookedNumbers(user.clinic.username)
                 //     .then(function (result) {
                 //         var isBooked = utils.checkNumberInArray(patientPhone, result);
@@ -189,11 +182,3 @@ function makeAppointment(patientPhone, patientName, clinicPhone) {
                 //         logger.log(err.message, "makeAppointment");
                 //     })
                 //begin fake patient phone number
-            } else {
-                logger.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone, "makeAppointment");
-            }
-        })
-        .catch(function (err) {
-            logger.log(err, "makeAppointment");
-        });
-}
