@@ -5,28 +5,21 @@ var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
 
 var patientDao = {
-    insertNotExistedPatient: function(patient){
-        var newPatient = patient;
-        return new Promise((resolve, reject) => {
-            this.checkExistedPatient(patient.phoneNumber, patient.fullName)
-            .then(patient => {
-                if(patient){
-                    resolve(patient);
-                    return;
+    insertNotExistedPatient: function(patient){        
+        return new Promise(async (resolve, reject) => {
+            try {
+                var receivedPatient = await this.checkExistedPatient(patient.phoneNumber, patient.fullName);
+                if(receivedPatient){
+                    resolve(receivedPatient);                    
                 } else{
-                    dao.create(db.Patient, newPatient)
-                    .then(model => {
-                        newPatient.patientID = model.id;
-                        resolve(newPatient);
-                    })
-                    .catch(err => {
-                        reject(err);
-                    })
+                    var model = await dao.create(db.Patient, patient);
+                    patient.patientID = model.id;
+                    patient.address = null;
+                    resolve(patient);
                 }
-            })
-            .catch(err => {
-                reject(null);
-            });
+            } catch (error) {
+                reject(error);
+            }            
         });
     },
 
