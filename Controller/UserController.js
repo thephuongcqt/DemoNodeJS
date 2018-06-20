@@ -366,5 +366,32 @@ module.exports = function (app, express) {
                 logger.log(err.message, "delete", "UserController");
             });
     });
+    //-------------------------------------------------------------------------//
+    apiRouter.post("/hash", function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+        userDAO.getUserInfo(username)
+            .then(function (results) {
+                if (password == null) {
+                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
+                } else {
+                    if (password == results.password) {
+                        hash.hashPassword(password)
+                            .then(function (newpass) {
+                                userDAO.updateUser(username, newpass)
+                                .then(function (result){
+                                    res.json(utils.responseSuccess(result));
+                                });
+                            });
+                    }
+
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "hash", "UserController");
+            });
+    });
+    //-------------------------------------------------------------------------//
     return apiRouter;
 };
