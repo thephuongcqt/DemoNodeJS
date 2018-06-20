@@ -93,7 +93,7 @@ var userDao = {
         });
     },
     createUser: function (username, password, phoneNumber, fullName, email) {
-        var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullname": fullName, "role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION, "email": email };
+        var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullName": fullName, "role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION, "email": email };
         return new Promise((resolve, reject) => {
             dao.create(db.User, json)
                 .then(collection => {

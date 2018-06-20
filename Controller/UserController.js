@@ -307,7 +307,7 @@ module.exports = function (app, express) {
                                             res.json(utils.responseFailure(err));
                                             logger.log(err.message, "resetPassword", "UserController");
                                         });
-                                    nodeMailer.sendEmailToPatient(username, randomstring, results.fullname, email);
+                                    nodeMailer.sendEmailToPatient(username, randomstring, results.fullName, email);
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err.message));
@@ -379,12 +379,11 @@ module.exports = function (app, express) {
                         hash.hashPassword(password)
                             .then(function (newpass) {
                                 userDAO.updateUser(username, newpass)
-                                .then(function (result){
-                                    res.json(utils.responseSuccess(result));
-                                });
+                                    .then(function (result) {
+                                        res.json(utils.responseSuccess(result));
+                                    });
                             });
                     }
-
                 }
             })
             .catch(function (err) {
