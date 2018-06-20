@@ -126,7 +126,7 @@ module.exports = function (app, express) {
     // update information
     apiRouter.post("/update", function (req, res) {
         var username = req.body.username;
-        var password = req.body.password;
+        var password;
         var fullName = req.body.fullName;
         var phoneNumber = req.body.phoneNumber;
         var role = req.body.role;
