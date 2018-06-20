@@ -22,6 +22,7 @@
   "homepage": "https://github.com/thephuongcqt/DemoNodeJS#readme",
   "dependencies": {
     "@google-cloud/speech": "^1.5.0",
+    "bcrypt": "^2.0.1",
     "body-parser": "^1.18.3",
     "bookshelf": "^0.13.3",
     "braintree": "^2.11.0",

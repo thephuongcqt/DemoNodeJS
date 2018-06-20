@@ -5,7 +5,14 @@ var Moment = require('moment');
 var logger = require("./Utils/Logger");
 
 var test = async function () {
-    // var dao = require("./DataAccess/BaseDAO");
+    var dao = require("./DataAccess/BaseDAO");
+    dao.findByIDWithRelated(db.User, "username", "thephuong", "clinic")
+    .then(collection => {
+        console.log(collection);
+    })
+    .catch(err => {
+        console.log(err);
+    })
     // var patientDao = require("./DataAccess/PatientDAO");
     // var json = {"fullName": "Nguyễn Tran Thế Phương", "phoneNumber": "+84969345159"};
     // patientDao.insertNotExistedPatient(json)
