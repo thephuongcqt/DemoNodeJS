@@ -105,37 +105,7 @@ async function scheduleAppointment(user, patient, patientPhone) {
     } else{
         sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
         logger.log(user.clinic + patient + Const.FullSlot);
-    }
-    
-
-    // new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": bookingDate })
-    //     .fetch({ withRelated: ["clinic"] })
-    //     .then(function (model) {
-    //         var config = model.toJSON();
-    //         var sql = "clinicUsername = ? AND DATE(appointmentTime) = CURRENT_DATE()";
-    //         db.knex("tbl_appointment")
-    //             .whereRaw(sql, [clinicUsername])
-    //             .count("* as count")
-    //             .then(function (collection) {
-    //                 var bookedAppointment = collection[0].count;
-    //                 var bookedTime = scheduler.getExpectationTime(config.startWorking, config.endWorking, bookedAppointment, config.clinic.examinationDuration);
-    //                 if (bookedTime == null) {
-    //                     //send err message                                         
-    //                     sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
-    //                 } else {
-    //                     saveDataWhenBookingSuccess(user, patient, bookedTime, bookedAppointment + 1, patientPhone);
-    //                     //need to send notify to clinic
-    //                 }
-    //             })
-    //             .catch(function (err) {
-    //                 sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
-    //                 logger.log(err.message, "verifyData");
-    //             });
-
-    //     })
-    //     .catch(function (err) {
-    //         logger.log(err.message, "verifyData");
-    //     });
+    }    
 }
 
 async function makeAppointment(patientPhone, patientName, clinicPhone) {
