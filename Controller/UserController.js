@@ -2,8 +2,9 @@ var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var logger = require("../Utils/Logger");
-var nodemailer = require('nodemailer');
-var Moment = require('moment');
+var nodeMailer = require("../Email/Email");
+var hash = require("../Utils/Bcrypt");
+var userDAO = require("../DataAccess/UserDAO");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -11,235 +12,115 @@ module.exports = function (app, express) {
     apiRouter.post("/Login", function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
-        db.User.forge({ "username": username, "password": password })
-            .fetch()
-            .then(function (collection) {
-                var responseObj;
-                if (collection == null) {
-                    responseObj = utils.responseFailure("Incorrect username or password!");
+        userDAO.getUserInfo(username)
+            .then(function (results) {
+                if (password == null) {
+                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
                 } else {
-                    if (collection.attributes.role == 0 && collection.attributes.isActive != 0) {
-                        var user = collection.toJSON();
-                        delete user.password;
-                        responseObj = utils.responseSuccess(user);
-                    }
-                    else {
-                        responseObj = utils.responseFailure("Incorrect username or password!");
-                    }
+                    hash.comparePassword(password, results.password)
+                        .then(function (result) {
+                            if (result == true) {
+                                if (results.isActive == Const.ACTIVATION && results.role == Const.ROLE_ADMIN) {
+                                    delete results.password;
+                                    delete results.role;
+                                    delete results.isActive;
+                                    res.json(utils.responseSuccess(results));
+                                } else {
+                                    res.json(utils.responseFailure("Tài khoản không tồn tại"));
+                                }
+                            } else {
+                                res.json(utils.responseFailure("Mật khẩu không đúng"));
+                            }
+                        })
+                        .catch(function (err) {
+                            res.json(utils.responseFailure(err));
+                            logger.log(err.message, "login", "UserController");
+                        });
                 }
-                res.json(responseObj)
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "Login", "UserController");
-            });
-    });
-
-    apiRouter.post("/changePassword", function (req, res) {
-        var username = req.body.username;
-        var password = req.body.password;
-        var newPassword = req.body.newPassword;
-        db.User.where({ "username": username, "password": password })
-            .save({ "password": newPassword }, { patch: true })
-            .then(function (model) {
-                res.json(utils.responseSuccess(null));
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure("Incorrect username or password"));
-                logger.log(err.message, "changePassword", "UserController");
-            });
-    });
-
-    // get all admin from database
-    apiRouter.get("/getAllAdmin", function (req, res) {
-        db.User.where({ "role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION })
-            .fetchAll()
-            .then(function (collection) {
-                res.json(utils.responseSuccess(collection.toJSON()));
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "getAllAdmin", "UserController");
+                res.json(utils.responseFailure(err));
+                logger.log(err.message, "login", "UserController");
             });
     });
     // get all user by role from database
     apiRouter.get("/getAllUser", function (req, res) {
-        if (req.query.role == 0) {
-            db.User.forge({ "isActive": Const.ACTIVATION })
-                .where("role", Const.ROLE_ADMIN)
-                .fetchAll()
-                .then(function (collection) {
-                    res.json(utils.responseSuccess(collection.toJSON()));
+        var users;
+        var role = req.query.role;
+        if (role == Const.ROLE_ADMIN) {
+            userDAO.getAllAdmin()
+                .then(function (result) {
+                    res.json(utils.responseSuccess(result));
                 })
                 .catch(function (err) {
-                    res.json(utils.responseFailure(err.message));
+                    res.json(utils.responseFailure(err));
                     logger.log(err.message, "getAllUser", "UserController");
                 });
-        }
-        else if (req.query.role == 1) {
-            db.User.forge()
-                .where("role", Const.ROLE_CLINIC)
-                .fetchAll()
-                .then(function (collection) {
-                    res.json(utils.responseSuccess(collection.toJSON()));
+        } else if (role == Const.ROLE_CLINIC) {
+            userDAO.getAllClinic()
+                .then(function (result) {
+                    res.json(utils.responseSuccess(result));
                 })
                 .catch(function (err) {
-                    res.json(utils.responseFailure(err.message));
+                    res.json(utils.responseFailure(err));
                     logger.log(err.message, "getAllUser", "UserController");
                 });
-        }
-        else {
-            db.User.forge()
-                .fetchAll()
-                .then(function (collection) {
-                    res.json(utils.responseSuccess(collection.toJSON()));
+        } else {
+            userDAO.getAllUser()
+                .then(function (result) {
+                    res.json(utils.responseSuccess(result));
                 })
                 .catch(function (err) {
-                    res.json(utils.responseFailure(err.message));
+                    res.json(utils.responseFailure(err));
                     logger.log(err.message, "getAllUser", "UserController");
                 });
         }
     });
-    // create user for admin
-    apiRouter.post("/create", function (req, res) {
-        var username = req.body.username;
-        var phoneNumber = req.body.phoneNumber;
-        var fullName = req.body.fullName;
-        var email = req.body.email;
-        db.User.forge({ "username": username })
-            .fetch()
-            .then(function (collection) {
-                var responseObj;
-                if (collection == null) {
-                    db.User.forge({ 'username': username, 'password': '123456', 'fullName': fullName, 'phoneNumber': phoneNumber, 'role': 0, 'isActive': 1, "email": email })
-                        .save()
-                        .then(function (collection) {
-                            res.json(utils.responseSuccess(collection.toJSON()));
-                        })
-                        .catch(function (err) {
-                            res.json(utils.responseFailure(err.message));
-                            logger.log(err.message, "createAdmin", "UserController");
-                        });
-                } else {
-                    res.json(utils.responseFailure("This username have been exist"));
-                }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "createAdmin", "UserController");
-            });
-    });
-    //check duplicate username
-    apiRouter.get("/checkDuplicate", function (req, res) {
-        var username = req.query.username;
-        db.User.where({ "username": username })
-            .fetch()
-            .then(function (collection) {
-                if (collection == null) {
-                    res.json(utils.responseFailure("This account is available"));
-                } else {
-                    res.json(utils.responseSuccess("This account have been exist"));
-                }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "checkDuplicate", "UserController");
-            });
-    });
-    //check password
-    apiRouter.post("/checkPassword", function (req, res) {
+    //change password
+    apiRouter.post("/changePassword", function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
-        db.User.where({ "username": username, "password": password })
-            .fetch()
-            .then(function (collection) {
-                if (collection == null) {
-                    res.json(utils.responseFailure("This password is not correct"));
+        var newPassword = req.body.newPassword;
+        userDAO.getUserInfo(username)
+            .then(function (result) {
+                if (password == null) {
+                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
                 } else {
-                    res.json(utils.responseSuccess("This password is correct"));
+                    hash.comparePassword(password, result.password)
+                        .then(function (result) {
+                            if (result == true) {
+                                if (newPassword == null) {
+                                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
+                                } else {
+                                    hash.hashPassword(newPassword)
+                                        .then(function (result) {
+                                            userDAO.updateUser(username, result)
+                                                .then(function (result) {
+                                                    res.json(utils.responseSuccess("Thay đổi mật khẩu thành công"));
+                                                })
+                                                .catch(function (err) {
+                                                    res.json(utils.responseFailure(err));
+                                                    logger.log(err.message, "changePassword", "UserController");
+                                                });
+                                        })
+                                        .catch(function (err) {
+                                            res.json(utils.responseFailure(err.message));
+                                            logger.log(err.message, "changePassword", "UserController");
+                                        });
+                                }
+                            } else {
+                                res.json(utils.responseFailure("Mật khẩu không đúng"));
+                            }
+                        })
+                        .catch(function (err) {
+                            res.json(utils.responseFailure(err));
+                            logger.log(err.message, "changePassword", "UserController");
+                        });
                 }
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "checkPassword", "UserController");
-            });
-    });
-
-    //---------------------------------------------------------------------------------------------//
-    function sendEmailToPatient(email, username, password) {
-        //  Send Email to patient when reset password successfull 
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'callcentercapstone@gmail.com',
-                pass: 'Callcenterpass1Callcenterpass1'
-            }
-        });
-        var currentDate = Moment(new Date()).format('DD-MM-YYYY');
-        var currentTime = Moment(new Date()).format('HH:mm:ss');
-        const mailOptions = {
-            from: 'callcentercapstone@gmail.com', // sender address
-            to: email, // list of receivers
-            subject: 'Thông tin khôi phục mật khẩu', // Subject line
-            html: '<!DOCTYPE html>' +
-                '<html><head><title>Appointment</title>' +
-                '</head><body><div style="padding:10px 250px 5px 250px;text-align:center">' +
-                '<img src="https://www.brandcrowd.com/gallery/brands/pictures/picture13882532337876.jpg" alt="logo" width="160" height="100">' +
-                '<tr><td style="background:#00b9f2;height:5px;line-height:5px;width:233px"></td>' +
-                '<td style="background:#f7941d;height:5px;line-height:5px;width:233px"></td>' +
-                '<td style="background:#5cb85c;height:5px;line-height:5px;width:233px"></td></tr></div>' +
-                '<div style="padding:5px 250px 10px 250px"><h1 style="color:#03a9f4;text-align:center">Quên mật khẩu?</h1>' +
-                '<h1 style="color:#03a9f4;text-align:center">Thiết lập mật khẩu mới!</h1>' +
-                '<h3>Xin chào,</h3>' +
-                '<p>Cảm ơn bạn đã yêu cầu đặt lại mật khẩu.</p>' +
-                '<p>Mật khẩu cho tài khoản ' + '<strong style="color:#15c; font-size:120%;">' + username + '</strong>' + ' đã được thay đổi thành công.</p>' +
-                '<p>Đây là mật khẩu mới của bạn: <strong style="color:#15c; font-size:120%;">' + password + '</strong></p>' +
-                '<p>Bạn yêu cầu đặt lại mật khẩu ngày ' + currentDate + ' lúc ' + currentTime + '.</p>' +
-                '</div></body></html>'
-        };
-        transporter.sendMail(mailOptions, function (err, info) {
-            if (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "sendEmailError", "UserController");
-            }
-        });
-    }
-    //---------------------------------------------------------------------------------------------//
-    //reset password
-    apiRouter.post("/resetPassword", function (req, res) {
-        var username = req.body.username;
-        var email = req.body.email;
-        db.User.where({ "username": username, "email": email })
-            .fetch()
-            .then(function (collection) {
-                if (collection == null) {
-                    res.json(utils.responseFailure("This email is not exist"));
-                } else {
-                    var user = collection.toJSON();
-                    if (user.isActive == Const.DEACTIVATION) {
-                        res.json(utils.responseFailure("This account is not active"));
-                    } else {
-                        var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-                        // Generate random number, eg: 0.123456
-                        // Convert  to base-36 : "0.4fzyo82mvyr"
-                        // Cut off last 8 characters : "yo82mvyr"
-                        var randomstring = Math.random().toString(36).slice(-8);
-                        db.User.where({ "username": username, "password": user.password })
-                            .save({ "password": randomstring }, { patch: true })
-                            .then(function (model) {
-                                res.json(utils.responseSuccess("Reset password successful"));
-                                sendEmailToPatient(email, username, randomstring);
-                            })
-                            .catch(function (err) {
-                                res.json(utils.responseFailure("Reset password fail"));
-                                logger.log(err.message, "resetPassword", "UserController");
-                            });
-                    }
-                }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "resetPassword", "UserController");
+                res.json(utils.responseFailure(err));
+                logger.log(err.message, "changePassword", "UserController");
             });
     });
     // update information
@@ -251,60 +132,228 @@ module.exports = function (app, express) {
         var role = req.body.role;
         var isActive = req.body.isActive;
         var email = req.body.email;
-        db.User.where({ "username": username })
-            .fetch()
-            .then(function (collection) {
-                var user = collection.toJSON();
-                if (collection == null) {
-                    res.json(utils.responseFailure("Username is not exist"));
+        userDAO.getUserInfo(username)
+            .then(function (results) {
+                if (password == null) {
+                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
                 } else {
-                    db.User.where({ "username": username })
-                        .save({ "password": password, "fullName": fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive, "email": email }, { patch: true })
-                        .then(function (model) {
-                            delete model.password;
-                            res.json(utils.responseSuccess("Update successfull"));
+                    hash.comparePassword(password, results.password)
+                        .then(function (result) {
+                            if (result == true) {
+                                userDAO.updateUser(username, results.password, phoneNumber, fullName, role, isActive, email)
+                                    .then(function (result) {
+                                        res.json(utils.responseSuccess("Cập nhật thông tin thành công"));
+                                    })
+                                    .catch(function (err) {
+                                        res.json(utils.responseFailure(err));
+                                        logger.log(err.message, "update", "UserController");
+                                    });
+
+                            } else {
+                                res.json(utils.responseFailure("Mật khẩu không đúng"));
+                            }
                         })
                         .catch(function (err) {
-                            res.json(utils.responseFailure(err.message));
+                            res.json(utils.responseFailure(err));
                             logger.log(err.message, "update", "UserController");
                         });
                 }
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "update", "UserController");
+                res.json(utils.responseFailure(err));
+                logger.log(err.message, "changePassword", "UserController");
             });
     });
-    // delete account
-    apiRouter.get("/delete", function (req, res) {
-        var username = req.query.username;
-        var responseObj;
-        db.User.forge({ "username": username })
-            .fetch()
-            .then(function (collection) {
-                if (collection.attributes.role == 1) {
-                    db.Clinic.where({ "username": username })
-                        .destroy()
-                        .then(function (collection) {
-                            db.User.where({ "username": username })
-                                .destroy()
-                                .then(function (model) {
-                                    res.json(utils.responseSuccess("Account have deleted"));
+    // create user for admin
+    apiRouter.post("/create", function (req, res) {
+        var username = req.body.username;
+        var phoneNumber = req.body.phoneNumber;
+        var fullName = req.body.fullName;
+        var email = req.body.email;
+        userDAO.checkUserInfo()
+            .then(function (results) {
+                var checkDuplicate;
+                for (var i in results) {
+                    var user = results[i];
+                    if (user.username == username || user.phoneNumber == phoneNumber || user.email == email) {
+                        checkDuplicate = false;
+                        break;
+                    } else {
+                        checkDuplicate = true;
+                    }
+                }
+                if (checkDuplicate == true) {
+                    hash.hashPassword("123456")
+                        .then(function (password) {
+                            userDAO.createUser(username, password, phoneNumber, fullName, email)
+                                .then(function (result) {
+                                    res.json(utils.responseSuccess(result));
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err.message));
-                                    logger.log(err.message, "delete", "UserController");
+                                    logger.log(err.message, "createAdmin", "UserController");
                                 });
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
-                            logger.log(err.message, "delete", "UserController");
+                            logger.log(err.message, "createAdmin", "UserController");
                         });
-                } else if (collection.attributes.role == 0) {
-                    db.User.where({ "username": username })
-                        .destroy()
-                        .then(function (model) {
-                            res.json(utils.responseSuccess("Account have deleted"));
+                } else {
+                    res.json(utils.responseFailure("Không thể tạo tài khoản này"));
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "createAdmin", "UserController");
+            });
+    });
+    //check duplicate
+    apiRouter.post("/checkDuplicate", function (req, res) {
+        var username = req.body.username;
+        var phoneNumber = req.body.phoneNumber;
+        var email = req.body.email;
+        userDAO.checkUserInfo()
+            .then(function (results) {
+                var checkDuplicate;
+                for (var i in results) {
+                    var user = results[i];
+                    if (username != null) {
+                        if (user.username == username) {
+                            res.json(utils.responseFailure("Tài khoản đã tồn tại"));
+                            checkDuplicate = false;
+                            break;
+                        }
+                        checkDuplicate = true;
+                    }
+                    if (phoneNumber != null) {
+                        if (user.phoneNumber == phoneNumber) {
+                            res.json(utils.responseFailure("Số điện thoại đã tồn tại"));
+                            checkDuplicate = false;
+                            break;
+                        }
+                        checkDuplicate = true;
+                    }
+                    if (email != null) {
+                        if (user.email == email) {
+                            res.json(utils.responseFailure("Email đã tồn tại"));
+                            checkDuplicate = false;
+                            break;
+                        }
+                        checkDuplicate = true;
+                    }
+                }
+                if (checkDuplicate == true) {
+                    res.json(utils.responseSuccess("Tài khoản khả dụng"));
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "checkDuplicate", "UserController");
+            });
+    });
+    //check password
+    apiRouter.post("/checkPassword", function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+        userDAO.getUserInfo(username)
+            .then(function (results) {
+                if (password == null) {
+                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
+                } else {
+                    hash.comparePassword(password, results.password)
+                        .then(function (result) {
+                            if (result == true) {
+                                res.json(utils.responseSuccess("Mật khẩu chính xác"));
+                            } else {
+                                res.json(utils.responseFailure("Mật khẩu không đúng"));
+                            }
+                        })
+                        .catch(function (err) {
+                            res.json(utils.responseFailure(err.message));
+                            logger.log(err.message, "checkPassword", "UserController");
+                        });
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "checkPassword", "UserController");
+            });
+    });
+    //reset password
+    apiRouter.post("/resetPassword", function (req, res) {
+        var username = req.body.username;
+        var email = req.body.email;
+        userDAO.getUserInfo(username)
+            .then(function (results) {
+                if (results.isActive == Const.DEACTIVATION) {
+                    res.json(utils.responseFailure("Tài khoản này không hoạt động"));
+                } else {
+                    if (email == null) {
+                        res.json(utils.responseFailure("Vui lòng nhập email"));
+                    } else {
+                        if (email == results.email) {
+                            var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+                            // Generate random number, eg: 0.123456
+                            // Convert  to base-36 : "0.4fzyo82mvyr"
+                            // Cut off last 8 characters : "yo82mvyr"
+                            var randomstring = Math.random().toString(36).slice(-8);
+                            hash.hashPassword(randomstring)
+                                .then(function (password) {
+                                    userDAO.updateUser(username, password)
+                                        .then(function (result) {
+                                            res.json(utils.responseSuccess("Đặt lại mật khẩu thành công"));
+                                        })
+                                        .catch(function (err) {
+                                            res.json(utils.responseFailure(err));
+                                            logger.log(err.message, "resetPassword", "UserController");
+                                        });
+                                    nodeMailer.sendEmailToPatient(username, randomstring, results.fullname, email);
+                                })
+                                .catch(function (err) {
+                                    res.json(utils.responseFailure(err.message));
+                                    logger.log(err.message, "resetPassword", "UserController");
+                                });
+                        } else {
+                            res.json(utils.responseFailure("Email này không tồn tại"));
+                        }
+                    }
+                }
+            })
+            .catch(function (err) {
+                res.json(utils.responseFailure(err.message));
+                logger.log(err.message, "resetPassword", "UserController");
+            });
+    });
+    // delete account
+    apiRouter.post("/delete", function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+        userDAO.getUserInfo(username)
+            .then(function (results) {
+                if (password == null) {
+                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
+                } else {
+                    hash.comparePassword(password, results.password)
+                        .then(function (result) {
+                            if (result == true) {
+                                if (results.role == Const.ROLE_ADMIN) {
+                                    userDAO.deleteUser(username)
+                                        .then(function (result) {
+                                            res.json(utils.responseSuccess(result));
+                                        })
+                                        .catch(function (err) {
+                                            res.json(utils.responseFailure(err.message));
+                                            logger.log(err.message, "delete", "UserController");
+                                        });
+                                } else if (results.role = Const.ROLE_CLINIC) {
+                                    // Xóa clinic chưa làm
+                                    res.json(utils.responseFailure("Tài khoản không thể xóa"));
+                                } else {
+                                    res.json(utils.responseFailure("Tài khoản không thể xóa"));
+                                }
+                            } else {
+                                res.json(utils.responseFailure("Mật khẩu không đúng"));
+                            }
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
