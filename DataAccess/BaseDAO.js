@@ -28,6 +28,24 @@ var dao = {
         });
     },
 
+    updateArray: function (table, json, idName1, idName2) {
+        var existedObj = {};
+        existedObj[idName1] = json[idName1];
+        existedObj[idName2] = json[idName2];
+        delete json[idName1];
+        delete json[idName2];
+        return new Promise((resolve, reject) => {
+            table.where(existedObj)
+            .save(json, { patch: true })
+            .then(model => {
+                resolve(model.toJSON());
+            })
+            .catch(err => {
+                reject(err);
+            });
+        });
+    },
+
     delete: function (table, idName, id){
         var json = {};
         json[idName] = id;
