@@ -98,6 +98,20 @@ var dao = {
                 reject(err);
             })
         })
+    },
+
+    findAllWithRealted: function(table, related){
+        var relatedJson = { withRelated: [related] };
+        return new Promise((resolve, reject) => {
+            table.forge()
+            .fetchAll(relatedJson)
+            .then(collection => {
+                resolve(collection.toJSON());
+            })
+            .catch(err => {
+                reject(err);
+            })
+        })
     }
 };
 

@@ -6,7 +6,7 @@ var logger = require("./Utils/Logger");
 
 var test = async function () {
     var dao = require("./DataAccess/BaseDAO");
-    dao.findByPropertiesWithRelated(db.Appointment, {"clinicUsername": "hoanghoa"}, "patient")
+    dao.findAllWithRealted(db.User, "clinic")
     .then(collection => {
         console.log(collection);
     })
