@@ -59,7 +59,7 @@ module.exports = {
                 var config = configs[0];
                 var appointments = await appointmentDao.getAppointmentsInCurrentDayWithProperties({ "clinicUsername": clinicUsername });
                 var lastAppointment = appointments.length > 0 ? appointments[appointments.length - 1] : null;
-                var time = this.getExpectationTime(config.startWorking, config.endWorking, 0, clinic.examinationDuration, lastAppointment);
+                var time = this.getExpectationTime(config.startWorking, config.endWorking, appointments.length, clinic.examinationDuration, lastAppointment);
                 if (time) {
                     return { 
                         bookedTime: time, 
