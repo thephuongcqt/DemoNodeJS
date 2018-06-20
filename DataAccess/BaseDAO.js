@@ -58,6 +58,7 @@ var dao = {
                 });
         });
     },
+    
     findByProperties: function (table, json) {
         return new Promise((resolve, reject) => {
             table.where(json)
