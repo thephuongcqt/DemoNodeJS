@@ -5,15 +5,15 @@ var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
 
 var licenseDao = {
-    getLicenseInfo: function (username) {
+    getLicenseInfo: function (licenseID) {
         return new Promise((resolve, reject) => {
-            dao.findByID(db.User, "username", username)
+            dao.findByID(db.License, "licenseID", licenseID)
                 .then(collection => {
                     resolve(collection);
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Không tồn tại tài khoản nào");
+                    reject("Không tồn tại giấy phép nào");
                 });
         });
     },
@@ -29,10 +29,10 @@ var licenseDao = {
                 });
         });
     },
-    updateUser: function (username, password, phoneNumber, fullName, role, isActive, email) {
-        var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullName": fullName, "role": role, "isActive": isActive, "email": email };
+    updateLicense: function (licenseID, price, duration, name, description, isActive) {
+        var json = { "licenseID": licenseID, "price": price, "duration": duration, "name": name, "description": description, "isActive": isActive };
         return new Promise((resolve, reject) => {
-            dao.update(db.User, json, "username")
+            dao.update(db.License, json, "licenseID")
                 .then(collection => {
                     resolve(collection);
                 })
@@ -42,41 +42,40 @@ var licenseDao = {
                 });
         });
     },
-    createUser: function (username, password, phoneNumber, fullName, email) {
-        var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullName": fullName, "role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION, "email": email };
+    createLicense: function (price, duration, name, description) {
+        var json = { "price": price, "duration": duration, "name": name, "description": description, "isActive": Const.ACTIVATION };
         return new Promise((resolve, reject) => {
-            dao.create(db.User, json)
-                .then(collection => {
-                    delete collection.password;
-                    resolve(collection);
-                })
-                .catch(err => {
-                    logger.log(err);
-                    reject("Tạo tài khoản không thành công");
-                });
-        });
-    },
-    checkUserInfo: function () {
-        return new Promise((resolve, reject) => {
-            dao.findAll(db.User)
+            dao.create(db.License, json)
                 .then(collection => {
                     resolve(collection);
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Không tồn tại tài khoản nào");
+                    reject("Tạo giấy phép không thành công");
                 });
         });
     },
-    deleteUser: function () {
+    deleteLicense: function (licenseID) {
         return new Promise((resolve, reject) => {
-            dao.delete(db.User, "username", username)
+            dao.delete(db.License, "licenseID", licenseID)
                 .then(collection => {
-                    resolve("Tài khoản đã xóa thành công");
+                    resolve("Giấy phép đã xóa thành công");
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Tài khoản không xóa được");
+                    reject("Giấy phép không xóa được");
+                });
+        });
+    },
+    getLicenseBill: function (licenseID) {
+        return new Promise((resolve, reject) => {
+            dao.findByIDWithRelated(db.License, "licenseID", licenseID, "bills")
+                .then(collection => {
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Không tồn tại giấy phép nào");
                 });
         });
     }
