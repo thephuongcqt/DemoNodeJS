@@ -48,7 +48,6 @@ var dao = {
         return new Promise((resolve, reject) => {
             var json = {};
             json[idName] = id;
-
             table.forge(json)
                 .fetch()
                 .then(model => {
