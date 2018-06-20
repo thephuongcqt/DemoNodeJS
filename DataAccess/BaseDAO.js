@@ -8,7 +8,7 @@ var dao = {
                 })
                 .catch(err => {
                     reject(err);
-                })
+                });
         });
     },
 
@@ -40,7 +40,7 @@ var dao = {
             })
             .catch(err => {
                 reject(err);
-            })
+            });
         });
     },
 
@@ -58,6 +58,23 @@ var dao = {
                 });
         });
     },
+
+    findByIDWithRelated: function (table, idName, id, related) {
+        var relatedJson = { withRelated: [related] };
+        return new Promise((resolve, reject) => {
+            var json = {};
+            json[idName] = id;
+            table.forge(json)
+                .fetch(relatedJson)
+                .then(model => {
+                    resolve(model.toJSON());
+                })
+                .catch(err => {
+                    reject(err);
+                });
+        });
+    },
+
     findByProperties: function (table, json) {
         return new Promise((resolve, reject) => {
             table.where(json)
@@ -67,7 +84,7 @@ var dao = {
                 })
                 .catch(err => {
                     reject(err);
-                })
+                });
         });
     },
 
@@ -81,7 +98,7 @@ var dao = {
                 })
                 .catch(err => {
                     reject(err);
-                })
+                });
         });
     },
     
@@ -94,7 +111,7 @@ var dao = {
             })
             .catch(err => {
                 reject(err);
-            })
+            });
         })
     },
 
@@ -108,7 +125,7 @@ var dao = {
             })
             .catch(err => {
                 reject(err);
-            })
+            });
         })
     }
 };
