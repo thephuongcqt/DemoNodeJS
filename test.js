@@ -6,33 +6,15 @@ var logger = require("./Utils/Logger");
 
 var test = async function () {
     var dao = require("./DataAccess/BaseDAO");
-        
-    // try {
-    //     var user = await dao.findByIDWithRelated(db.User, "username", "thephuong", "clinic");            
-    // } catch (error) {
-    //     console.log(error);
-    // }
-    // .then(collection => {
-    //     console.log(collection);
-    // })
-    // .catch(err => {
-    //     console.log(err);
-    // })
-    // var patientDao = require("./DataAccess/PatientDAO");
-    // var json = {"fullName": "New New Nguyễn Thế Phương", "phoneNumber": "+84969345159"};
-    // patientDao.insertNotExistedPatient(json)
-    // .then(user => {
-    //     console.log(user);
-    // })
-    // .catch(err => {
-    //     console.log(err);
-    // });
-    // var result = await dao.findByPropertiesWithRelated(db.User, {"phoneNumber": "+19792136847"}, "clinic")
-    // console.log(result[0]);
-
-    // patientDao.checkPatientBooked("thephuong", "+84969345159",  "Nguyễn Thế Phương")
-    // .then(result => {
-    //     console.log(result);
-    // })    
+    var clinicDao = require("./DataAccess/ClinicDAO");
+    var appointmentDao = require("./DataAccess/AppointmentDAO");
+    var scheduler = require("./Scheduler/Scheduler");    
+    try {        
+        var clinic = await dao.findByIDWithRelated(db.User, "username", "hoanghoa", "clinic");
+        var result = await scheduler.getExpectationAppointment(clinic.clinic);
+    } catch (error) {
+        logger.log(error);
+        return null;
+    }    
 };
 test();

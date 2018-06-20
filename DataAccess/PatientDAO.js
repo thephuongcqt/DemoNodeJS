@@ -1,8 +1,7 @@
 var db = require("./DBUtils");
 var logger = require("../Utils/Logger");
-var utils = require("../Utils/Utils");
-var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
+var appointmentDao = require("./AppointmentDAO");
 
 var patientDao = {
     insertNotExistedPatient: function(patient){        
@@ -40,37 +39,31 @@ var patientDao = {
         });
     },
 
-    checkPatientBooked: function (clinicUsername, phoneNumber, fullName) {
+    checkPatientBooked: function (clinicUsername, phoneNumber, fullName) {        
         return new Promise((resolve, reject) => {
             this.checkExistedPatient(phoneNumber, fullName)
                 .then(patient => {
-                    if (patient) {
-                        var startDate = new Date(), endDate = new Date();
-                        startDate.setHours(0, 0, 0, 0);
-                        endDate.setHours(23, 59, 59, 999);
+                    if (patient) {                        
                         var json = { "clinicUsername": clinicUsername, "patientID": patient.patientID };
-                        db.Appointment.where(json)
-                            .query(function (appointment) {
-                                appointment.whereBetween('appointmentTime', [startDate, endDate]);
-                            })
-                            .fetchAll()
-                            .then(model => {
-                                if (model.toJSON().length > 0) {
-                                    resolve(true);
-                                    return;
-                                }
+                        appointmentDao.getAppointmentsInCurrentDayWithProperties(json)
+                        .then(model => {
+                            if(model.length > 0){
+                                resolve(true);
+                            } else{
                                 resolve(false);
-                            })
-                            .catch(err => {
-                                logger.log(err);
-                                resolve(true)
-                            });
+                            }
+                        })
+                        .catch(err => {
+                            reject(err);
+                            logger.log(err);
+                        })
                     } else{
                         resolve(false);
                     }
                 })
                 .catch(err => {
-                    resolve(false);
+                    reject(err);
+                    logger.log(err);
                 });
         });
     }

@@ -98,38 +98,44 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCoun
     }    
 }
 
-function verifyData(user, patient, patientPhone) {
-    var bookingDate = new Date().getDay();
-    var clinicUsername = user.clinic.username;
+async function scheduleAppointment(user, patient, patientPhone) {
+    var detailAppointment = await scheduler.getExpectationAppointment(user.clinic);
+    if(detailAppointment){
+        saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, patientPhone);
+    } else{
+        sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
+        logger.log(user.clinic + patient + Const.FullSlot);
+    }
+    
 
-    new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": bookingDate })
-        .fetch({ withRelated: ["clinic"] })
-        .then(function (model) {
-            var config = model.toJSON();
-            var sql = "clinicUsername = ? AND DATE(appointmentTime) = CURRENT_DATE()";
-            db.knex("tbl_appointment")
-                .whereRaw(sql, [clinicUsername])
-                .count("* as count")
-                .then(function (collection) {
-                    var bookedAppointment = collection[0].count;
-                    var bookedTime = scheduler.getExpectationTime(config.startWorking, config.endWorking, bookedAppointment, config.clinic.examinationDuration);
-                    if (bookedTime == null) {
-                        //send err message                                         
-                        sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
-                    } else {
-                        saveDataWhenBookingSuccess(user, patient, bookedTime, bookedAppointment + 1, patientPhone);
-                        //need to send notify to clinic
-                    }
-                })
-                .catch(function (err) {
-                    sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
-                    logger.log(err.message, "verifyData");
-                });
+    // new db.WorkingHours({ "clinicUsername": clinicUsername, "applyDate": bookingDate })
+    //     .fetch({ withRelated: ["clinic"] })
+    //     .then(function (model) {
+    //         var config = model.toJSON();
+    //         var sql = "clinicUsername = ? AND DATE(appointmentTime) = CURRENT_DATE()";
+    //         db.knex("tbl_appointment")
+    //             .whereRaw(sql, [clinicUsername])
+    //             .count("* as count")
+    //             .then(function (collection) {
+    //                 var bookedAppointment = collection[0].count;
+    //                 var bookedTime = scheduler.getExpectationTime(config.startWorking, config.endWorking, bookedAppointment, config.clinic.examinationDuration);
+    //                 if (bookedTime == null) {
+    //                     //send err message                                         
+    //                     sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
+    //                 } else {
+    //                     saveDataWhenBookingSuccess(user, patient, bookedTime, bookedAppointment + 1, patientPhone);
+    //                     //need to send notify to clinic
+    //                 }
+    //             })
+    //             .catch(function (err) {
+    //                 sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
+    //                 logger.log(err.message, "verifyData");
+    //             });
 
-        })
-        .catch(function (err) {
-            logger.log(err.message, "verifyData");
-        });
+    //     })
+    //     .catch(function (err) {
+    //         logger.log(err.message, "verifyData");
+    //     });
 }
 
 async function makeAppointment(patientPhone, patientName, clinicPhone) {
@@ -141,7 +147,7 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
     }
     patientName = utils.toUpperCaseForName(patientName);
     //get clinicUsername from phoneNumber    
-    var userClinic = clinicDao.findClinicByPhone(clinicPhone);
+    var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
     if (userClinic) {
         var patient = {
             "phoneNumber": patientPhone,
@@ -152,7 +158,7 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
             var message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi, Xin quý khách vui lòng quay lại vào hôm sau.";
             sendSMSToPatient(clinicPhone, patientPhone, message);
         } else {
-            verifyData(userClinic, patient, patientPhone);
+            scheduleAppointment(userClinic, patient, patientPhone);
         }
     } else {
         sendSMSToPatient(clinicPhone, patientPhone, Const.BookAppointmentFailure);
