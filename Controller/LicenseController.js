@@ -2,19 +2,15 @@ var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var logger = require("../Utils/Logger");
+var licenseDAO = require("../DataAccess/LicenseDAO");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
     // get All lincese
     apiRouter.get("/getAllLicense", function (req, res) {
-        db.License.forge()
-            .fetchAll()
-            .then(function (collection) {
-                if (collection == null) {
-                    res.json(utils.responseFailure(err.message));
-                } else {
-                    res.json(utils.responseSuccess(collection.toJSON()));
-                }
+        licenseDAO.getAllLicense()
+            .then(function (results) {
+                res.json(utils.responseSuccess(results));
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
