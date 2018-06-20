@@ -115,7 +115,7 @@ var dao = {
         })
     },
 
-    findAllWithRealted: function(table, related){
+    findAllWithRelated: function(table, related){
         var relatedJson = { withRelated: [related] };
         return new Promise((resolve, reject) => {
             table.forge()

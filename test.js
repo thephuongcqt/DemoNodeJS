@@ -18,15 +18,18 @@ var test = async function () {
     // .catch(err => {
     //     console.log(err);
     // })
-    var patientDao = require("./DataAccess/PatientDAO");
-    var json = {"fullName": "New New Nguyễn Thế Phương", "phoneNumber": "+84969345159"};
-    patientDao.insertNotExistedPatient(json)
-    .then(user => {
-        console.log(user);
-    })
-    .catch(err => {
-        console.log(err);
-    });
+    // var patientDao = require("./DataAccess/PatientDAO");
+    // var json = {"fullName": "New New Nguyễn Thế Phương", "phoneNumber": "+84969345159"};
+    // patientDao.insertNotExistedPatient(json)
+    // .then(user => {
+    //     console.log(user);
+    // })
+    // .catch(err => {
+    //     console.log(err);
+    // });
+    // var result = await dao.findByPropertiesWithRelated(db.User, {"phoneNumber": "+19792136847"}, "clinic")
+    // console.log(result[0]);
+
     // patientDao.checkPatientBooked("thephuong", "+84969345159",  "Nguyễn Thế Phương")
     // .then(result => {
     //     console.log(result);
