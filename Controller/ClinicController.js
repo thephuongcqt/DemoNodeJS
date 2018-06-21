@@ -3,6 +3,8 @@ var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var logger = require("../Utils/Logger");
 var Moment = require("moment");
+var hash = require("../Utils/Bcrypt");
+var clinicDAO = require("../DataAccess/ClinicDAO");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -28,7 +30,7 @@ module.exports = function (app, express) {
                         .catch(function (err) {
                             res.json(utils.responseFailure(err.message));
                             logger.log(err.message, "changeInformation");
-                        });                        
+                        });
                 }
             })
             .catch(function (err) {
@@ -38,92 +40,44 @@ module.exports = function (app, express) {
     });
 
     apiRouter.get("/getAllClinic", function (req, res) {
-        db.User.where({ "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION })
-            .fetchAll()
-            .then(function (collection) {
-                var userList = collection.toJSON();
-                var usernames = [];
-                for (var i in userList) {
-                    usernames.push(userList[i].username);
-                }
-                db.Clinic.forge()
-                    .where("username", "in", usernames)
-                    .fetchAll()
-                    .then(function (result) {
-                        var clinics = result.toJSON();
-                        var clinicList = []
-                        for (var i in clinics) {
-                            var clinic = clinics[i];
-                            for (var j in userList) {
-                                var user = userList[j];
-                                if (clinic.username == user.username) {
-                                    user.address = clinic.address;
-                                    user.clinicName = clinic.clinicName;
-                                    user.password = "";
-                                    clinicList.push(user);
-                                }
-                            }
-                        }
-                        res.json(utils.responseSuccess(clinicList));
-                    })
-                    .catch(function (err) {
-                        res.json(utils.responseFailure(err.message));
-                        logger.log(err.message, "getAllClinic");
-                    })
-
+        getAllClinic()
+            .then(function (results) {
+                res.json(utils.responseSuccess(results));
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "getAllClinic");
+                res.json(utils.responseFailure(err));
+                logger.log(err.message, "getAllClinic", "ClinicController");
             });
     });
 
     apiRouter.post("/Login", function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
-
-        new db.User({ "username": username, "password": password })
-            .fetch({ withRelated: ["clinic"] })
-            .then(function (model) {
-                if (model == null) {
-                    res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
-                } else {
-                    var clinic = model.toJSON();
-                    new db.Clinic({ "username": username })
-                        .fetch({ withRelated: ["workingHours"] })
-                        .then(function (model) {
-                            var workingHour = model.toJSON();
-                            for(var i in workingHour.workingHours){
-                                var work = workingHour.workingHours[i];
-                                delete work.id;
-                                delete work.clinicUsername;
-                            }
-                            if (clinic.role === Const.ROLE_CLINIC) {
-                                clinic.clinicName = clinic.clinic.clinicName;
-                                clinic.address = clinic.clinic.address;
-                                clinic.examinationDuration = clinic.clinic.examinationDuration;
-                                clinic.expiredLicense = utils.parseDate(clinic.clinic.expiredLicense);
-                                clinic.workingHours = workingHour.workingHours;
-                                clinic.currentTime = utils.parseDate(new Date());
-                                delete clinic.clinic;
-                                delete clinic.password;
-                                clinic.workingHours.sort(function (a, b) {
-                                    return a.applyDate - b.applyDate;
-                                });
-                                res.json(utils.responseSuccess(clinic));
+        getClinicInfo(username)
+            .then(function (results) {
+                hash.comparePassword(password, results.password)
+                    .then(function (result) {
+                        if (result == true) {
+                            if (results.isActive == Const.ACTIVATION && results.role == Const.ROLE_CLINIC) {
+                                delete results.password;
+                                delete results.role;
+                                delete results.isActive;
+                                res.json(utils.responseSuccess(results));
                             } else {
-                                res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
+                                res.json(utils.responseFailure("Tài khoản không tồn tại"));
                             }
-                        })
-                        .catch(function (err) {
-                            res.json(utils.responseFailure(err.message));
-                            logger.log(err.message, "Login");
-                        });
-                }
+                        } else {
+                            res.json(utils.responseFailure("Mật khẩu không đúng"));
+                        }
+                    })
+                    .catch(function (err) {
+                        res.json(utils.responseFailure(err));
+                        logger.log(err.message, "login", "ClinicController");
+                    });
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "Login");
+                res.json(utils.responseFailure(err));
+                logger.log(err.message, "Login", "ClinicController");
             });
     });
 
@@ -141,7 +95,7 @@ module.exports = function (app, express) {
                     await new db.Clinic({ "username": username })
                         .fetch({ withRelated: ["workingHours"] })
                         .then(async function (model) {
-                            await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0, "email":email })
+                            await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0, "email": email })
                                 .then(async function (model) {
                                     await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": "00:30:00", "expiredLicense": null })
                                         .then(async function (model) {
@@ -193,7 +147,7 @@ module.exports = function (app, express) {
                     res.json(utils.responseFailure("Username is not exist"));
                 } else {
                     db.User.where({ "username": username })
-                        .save({ "password": password, "fullName": fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive, "email":email }, { patch: true })
+                        .save({ "password": password, "fullName": fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive, "email": email }, { patch: true })
                         .then(function (model) {
                             db.Clinic.where({ "username": username })
                                 .fetch()
@@ -271,8 +225,8 @@ module.exports = function (app, express) {
     });
 
     apiRouter.post("/getInformation", function (req, res) {
-        var username = req.body.username;        
-        new db.User({ "username": username})
+        var username = req.body.username;
+        new db.User({ "username": username })
             .fetch({ withRelated: ["clinic"] })
             .then(function (model) {
                 if (model == null) {
@@ -283,7 +237,7 @@ module.exports = function (app, express) {
                         .fetch({ withRelated: ["workingHours"] })
                         .then(function (model) {
                             var workingHour = model.toJSON();
-                            for(var i in workingHour.workingHours){
+                            for (var i in workingHour.workingHours) {
                                 var work = workingHour.workingHours[i];
                                 delete work.id;
                                 delete work.clinicUsername;
@@ -314,4 +268,59 @@ module.exports = function (app, express) {
             });
     });
     return apiRouter;
+}
+function getAllClinic() {
+    return new Promise((resolve, reject) => {
+        clinicDAO.getAllClinic()
+            .then(function (results) {
+                var userList = [];
+                for (var i in results) {
+                    var user = results[i];
+                    delete user.password;
+                    delete user.role;
+                    delete user.isActive;
+                    user.address = user.clinic.address;
+                    user.clinicName = user.clinic.clinicName;
+                    user.examinationDuration = user.clinic.examinationDuration;
+                    user.expiredLicense = user.clinic.expiredLicense;
+                    user.imageURL = user.clinic.imageURL;
+                    user.greetingURL = user.clinic.greetingURL;
+                    delete user.clinic;
+                    userList.push(user);
+                }
+                resolve(userList);
+            })
+            .catch(function (err) {
+                reject(err);
+            });
+    });
+}
+function getClinicInfo(username) {
+    return new Promise((resolve, reject) => {
+        clinicDAO.getClinicInfo(username)
+            .then(function (results) {
+                results.address = results.clinic.address;
+                results.clinicName = results.clinic.clinicName;
+                results.examinationDuration = results.clinic.examinationDuration;
+                results.expiredLicense = results.clinic.expiredLicense;
+                results.imageURL = results.clinic.imageURL;
+                results.greetingURL = results.clinic.greetingURL;
+                delete results.clinic;
+                var workingHourList = [];
+                for (var i in results.workingHours) {
+                    var workingHour = results.workingHours[i];
+                    delete workingHour.id;
+                    delete workingHour.clinicUsername;
+                    workingHourList.push(workingHour);
+                }
+                workingHourList.sort(function (a, b) {
+                    return a.applyDate - b.applyDate;
+                });
+                results.workingHours = workingHourList;
+                resolve(results);
+            })
+            .catch(function (err) {
+                reject(err);
+            });
+    });
 }
