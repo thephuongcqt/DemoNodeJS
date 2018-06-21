@@ -69,6 +69,13 @@ var utils = {
         return null;
     },
 
+    getMomentTime: function (time){
+        if(time){
+            return Moment(time, "HH:mm:ss");
+        }
+        return null;
+    },
+
     toUpperCaseForName: function (name) {
         var splitStr = name.toLowerCase().split(' ');
         for (var i = 0; i < splitStr.length; i++) {

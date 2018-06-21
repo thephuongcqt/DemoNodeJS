@@ -5,6 +5,7 @@ var logger = require("../Utils/Logger");
 var nodeMailer = require("../Email/Email");
 var hash = require("../Utils/Bcrypt");
 var userDAO = require("../DataAccess/UserDAO");
+var baseDao = require("../DataAccess/BaseDAO");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -376,5 +377,33 @@ module.exports = function (app, express) {
             });
     });
     //-------------------------------------------------------------------------//
+
+    //api for dev time
+
+    apiRouter.get("/dev/getAllUser", function (req, res) {
+        baseDao.findAll(db.User)
+            .then(collection => {
+                res.json(utils.responseSuccess(collection));
+            })
+            .catch(err => {
+                logger.log(err);
+                res.json(utils.responseFailure(err.message));
+            })
+    });
+
+    apiRouter.post("/dev/changePassword", async function (req, res) {
+        var username = req.body.username;
+        var password = req.body.password;
+
+        try {
+            var newPassword = await hash.hashPassword(password);
+            var json = {"username": username, "password": newPassword};
+            var result = await baseDao.update(db.User, json, "username");
+            res.json(utils.responseSuccess(result));
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
+    });
     return apiRouter;
 };

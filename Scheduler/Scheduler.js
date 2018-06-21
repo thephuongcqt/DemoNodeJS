@@ -17,22 +17,22 @@ function getTotalDuration(count, duration) {
 
 module.exports = {
     getExpectationTime: function (startWorking, endWorking, count, duration, lastAppointment) {        
-        var mCurrentTime = Moment(new Date(), "HH:mm:ss");          
+        var mCurrentTime = utils.getMomentTime(new Date());        
         if (endWorking < mCurrentTime) {
             return null;
         }
         
-        var mStart = Moment(startWorking, "HH:mm:ss");
-        var mEnd = Moment(endWorking, "HH:mm:ss");
-        var mDuration = Moment(duration, "HH:mm:ss");        
+        var mStart = utils.getMomentTime(startWorking);
+        var mEnd = utils.getMomentTime(endWorking);
+        var mDuration = utils.getMomentTime(duration);
         var aExaminationDuration = getTotalDuration(1, mDuration);
 
         var mExpectation = null;
         if(lastAppointment){
-            mExpectation = Moment(lastAppointment.appointmentTime, "HH:mm:ss");            
+            mExpectation = utils.getMomentTime(lastAppointment.appointmentTime);
             mExpectation.add(aExaminationDuration, "milliseconds");            
         } else{
-            mExpectation = Moment(startWorking, "HH:mm:ss");
+            mExpectation = utils.getMomentTime(startWorking);
             var miliseconds = getTotalDuration(count, mDuration);
             mExpectation.add(miliseconds, "milliseconds");            
         }        
