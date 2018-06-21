@@ -303,6 +303,7 @@ function getClinicInfo(username) {
                 results.clinicName = results.clinic.clinicName;
                 results.examinationDuration = results.clinic.examinationDuration;
                 results.expiredLicense = results.clinic.expiredLicense;
+                results.currentTime = utils.parseDate(new Date());
                 results.imageURL = results.clinic.imageURL;
                 results.greetingURL = results.clinic.greetingURL;
                 delete results.clinic;
