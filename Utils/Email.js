@@ -1,7 +1,7 @@
 var db = require("../DataAccess/DBUtils");
-var utils = require("../Utils/Utils");
-var Const = require("../Utils/Const");
-var logger = require("../Utils/Logger");
+var utils = require("./Utils");
+var Const = require("./Const");
+var logger = require("./Logger");
 var nodemailer = require('nodemailer');
 var Moment = require('moment');
 

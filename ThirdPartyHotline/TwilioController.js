@@ -10,6 +10,7 @@ var logger = require("../Utils/Logger");
 var patientDao = require("../DataAccess/PatientDAO");
 var baseDao = require("../DataAccess/BaseDAO");
 var clinicDao = require("../DataAccess/ClinicDAO");
+var appointmentDao = require("../DataAccess/AppointmentDAO");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -32,7 +33,6 @@ module.exports = function (app, express) {
     apiRouter.post("/Recorded", function (req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
-
         var client = configUtils.getTwilioByID(req.body.AccountSid);
         speechToText.getTextFromVoice(req.body.RecordingUrl, function (err, patientName) {
             client.calls(req.body.CallSid)
@@ -95,17 +95,17 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCoun
     } catch (error) {
         sendSMSToPatient(user.phoneNumber, patientPhone, Const.BookAppointmentFailure);
         logger.log(error);
-    }    
+    }
 }
 
 async function scheduleAppointment(user, patient, patientPhone) {
     var detailAppointment = await scheduler.getExpectationAppointment(user.clinic);
-    if(detailAppointment){
+    if (detailAppointment) {
         saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, patientPhone);
-    } else{
+    } else {
         sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
         logger.log(user.clinic + patient + Const.FullSlot);
-    }    
+    }
 }
 
 async function makeAppointment(patientPhone, patientName, clinicPhone) {
@@ -123,9 +123,15 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
             "phoneNumber": patientPhone,
             "fullName": patientName,
         };
+        //Begin fake patient phone number
+        var fakePhone = await fakePhoneNumber(userClinic.username);
+        if (fakePhone) {
+            patient.phoneNumber = fakePhone;
+        }
+        //Begin fake patient phone number
         var booked = await patientDao.checkPatientBooked(userClinic.username, patientPhone, patientName);
         if (booked) {
-            var message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi, Xin quý khách vui lòng quay lại vào hôm sau.";
+            var message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi. Xin quý khách vui lòng quay lại vào hôm sau.";
             sendSMSToPatient(clinicPhone, patientPhone, message);
         } else {
             scheduleAppointment(userClinic, patient, patientPhone);
@@ -136,25 +142,16 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
     }
 }
 
-
-//begin fake patient phone number
-                // utils.getBookedNumbers(user.clinic.username)
-                //     .then(function (result) {
-                //         var isBooked = utils.checkNumberInArray(patientPhone, result);
-                //         var isTestNumber = utils.checkNumberInArray(patientPhone, configUtils.getTestNumbers());
-                //         if (isBooked && !isTestNumber) {
-                //             //Hard code
-                //             var message = "Hôm nay bạn đã đặt hẹn rồi! xin vui lòng kiểm tra lại thông tin";
-                //             sendSMSToPatient(clinicPhone, patientPhone, message);
-                //             return;
-                //         }
-                //         if (isBooked) {
-                //             var fakePhoneNumber = utils.getFakePhoneNumber(result, configUtils.getRandomNumbers());
-                //             patient.phoneNumber = fakePhoneNumber;
-                //         }
-                //         verifyData(user, patient, patientPhone);
-                //     })
-                //     .catch(function (err) {
-                //         logger.log(err.message, "makeAppointment");
-                //     })
-                //begin fake patient phone number
+async function fakePhoneNumber(clinicUsername) {
+    try {
+        var result = await appointmentDao.getBookedNumbersInCurrentDay(clinicUsername);
+        var isBooked = utils.checkNumberInArray(patientPhone, result);
+        var isTestNumber = utils.checkNumberInArray(patientPhone, configUtils.getTestNumbers());
+        if (isBooked && isTestNumber) {
+            return utils.getFakePhoneNumber(result, configUtils.getRandomNumbers());
+        }
+    } catch (error) {
+        logger.log(error);
+    }
+    return null;
+}
