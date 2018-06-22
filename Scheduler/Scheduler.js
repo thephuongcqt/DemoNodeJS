@@ -35,7 +35,7 @@ module.exports = {
             mExpectation = utils.getMomentTime(startWorking);
             var miliseconds = getTotalDuration(count, mDuration);
             mExpectation.add(miliseconds, "milliseconds");            
-        }        
+        }
 
         // Begin WhileExpectation time is early than current time        
         while (mExpectation <= mCurrentTime) {

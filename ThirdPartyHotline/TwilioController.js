@@ -34,14 +34,24 @@ module.exports = function (app, express) {
         res.set('Content-Type', 'text/xml');
         res.end();
         var client = configUtils.getTwilioByID(req.body.AccountSid);
-        speechToText.getTextFromVoice(req.body.RecordingUrl, function (err, patientName) {
-            client.calls(req.body.CallSid)
-                .fetch()
-                .then(call => {
-                    makeAppointment(call.from, patientName, call.to);
-                })
-                .done();
-        });
+        speechToText.getTextFromVoice(req.body.RecordingUrl)
+            .then(patientName => {
+                client.calls(req.body.CallSid)
+                    .fetch()
+                    .then(call => {
+                        makeAppointment(call.from, patientName, call.to);
+                    })
+                    .done();
+            })
+            .catch(err => {
+                logger.log(err);
+                client.calls(req.body.CallSid)
+                    .fetch()
+                    .then(call => {
+                        sendSMSToPatient(call.to, call.from, Const.BookAppointmentFailure);
+                    })
+                    .done();
+            })
     });
 
     // book appointment by SMS
