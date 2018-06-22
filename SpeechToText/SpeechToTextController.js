@@ -8,29 +8,28 @@ const googleClient = new speech.SpeechClient({
 
 var sttFunctions = {
     getTextFromVoice: function (url) {
-        https.get(url, function (res) {
-            var data = []; // List of Buffer objects
-            res.on("data", function (chunk) {
-                data.push(chunk); // Append Buffer object
-            });
-            res.on("end", function () {
-                data = Buffer.concat(data); // Make one large Buffer of it
-                const audioBytes = data.toString("base64");
+        return new Promise((resolve, reject) => {
+            https.get(url, function (res) {
+                var data = []; // List of Buffer objects
+                res.on("data", function (chunk) {
+                    data.push(chunk); // Append Buffer object
+                });
+                res.on("end", function () {
+                    data = Buffer.concat(data); // Make one large Buffer of it
+                    const audioBytes = data.toString("base64");
 
-                const audio = {
-                    content: audioBytes,
-                };
-                const config = {
-                    encoding: 'LINEAR16',
-                    sampleRateHertz: 8000,
-                    languageCode: 'vi-VN',
-                };
-                const request = {
-                    audio: audio,
-                    config: config,
-                };
-
-                return new Promise((resolve, reject) => {
+                    const audio = {
+                        content: audioBytes,
+                    };
+                    const config = {
+                        encoding: 'LINEAR16',
+                        sampleRateHertz: 8000,
+                        languageCode: 'vi-VN',
+                    };
+                    const request = {
+                        audio: audio,
+                        config: config,
+                    };
                     googleClient
                         .recognize(request)
                         .then(data => {
@@ -45,7 +44,6 @@ var sttFunctions = {
                             reject(err);
                         });
                 });
-
             });
         });
     }
