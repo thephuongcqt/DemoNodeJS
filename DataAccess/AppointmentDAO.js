@@ -79,7 +79,34 @@ var appointmentDao = {
                     reject(err);
                 });
         });
-    }
+    },
+
+    getBookedNumbersInCurrentDay: function (clinicUsername) {
+        var startCurrentDay = new Date();
+        startCurrentDay.setHours(0, 0, 0, 0);
+        var endCurrentDay = new Date();
+        endCurrentDay.setHours(23, 59, 59, 999);
+
+        return new Promise((resolve, reject) => {
+            db.Appointment.forge()
+                .query(function (appointment) {
+                    appointment.whereBetween('appointmentTime', [startCurrentDay, endCurrentDay]);
+                    appointment.where("clinicUsername", clinicUsername);
+                })
+                .fetchAll({ withRelated: ["patient"] })
+                .then(function (model) {
+                    var appointments = model.toJSON();
+                    var bookedNumbers = [];
+                    for (var i in appointments) {
+                        bookedNumbers.push(appointments[i].patient.phoneNumber);
+                    }
+                    resolve(bookedNumbers);
+                })
+                .catch(function (err) {
+                    reject(bookedNumbers);
+                })
+        });
+    },
 };
 
 module.exports = appointmentDao;
