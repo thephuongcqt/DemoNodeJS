@@ -23,7 +23,7 @@ module.exports = function (app, express) {
 
         var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
         
-        var phoneNumber = req.body.phoneNumber;
+        var phoneNumber = req.query.phoneNumber;        
         var greetingURL = await clinicDao.getGreetingURL(phoneNumber);
 
         twiml.play(greetingURL);
