@@ -46,7 +46,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "getAllClinic", "ClinicController");
+                logger.log(err, "getAllClinic", "ClinicController");
             });
     });
 
@@ -72,12 +72,12 @@ module.exports = function (app, express) {
                     })
                     .catch(function (err) {
                         res.json(utils.responseFailure(err));
-                        logger.log(err.message, "login", "ClinicController");
+                        logger.log(err, "login", "ClinicController");
                     });
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "Login", "ClinicController");
+                logger.log(err, "Login", "ClinicController");
             });
     });
 
@@ -88,44 +88,40 @@ module.exports = function (app, express) {
         var clinicName = req.body.clinicName;
         var address = req.body.address;
         var email = req.body.email;
-        await new db.User({ "username": username })
-            .fetch({ withRelated: ["clinic"] })
-            .then(async function (model) {
-                if (model == null) {
-                    await new db.Clinic({ "username": username })
-                        .fetch({ withRelated: ["workingHours"] })
-                        .then(async function (model) {
-                            await new db.User().save({ "username": username, "password": password, "phoneNumber": null, "role": 1, "isActive": 0, "email": email })
-                                .then(async function (model) {
-                                    await new db.Clinic().save({ "username": model.attributes.username, "address": address, "clinicName": clinicName, "examinationDuration": "00:30:00", "expiredLicense": null })
-                                        .then(async function (model) {
-                                            var applyDateList = [0, 1, 2, 3, 4, 5, 6];
-                                            for (var i in applyDateList) {
-                                                var applyDate = applyDateList[i];
-                                                await new db.WorkingHours().save({ "clinicUsername": model.attributes.username, "startWorking": "06:30:00", "endWorking": "17:00:00", "applyDate": applyDate, "isDayOff": 0 })
-                                            }
-                                            res.json(utils.responseSuccess("Register Success"));
-                                        })
-                                        .catch(function (err) {
-                                            res.json(utils.responseFailure(err.message));
-                                            logger.log(err.message, "Register");
-                                        });
-                                })
-                                .catch(function (err) {
-                                    res.json(utils.responseFailure(err.message));
-                                    logger.log(err.message, "Register");
-                                });
-                        })
-                        .catch(function (err) {
-                            logger.log(err.message, "Register");
-                        });
-                } else {
-                    res.json(utils.responseFailure("Username have exist"));
+        var fullName = req.body.fullName;
+        await hash.hashPassword(password)
+            .then(async function (newPassword) {
+                var allClinics;
+                try {
+                    allClinics = await getAllClinic();
+                    var checkClinic = true;
+                    for (var i in allClinics) {
+                        var clinic = allClinics[i];
+                        if (clinic.username == username && clinic.email == email) {
+                            checkClinic = false;
+                            break;
+                        }
+                        else {
+                            checkClinic = true;
+                        }
+                    }
+                    if (checkClinic == true) {
+                        var register = await clinicDAO.registerClinic(username, newPassword, email, fullName, address, clinicName);
+                        delete register.password;
+                        delete register.id;
+                        res.json(utils.responseSuccess(register));
+                    } else {
+                        res.json(utils.responseFailure("Không thể tạo tài khoản này"));
+                    }
+                }
+                catch (err) {
+                    res.json(utils.responseFailure(err));
+                    logger.log(err, "register", "ClinicController");
                 }
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "Register");
+                res.json(utils.responseFailure(err));
+                logger.log(err, "register", "ClinicController");
             });
     });
     // update information clinic
