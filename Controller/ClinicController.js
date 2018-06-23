@@ -10,6 +10,16 @@ var baseDAO = require("../DataAccess/BaseDAO");
 module.exports = function (app, express) {
     apiRouter = express.Router();
 
+    apiRouter.get("/getClinicsWaitingForPhone", async function(req, res){
+        try {
+            result = await clinicDAO.getClinicsWaitingForPhoneNumber();
+            res.json(utils.responseSuccess(result));
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
+    });
+
     apiRouter.post("/changeInformation", async function (req, res) {
         var username = req.body.username;
         var password = req.body.password;

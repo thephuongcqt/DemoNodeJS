@@ -6,12 +6,12 @@ var dao = require("./BaseDAO");
 
 var clinicDao = {
     getClinicsWaitingForPhoneNumber: async function () {
-        var result = await db.User.query(user => {
+        var json = {role: Const.ROLE_CLINIC, isActive: Const.ACTIVATION};
+        var result = await db.User.where(json)
+        .query(user => {
             user.where('phoneNumber', null);
         })
-            .fetchAll({ withRelated: ["clinic"]})
-            .query(user => {
-            });
+            .fetchAll({ withRelated: ["clinic"]});
         return result.toJSON();
     },
 

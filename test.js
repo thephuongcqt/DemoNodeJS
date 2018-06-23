@@ -10,7 +10,12 @@ var test = async function () {
     var appointmentDao = require("./DataAccess/AppointmentDAO");
     var scheduler = require("./Scheduler/Scheduler");
 
-    
+    try {
+        var result = await clinicDao.getClinicsWaitingForPhoneNumber();
+        console.log(result);    
+    } catch (error) {
+        console.log(error);
+    }
     
 };
 test();
