@@ -73,6 +73,8 @@ var userDao = {
                         user.expiredLicense = user.clinic.expiredLicense;
                         user.imageURL = user.clinic.imageURL;
                         user.greetingURL = user.clinic.greetingURL;
+                        user.accountSid = user.clinic.accountSid;
+                        user.authToken = user.clinic.authToken;
                         delete user.clinic;
                         listUser.push(user);
                     }
