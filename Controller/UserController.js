@@ -23,7 +23,6 @@ module.exports = function (app, express) {
                             if (result == true) {
                                 if (results.isActive == Const.ACTIVATION && results.role == Const.ROLE_ADMIN) {
                                     delete results.password;
-                                    delete results.role;
                                     delete results.isActive;
                                     res.json(utils.responseSuccess(results));
                                 } else {
