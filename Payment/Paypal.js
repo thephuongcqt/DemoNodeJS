@@ -68,12 +68,13 @@ async function handleBuyLicense(username, licenseID) {
     }
 }
 
-function addExpiryDate(clinic, license) {
+function addExpiryDate(clinic, license) {    
     var expiredLicense = clinic.expiredLicense;
-    if (!expiredLicense) {
+    if (!expiredLicense || expiredLicense < new Date()) {
         var expiredLicense = new Date();
         expiredLicense.setHours(0, 0, 0, 0);
     }
+    
     var days = license.duration == null ? 0 : license.duration;
     expiredLicense.setTime(expiredLicense.getTime() + days * 86400000);
     clinic.expiredLicense = expiredLicense;
