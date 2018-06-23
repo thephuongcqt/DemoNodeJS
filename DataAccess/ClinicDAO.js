@@ -66,8 +66,6 @@ var clinicDao = {
             phoneNumber = "+" + phoneNumber.trim();
             var json = { "phoneNumber": phoneNumber};
             var clinics = await dao.findByPropertiesWithRelated(db.User, json, "clinic");
-            console.log(clinics);
-            console.log(phoneNumber);
             if (!clinics || clinics.length == 0) {
                 throw new Error("Cannot find clinic by phone number");
             }
@@ -102,7 +100,6 @@ var clinicDao = {
             logger.log(error);
         }
         return results;
-
     }
 }
 module.exports = clinicDao;

@@ -10,6 +10,31 @@ var baseDAO = require("../DataAccess/BaseDAO");
 module.exports = function (app, express) {
     apiRouter = express.Router();
 
+    apiRouter.post("/registerPhoneNumber", async function(req, res){
+        var username = req.body.username;
+        var phoneNumber = req.body.phoneNumber;
+        var accountSid = req.body.accountSid;
+        var authToken = req.body.authToken;
+
+        var userJson = {
+            username: username,
+            phoneNumber: phoneNumber
+        };
+        var clinicJson = {
+            username: username,
+            accountSid: accountSid,
+            authToken: authToken,      
+        };
+        try {
+            var promises = [baseDAO.update(db.User, userJson, "username"), baseDAO.update(db.Clinic, clinicJson, "username")];
+            var result = await Promise.all(promises);
+            res.json(utils.responseSuccess("Update Success"));
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
+    });
+
     apiRouter.get("/getClinicsWaitingForPhone", async function(req, res){
         try {
             result = await clinicDAO.getClinicsWaitingForPhoneNumber();
