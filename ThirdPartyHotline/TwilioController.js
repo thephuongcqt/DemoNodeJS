@@ -16,7 +16,7 @@ module.exports = function (app, express) {
     var apiRouter = express.Router();
 
     // book appointment by Call
-    apiRouter.get("/Voice", function (req, res) {
+    apiRouter.get("/Voice", async function (req, res) {
         res.set('Content-Type', 'text/xml');
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
         const twiml = new VoiceResponse();
