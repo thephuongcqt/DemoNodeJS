@@ -6,12 +6,12 @@ var dao = require("./BaseDAO");
 
 var clinicDao = {
     getClinicsWaitingForPhoneNumber: async function () {
-        var json = {role: Const.ROLE_CLINIC, isActive: Const.ACTIVATION};
+        var json = { role: Const.ROLE_CLINIC, isActive: Const.ACTIVATION };
         var result = await db.User.where(json)
-        .query(user => {
-            user.where('phoneNumber', null);
-        })
-            .fetchAll({ withRelated: ["clinic"]});
+            .query(user => {
+                user.where('phoneNumber', null);
+            })
+            .fetchAll({ withRelated: ["clinic"] });
         return result.toJSON();
     },
 
@@ -64,13 +64,13 @@ var clinicDao = {
                 throw new Error("Undefined phone number");
             }
             phoneNumber = "+" + phoneNumber.trim();
-            var json = { "phoneNumber": phoneNumber};
+            var json = { "phoneNumber": phoneNumber };
             var clinics = await dao.findByPropertiesWithRelated(db.User, json, "clinic");
             if (!clinics || clinics.length == 0) {
                 throw new Error("Cannot find clinic by phone number");
             }
-            var clinic = clinics[0].clinic;            
-            if (clinic && clinic.greetingURL) {                
+            var clinic = clinics[0].clinic;
+            if (clinic && clinic.greetingURL) {
                 return clinic.greetingURL;
             } else {
                 throw new Error("Fail to get greeting URL");
@@ -81,7 +81,7 @@ var clinicDao = {
         }
     },
 
-    registerClinic: async function (username, password, email, fullName, address, clinicName) {
+    registerClinic: async function (username, password, email, fullName, address, clinicName, applyDateList) {
         var results = null;
         var userJson = { "username": username, "password": password, "fullName": fullName, "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION, "email": email };
         var clinicJson = { "username": username, "address": address, "clinicName": clinicName, "imageURL": "qweeq", "greetingURL": "eqweqw" };
