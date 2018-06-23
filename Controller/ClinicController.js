@@ -110,6 +110,7 @@ module.exports = function (app, express) {
         var address = req.body.address;
         var email = req.body.email;
         var fullName = req.body.fullName;
+        var applyDateList = [0, 1, 2, 3, 4, 5, 6];
         await hash.hashPassword(password)
             .then(async function (newPassword) {
                 var allClinics;
@@ -127,7 +128,7 @@ module.exports = function (app, express) {
                         }
                     }
                     if (checkClinic == true) {
-                        var register = await clinicDAO.registerClinic(username, newPassword, email, fullName, address, clinicName);
+                        var register = await clinicDAO.registerClinic(username, newPassword, email, fullName, address, clinicName, applyDateList);
                         delete register.password;
                         delete register.id;
                         res.json(utils.responseSuccess(register));
@@ -146,7 +147,7 @@ module.exports = function (app, express) {
             });
     });
     // update information clinic
-    apiRouter.post("/update", function (req, res) {
+    apiRouter.post("/update", async function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
         var fullName = req.body.fullName;
@@ -156,49 +157,40 @@ module.exports = function (app, express) {
         var role = req.body.role;
         var isActive = req.body.isActive;
         var email = req.body.email;
-        db.User.where({ "username": username })
-            .fetch()
-            .then(function (collection) {
-                var user = collection.toJSON();
-                if (collection == null) {
-                    res.json(utils.responseFailure("Username is not exist"));
-                } else {
-                    db.User.where({ "username": username })
-                        .save({ "password": password, "fullName": fullName, "phoneNumber": phoneNumber, "role": role, "isActive": isActive, "email": email }, { patch: true })
-                        .then(function (model) {
-                            db.Clinic.where({ "username": username })
-                                .fetch()
-                                .then(function (collection) {
-                                    var user = collection.toJSON();
-                                    if (collection == null) {
-                                        res.json(utils.responseFailure("Username is not exist"));
-                                    } else {
-                                        db.Clinic.where({ "username": username })
-                                            .save({ "address": address, "clinicName": clinicName }, { patch: true })
-                                            .then(function (model) {
-                                                res.json(utils.responseSuccess("Update Clinic successfull"));
-                                            })
-                                            .catch(function (err) {
-                                                res.json(utils.responseFailure(err.message));
-                                                logger.log(err.message, "update");
-                                            });
-                                    }
-                                })
-                                .catch(function (err) {
-                                    res.json(utils.responseFailure(err.message));
-                                    logger.log(err.message, "update");
-                                });
-                        })
-                        .catch(function (err) {
-                            res.json(utils.responseFailure(err.message));
-                            logger.log(err.message, "update");
-                        });
-                }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "update");
-            });
+        var imageURL = req.body.imageURL;
+        var greetingURL = req.body.greetingURL;
+        var allClinics;
+        try {
+            allClinics = await getClinicInfo(username);
+            var checkPassword = true;
+            for (var i in allClinics) {
+                var clinic = allClinics[i];
+                hash.comparePassword(password, clinic.password)
+                    .then(function (result) {
+                        if (result == true) {
+                            checkPassword == false;
+                        } else {
+                            checkPassword = true;
+                        }
+                    })
+                    .catch(function (err) {
+                        res.json(utils.responseFailure(err));
+                        logger.log(err, "update", "ClinicController");
+                    });
+            }
+            if (checkPassword == true) {
+                var update = await clinicDAO.updateClinic(username, newPassword, email, fullName, address, clinicName, applyDateList);
+                delete register.password;
+                delete register.id;
+                res.json(utils.responseSuccess(register));
+            } else {
+                res.json(utils.responseFailure("Không thể tạo tài khoản này"));
+            }
+        }
+        catch (err) {
+            res.json(utils.responseFailure(err));
+            logger.log(err, "update", "ClinicController");
+        }
     });
 
     // get appointment of clinic
