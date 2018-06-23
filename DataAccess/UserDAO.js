@@ -17,7 +17,7 @@ var userDao = {
                 });
         });
     },
-    getAllUser: function () {
+    getAll: function () {
         var json = { "isActive": Const.ACTIVATION };
         return new Promise((resolve, reject) => {
             dao.findByProperties(db.User, json)
@@ -37,15 +37,14 @@ var userDao = {
                 });
         });
     },
-    getAllAdmin: function () {
-        var json = { "role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION };
+    getAllUser: function (role) {
+        var json = { "role": role, "isActive": Const.ACTIVATION };
         return new Promise((resolve, reject) => {
             dao.findByProperties(db.User, json)
                 .then(collection => {
                     var listUser = [];
                     for (var i in collection) {
                         var user = collection[i];
-                        delete user.role;
                         delete user.isActive;
                         delete user.password;
                         listUser.push(user);
@@ -61,35 +60,20 @@ var userDao = {
     getAllClinic: function () {
         var json = { "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION };
         return new Promise((resolve, reject) => {
-            dao.findByProperties(db.User, json)
+            dao.findByPropertiesWithRelated(db.User, json, "clinic")
                 .then(collection => {
                     var listUser = [];
                     for (var i in collection) {
                         var user = collection[i];
                         delete user.password;
                         delete user.isActive;
-                        delete user.role;
-                        listUser.push(user);
-                    }
-                    resolve(listUser);
-                })
-                .catch(err => {
-                    logger.log(err);
-                    reject("Không tồn tại tài khoản nào");
-                });
-        });
-    },
-    getAllStaff: function () {
-        var json = { "role": Const.ROLE_STAFF, "isActive": Const.ACTIVATION };
-        return new Promise((resolve, reject) => {
-            dao.findByProperties(db.User, json)
-                .then(collection => {
-                    var listUser = [];
-                    for (var i in collection) {
-                        var user = collection[i];
-                        delete user.password;
-                        delete user.isActive;
-                        delete user.role;
+                        user.address = user.clinic.address;
+                        user.clinicName = user.clinic.clinicName;
+                        user.examinationDuration = user.clinic.examinationDuration;
+                        user.expiredLicense = user.clinic.expiredLicense;
+                        user.imageURL = user.clinic.imageURL;
+                        user.greetingURL = user.clinic.greetingURL;
+                        delete user.clinic;
                         listUser.push(user);
                     }
                     resolve(listUser);
@@ -104,6 +88,19 @@ var userDao = {
         var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullName": fullName, "role": role, "isActive": isActive, "email": email };
         return new Promise((resolve, reject) => {
             dao.update(db.User, json, "username")
+                .then(collection => {
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Cập nhật không thành công");
+                });
+        });
+    },
+    updateClinic: function (username, address, clinicName) {
+        var json = { "username": username, "address": address, "clinicName": clinicName };
+        return new Promise((resolve, reject) => {
+            dao.update(db.Clinic, json, "username")
                 .then(collection => {
                     resolve(collection);
                 })

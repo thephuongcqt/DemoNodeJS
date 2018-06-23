@@ -51,17 +51,8 @@ module.exports = function (app, express) {
     apiRouter.get("/getAllUser", function (req, res) {
         var users;
         var role = req.query.role;
-        if (role == Const.ROLE_ADMIN) {
-            userDAO.getAllAdmin()
-                .then(function (result) {
-                    res.json(utils.responseSuccess(result));
-                })
-                .catch(function (err) {
-                    res.json(utils.responseFailure(err));
-                    logger.log(err.message, "getAllUser", "UserController");
-                });
-        } else if (role == Const.ROLE_STAFF) {
-            userDAO.getAllStaff()
+        if (role == Const.ROLE_ADMIN || role == Const.ROLE_STAFF) {
+            userDAO.getAllUser(role)
                 .then(function (result) {
                     res.json(utils.responseSuccess(result));
                 })
@@ -79,7 +70,7 @@ module.exports = function (app, express) {
                     logger.log(err.message, "getAllUser", "UserController");
                 });
         } else {
-            userDAO.getAllUser()
+            userDAO.getAll()
                 .then(function (result) {
                     res.json(utils.responseSuccess(result));
                 })
@@ -145,11 +136,30 @@ module.exports = function (app, express) {
         var role = req.body.role;
         var isActive = req.body.isActive;
         var email = req.body.email;
+        var address = req.body.address;
+        var clinicName = req.body.clinicName;
+        var examinationDuration = req.body.examinationDuration;
+        var expiredLicense = req.body.expiredLicense;
+        var imageURL = req.body.imageURL;
+        var greetingURL = req.body.greetingURL;
+
         userDAO.getUserInfo(username)
             .then(function (result) {
                 userDAO.updateUser(username, password, phoneNumber, fullName, role, isActive, email)
-                    .then(function (results) {
-                        res.json(utils.responseSuccess(results));
+                    .then(function (resultsUser) {
+                        if (result.role == Const.ROLE_CLINIC) {
+                            userDAO.updateClinic(username, address, clinicName)
+                                .then(function (resultsCilinc) {
+                                    var results = Object.assign(resultsUser, resultsCilinc);
+                                    res.json(utils.responseSuccess(results));
+                                })
+                                .catch(function (err) {
+                                    res.json(utils.responseFailure(err));
+                                    logger.log(err.message, "update", "UserController");
+                                });
+                        } else {
+                            res.json(utils.responseSuccess(resultsUser));
+                        }
                     })
                     .catch(function (err) {
                         res.json(utils.responseFailure(err));
