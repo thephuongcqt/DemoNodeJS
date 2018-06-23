@@ -6,6 +6,9 @@ module.exports = {
     FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",        
     BookAppointmentFailure: "Đã có lỗi xảy ra khi đặt lịch hẹn, xin quý khách vui lòng thử lại sau",
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",
+
+    DefaultGreetingURL: "https://firebasestorage.googleapis.com/v0/b/chatfirebase-1e377.appspot.com/o/Welcome.mp3?alt=media&token=6914df70-85d3-4ea4-9ce0-edf4516ea353",
+
     Day: {
         Sun: 0,
         Mon: 1,
