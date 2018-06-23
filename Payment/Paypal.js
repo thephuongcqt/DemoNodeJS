@@ -75,7 +75,7 @@ function addExpiryDate(clinic, license) {
         expiredLicense.setHours(0, 0, 0, 0);
     }
     
-    var days = license.duration == null ? 0 : license.duration;
+    var days = license.duration == null ? 0 : license.duration + 1;
     expiredLicense.setTime(expiredLicense.getTime() + days * 86400000);
     clinic.expiredLicense = expiredLicense;
 }

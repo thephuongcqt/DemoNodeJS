@@ -16,12 +16,17 @@ module.exports = function (app, express) {
     var apiRouter = express.Router();
 
     // book appointment by Call
-    apiRouter.get("/Voice", function (req, res) {
+    apiRouter.get("/Voice", async function (req, res) {
         res.set('Content-Type', 'text/xml');
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
-        var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
         const twiml = new VoiceResponse();
-        twiml.play('https://firebasestorage.googleapis.com/v0/b/chatfirebase-1e377.appspot.com/o/Welcome.mp3?alt=media&token=6914df70-85d3-4ea4-9ce0-edf4516ea353');
+
+        var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
+        
+        var phoneNumber = req.body.phoneNumber;
+        var greetingURL = await clinicDao.getGreetingURL(phoneNumber);
+
+        twiml.play(greetingURL);
         twiml.record({
             recordingStatusCallback: recordURL,
             method: 'POST',
@@ -51,7 +56,7 @@ module.exports = function (app, express) {
                         sendSMSToPatient(call.to, call.from, Const.BookAppointmentFailure);
                     })
                     .done();
-            })
+            });
     });
 
     // book appointment by SMS
