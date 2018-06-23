@@ -22,8 +22,8 @@ module.exports = function (app, express) {
         const twiml = new VoiceResponse();
 
         var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
-        
-        var phoneNumber = req.query.phoneNumber;        
+
+        var phoneNumber = req.query.phoneNumber;
         var greetingURL = await clinicDao.getGreetingURL(phoneNumber);
 
         twiml.play(greetingURL);
@@ -38,25 +38,28 @@ module.exports = function (app, express) {
     apiRouter.post("/Recorded", function (req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
-        var client = configUtils.getTwilioByID(req.body.AccountSid);
-        speechToText.getTextFromVoice(req.body.RecordingUrl)
-            .then(patientName => {
-                client.calls(req.body.CallSid)
-                    .fetch()
-                    .then(call => {
-                        makeAppointment(call.from, patientName, call.to);
-                    })
-                    .done();
-            })
-            .catch(err => {
-                logger.log(err);
-                client.calls(req.body.CallSid)
-                    .fetch()
-                    .then(call => {
-                        sendSMSToPatient(call.to, call.from, Const.BookAppointmentFailure);
-                    })
-                    .done();
-            });
+        // var client = configUtils.getTwilioByID(req.body.AccountSid);
+        var client = clinicDao.getTwilioAccountByID(req.body.AccountSid);
+        if (client) {
+            speechToText.getTextFromVoice(req.body.RecordingUrl)
+                .then(patientName => {
+                    client.calls(req.body.CallSid)
+                        .fetch()
+                        .then(call => {
+                            makeAppointment(call.from, patientName, call.to);
+                        })
+                        .done();
+                })
+                .catch(err => {
+                    logger.log(err);
+                    client.calls(req.body.CallSid)
+                        .fetch()
+                        .then(call => {
+                            sendSMSToPatient(call.to, call.from, Const.BookAppointmentFailure);
+                        })
+                        .done();
+                });
+        }
     });
 
     // book appointment by SMS
@@ -72,16 +75,19 @@ module.exports = function (app, express) {
 
 function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
     //  Send SMS to announcement appointment for patient has book successfull 
-    var client = configUtils.getTwilioByPhone(clinicPhone);
-    client.messages.create({
-        body: messageBody,
-        from: clinicPhone,
-        to: patientPhone
-    }).then(messages => { })
-        .catch(function (err) {
-            logger.log(err, "sendSMSToPatient");
-        })
-        .done();
+    // var client = configUtils.getTwilioByPhone(clinicPhone);
+    var client = clinicDao.getTwilioAccountByPhoneNumber(clinicPhone);
+    if (client) {
+        client.messages.create({
+            body: messageBody,
+            from: clinicPhone,
+            to: patientPhone
+        }).then(messages => { })
+            .catch(function (err) {
+                logger.log(err, "sendSMSToPatient");
+            })
+            .done();
+    }
 }
 
 async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount, patientPhone) {

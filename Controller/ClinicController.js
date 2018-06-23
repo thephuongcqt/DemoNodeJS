@@ -9,6 +9,31 @@ var baseDAO = require("../DataAccess/BaseDAO");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
+    
+    apiRouter.get("/getClinicsForStaff", async function(req, res){        
+        try {
+            var clinics = await baseDAO.findByPropertiesWithRelated(db.User, {role: Const.ROLE_CLINIC, isActive: Const.ACTIVATION}, "clinic");    
+            for(var i in clinics){
+                var user = clinics[i];
+                    delete user.password;
+                    delete user.role;
+                    delete user.isActive;
+                    user.address = user.clinic.address;
+                    user.clinicName = user.clinic.clinicName;
+                    user.examinationDuration = user.clinic.examinationDuration;
+                    user.expiredLicense = user.clinic.expiredLicense;
+                    user.imageURL = user.clinic.imageURL;
+                    user.greetingURL = user.clinic.greetingURL;
+                    user.accountSid = user.clinic.accountSid;
+                    user.authToken = user.clinic.authToken;
+                    delete user.clinic;
+            }
+            res.json(utils.responseSuccess(clinics));
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
+    });
 
     apiRouter.post("/registerPhoneNumber", async function(req, res){
         var username = req.body.username;

@@ -3,8 +3,54 @@ var logger = require("../Utils/Logger");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
+var configUtils = require("../Utils/ConfigUtils");
 
 var clinicDao = {
+    getTwilioAccountByID: async function(accountSid){
+        try {
+            var json = {accountSid: accountSid};
+            var clinics = await dao.findByProperties(db.Clinic, json);
+            if(clinics && clinics.length > 0){
+                var clinic = clinics[0];                
+                if(clinic){
+                    var accountSid = clinic.accountSid;
+                    var authToken = clinic.authToken;
+                    if(accountSid && authToken){
+                        return configUtils.getTwilioAccount(accountSid, authToken);
+                    }
+                }
+            } 
+            throw new Error("Cannot find Clinic by accountSid");
+        } catch (error) {
+            logger.log(error);
+        }
+        return configUtils.getDefaultTwilio();
+    },
+
+    getTwilioAccountByPhoneNumber: async function(phoneNumber){
+        try {
+            var json = {phoneNumber: phoneNumber};
+            var users = await dao.findByPropertiesWithRelated(db.User, json, "clinic");
+            if(users && users.length > 0){
+                var user = users[0];                
+                if(user && user.clinic){
+                    var clinic = user.clinic;
+                    if(clinic){
+                        var accountSid = clinic.accountSid;
+                        var authToken = clinic.authToken;
+                        if(accountSid && authToken){
+                            return configUtils.getTwilioAccount(accountSid, authToken);
+                        }
+                    }                    
+                }
+            }
+            throw new Error("Cannot find clinic by phone number");
+        } catch (error) {
+            logger.log(error);
+        }
+        return configUtils.getDefaultTwilio();
+    },
+
     getClinicsWaitingForPhoneNumber: async function () {
         var json = {role: Const.ROLE_CLINIC, isActive: Const.ACTIVATION};
         var result = await db.User.where(json)

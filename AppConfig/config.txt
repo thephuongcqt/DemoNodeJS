@@ -23,5 +23,11 @@
             "accountSid": "ACd57d3cc272b9a0819318bb5dbce84417",
             "authToken": "877e4a0c9a528ba5356e45961365a084"
         }
-    }
+    },
+    "defaultTwilio": {
+        "phoneNumber": "+19792136847",
+        "accountSid": "AC0182c9b950c8fe1229f93aeb40900a5d",
+        "authToken": "903448ab8b8a1e8a59bf62126841bd10"
+    },
+    "defaultGreetingURL": "https://firebasestorage.googleapis.com/v0/b/chatfirebase-1e377.appspot.com/o/Welcome.mp3?alt=media&token=6914df70-85d3-4ea4-9ce0-edf4516ea353"
 }
