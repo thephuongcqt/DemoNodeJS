@@ -35,11 +35,11 @@ module.exports = function (app, express) {
     });
 
     // Receive record and make appointment with google speech to text
-    apiRouter.post("/Recorded", function (req, res) {
+    apiRouter.post("/Recorded", async function (req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
         // var client = configUtils.getTwilioByID(req.body.AccountSid);
-        var client = clinicDao.getTwilioAccountByID(req.body.AccountSid);
+        var client = await clinicDao.getTwilioAccountByID(req.body.AccountSid);
         if (client) {
             speechToText.getTextFromVoice(req.body.RecordingUrl)
                 .then(patientName => {
@@ -73,10 +73,10 @@ module.exports = function (app, express) {
 
 //--------------------------------------------- Twilio Utilities method ---------------------------------------------//
 
-function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
+async function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
     //  Send SMS to announcement appointment for patient has book successfull 
     // var client = configUtils.getTwilioByPhone(clinicPhone);
-    var client = clinicDao.getTwilioAccountByPhoneNumber(clinicPhone);
+    var client = await clinicDao.getTwilioAccountByPhoneNumber(clinicPhone);
     if (client) {
         client.messages.create({
             body: messageBody,
