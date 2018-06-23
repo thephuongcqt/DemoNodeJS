@@ -60,6 +60,15 @@ module.exports = function (app, express) {
                     res.json(utils.responseFailure(err));
                     logger.log(err.message, "getAllUser", "UserController");
                 });
+        } else if (role == Const.ROLE_STAFF) {
+            userDAO.getAllStaff()
+                .then(function (result) {
+                    res.json(utils.responseSuccess(result));
+                })
+                .catch(function (err) {
+                    res.json(utils.responseFailure(err));
+                    logger.log(err.message, "getAllUser", "UserController");
+                });
         } else if (role == Const.ROLE_CLINIC) {
             userDAO.getAllClinic()
                 .then(function (result) {
