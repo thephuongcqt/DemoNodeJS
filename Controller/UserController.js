@@ -23,7 +23,10 @@ module.exports = function (app, express) {
                             if (result == true) {
                                 if (results.isActive == Const.ACTIVATION && results.role == Const.ROLE_ADMIN) {
                                     delete results.password;
-                                    delete results.role;
+                                    delete results.isActive;
+                                    res.json(utils.responseSuccess(results));
+                                } else if (results.isActive == Const.ACTIVATION && results.role == Const.ROLE_STAFF) {
+                                    delete results.password;
                                     delete results.isActive;
                                     res.json(utils.responseSuccess(results));
                                 } else {
@@ -50,6 +53,15 @@ module.exports = function (app, express) {
         var role = req.query.role;
         if (role == Const.ROLE_ADMIN) {
             userDAO.getAllAdmin()
+                .then(function (result) {
+                    res.json(utils.responseSuccess(result));
+                })
+                .catch(function (err) {
+                    res.json(utils.responseFailure(err));
+                    logger.log(err.message, "getAllUser", "UserController");
+                });
+        } else if (role == Const.ROLE_STAFF) {
+            userDAO.getAllStaff()
                 .then(function (result) {
                     res.json(utils.responseSuccess(result));
                 })
@@ -155,6 +167,7 @@ module.exports = function (app, express) {
         var phoneNumber = req.body.phoneNumber;
         var fullName = req.body.fullName;
         var email = req.body.email;
+        var role = req.body.role;
         userDAO.checkUserInfo()
             .then(function (results) {
                 var checkDuplicate;
@@ -170,14 +183,19 @@ module.exports = function (app, express) {
                 if (checkDuplicate == true) {
                     hash.hashPassword("123456")
                         .then(function (password) {
-                            userDAO.createUser(username, password, phoneNumber, fullName, email)
-                                .then(function (result) {
-                                    res.json(utils.responseSuccess(result));
-                                })
-                                .catch(function (err) {
-                                    res.json(utils.responseFailure(err));
-                                    logger.log(err.message, "createAdmin", "UserController");
-                                });
+                            if (role == Const.ROLE_ADMIN || role == Const.ROLE_STAFF) {
+                                userDAO.createUser(username, password, phoneNumber, fullName, email, role)
+                                    .then(function (result) {
+                                        res.json(utils.responseSuccess(result));
+                                    })
+                                    .catch(function (err) {
+                                        res.json(utils.responseFailure(err));
+                                        logger.log(err.message, "createAdmin", "UserController");
+                                    });
+                            }
+                            else {
+                                res.json(utils.responseFailure("Tạo tài khoản không thành công"));
+                            }
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
@@ -397,7 +415,7 @@ module.exports = function (app, express) {
 
         try {
             var newPassword = await hash.hashPassword(password);
-            var json = {"username": username, "password": newPassword};
+            var json = { "username": username, "password": newPassword };
             var result = await baseDao.update(db.User, json, "username");
             res.json(utils.responseSuccess(result));
         } catch (error) {

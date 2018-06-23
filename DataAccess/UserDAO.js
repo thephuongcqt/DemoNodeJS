@@ -79,6 +79,27 @@ var userDao = {
                 });
         });
     },
+    getAllStaff: function () {
+        var json = { "role": Const.ROLE_STAFF, "isActive": Const.ACTIVATION };
+        return new Promise((resolve, reject) => {
+            dao.findByProperties(db.User, json)
+                .then(collection => {
+                    var listUser = [];
+                    for (var i in collection) {
+                        var user = collection[i];
+                        delete user.password;
+                        delete user.isActive;
+                        delete user.role;
+                        listUser.push(user);
+                    }
+                    resolve(listUser);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Không tồn tại tài khoản nào");
+                });
+        });
+    },
     updateUser: function (username, password, phoneNumber, fullName, role, isActive, email) {
         var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullName": fullName, "role": role, "isActive": isActive, "email": email };
         return new Promise((resolve, reject) => {
@@ -92,8 +113,8 @@ var userDao = {
                 });
         });
     },
-    createUser: function (username, password, phoneNumber, fullName, email) {
-        var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullName": fullName, "role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION, "email": email };
+    createUser: function (username, password, phoneNumber, fullName, email, role) {
+        var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullName": fullName, "role": role, "isActive": Const.ACTIVATION, "email": email };
         return new Promise((resolve, reject) => {
             dao.create(db.User, json)
                 .then(collection => {
