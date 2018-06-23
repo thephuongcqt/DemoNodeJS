@@ -46,13 +46,20 @@ var clinicDao = {
         }
         return results;
     },
-    registerClinic: async function (username, password, email, fullName, address, clinicName) {
+    registerClinic: async function (username, password, email, fullName, address, clinicName, applyDateList) {
         var results = null;
-        var userJson = {"username": username, "password": password, "fullName": fullName, "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION, "email": email, "imageURL": "qweeq", "greetingURL": "eqweqw"};
-        var clinicJson = {"username": username, "address": address, "clinicName": clinicName};
+        var userJson = { "username": username, "password": password, "fullName": fullName, "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION, "email": email };
+        var clinicJson = { "username": username, "address": address, "clinicName": clinicName, "imageURL": "qweeq", "greetingURL": "eqweqw" };
         try {
             var addUser = await dao.create(db.User, userJson);
             var addClinic = await dao.create(db.Clinic, clinicJson);
+            var workHoursList = [];
+            for (var i in applyDateList) {
+                var applyDate = applyDateList[i];
+                var workHoursJson = { "clinicUsername": username, "startWorking": "6:30:00", "endWorking": "17:00:00", "applyDate": applyDate, "isDayOff": 0 };
+                var addWorkHours = await dao.create(db.WorkingHours, workHoursJson);
+                workHoursList.push(addWorkHours);
+            }
             results = Object.assign(addUser, addClinic);
         } catch (error) {
             logger.log(error);
