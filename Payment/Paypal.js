@@ -3,6 +3,7 @@ var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var baseDao = require("../DataAccess/BaseDAO");
+var logger = require("../Utils/Logger");
 
 var gateway = braintree.connect({
     environment:  braintree.Environment.Sandbox,
