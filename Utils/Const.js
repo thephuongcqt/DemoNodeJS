@@ -8,6 +8,8 @@ module.exports = {
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",
     Error: {
         UpdateClinicError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin",
+        ClinicChangeInformationError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin phòng khám",
+        IncorrectUsernameOrPassword: "Sai tên đăng nhập hoặc mật khẩu"
     },
 
     DefaultGreetingURL: "https://firebasestorage.googleapis.com/v0/b/chatfirebase-1e377.appspot.com/o/Welcome.mp3?alt=media&token=6914df70-85d3-4ea4-9ce0-edf4516ea353",

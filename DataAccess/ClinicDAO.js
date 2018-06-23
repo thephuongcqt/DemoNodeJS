@@ -4,7 +4,8 @@ var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
 
-var clinicDao = {
+var clinicDao = {    
+
     findClinicByPhone: async function (phoneNumber) {
         var result = null;
         try {
