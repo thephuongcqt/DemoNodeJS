@@ -1,6 +1,7 @@
 module.exports = {
     ROLE_ADMIN: 0,
     ROLE_CLINIC: 1,
+    ROLE_STAFF: 2,
     ACTIVATION: 1,
     DEACTIVATION: 0,
     FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",        

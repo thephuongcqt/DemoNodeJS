@@ -18,47 +18,60 @@ module.exports = function (app, express) {
         var examinationDuration = req.body.examinationDuration;
         var email = req.body.email;
 
-        try {            
-            var user = await baseDAO.findByIDWithRelated(db.User, "username", username, "clinic");            
-            if(!user || !user.clinic){
+        try {
+            var user = await baseDAO.findByIDWithRelated(db.User, "username", username, "clinic");
+            if (!user || !user.clinic) {
                 throw new Error(Const.Error.IncorrectUsernameOrPassword);
             }
-            var correctPassword = await hash.comparePassword(password, user.password);            
-            if(!correctPassword){
+            var correctPassword = await hash.comparePassword(password, user.password);
+            if (!correctPassword) {
                 throw new Error(Const.Error.IncorrectUsernameOrPassword);
             }
-            var json = {"username": username};
-            if(address){
-                json.address = address;            
+            var json = { "username": username };
+            if (address || clinicName || examinationDuration) {
+                // update clinic table
+                if (address) {
+                    json.address = address;
+                }
+                if (clinicName) {
+                    json.clinicName = clinicName;
+                }
+                if (examinationDuration) {
+                    json.examinationDuration = examinationDuration;
+                }
+
+                await baseDAO.update(db.Clinic, json, "username");
             }
-            if(clinicName){
-                json.clinicName = clinicName;
-            }
-            if(examinationDuration){
-                json.examinationDuration = examinationDuration;
+
+            if (email) {
+                // update user table
+                var userJson = { "username": username, "email": email };
+                await baseDAO.update(db.User, userJson, "username");
+
+                json.email = email;
             }
             
-            await baseDAO.update(db.Clinic, json, "username");
+            json = await getClinicInfo(username);
             res.json(utils.responseSuccess(json));
         } catch (error) {
             logger.log(error);
-            if(error.message == Const.Error.IncorrectUsernameOrPassword){
+            if (error.message == Const.Error.IncorrectUsernameOrPassword) {
                 res.json(utils.responseFailure(error.message));
-            } else{
+            } else {
                 res.json(utils.responseFailure(Const.Error.ClinicChangeInformationError));
-            }            
+            }
         }
     });
 
-    apiRouter.post("/changeClinicProfile", async function(req, res){
+    apiRouter.post("/changeClinicProfile", async function (req, res) {
         var greetingURL = req.body.greetingURL;
         var username = req.body.username;
         var imageURL = req.body.imageURL;
-        var json = {"username": username};
-        if(greetingURL){
+        var json = { "username": username };
+        if (greetingURL) {
             json.greetingURL = greetingURL;
         }
-        if(imageURL){
+        if (imageURL) {
             json.imageURL = imageURL;
         }
         try {
