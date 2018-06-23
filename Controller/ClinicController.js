@@ -13,6 +13,17 @@ module.exports = function (app, express) {
     apiRouter.get("/getClinicsWaitingForPhone", async function(req, res){
         try {
             result = await clinicDAO.getClinicsWaitingForPhoneNumber();
+            for(var i in result){
+                var user = result[i];
+                user.address = user.clinic.address;
+                user.clinicName = user.clinic.clinicName;
+                user.expiredLicense = utils.parseDate(user.clinic.expiredLicense);
+                user.examinationDuration = user.clinic.examinationDuration;
+                user.imageURL = user.clinic.imageURL;
+                user.greetingURL = user.clinic.greetingURL;
+                delete user.clinic;
+                delete user.password;                
+            }
             res.json(utils.responseSuccess(result));
         } catch (error) {
             logger.log(error);
