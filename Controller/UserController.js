@@ -138,17 +138,15 @@ module.exports = function (app, express) {
         var email = req.body.email;
         var address = req.body.address;
         var clinicName = req.body.clinicName;
-        var examinationDuration = req.body.examinationDuration;
-        var expiredLicense = req.body.expiredLicense;
-        var imageURL = req.body.imageURL;
-        var greetingURL = req.body.greetingURL;
+        var accountSid = req.body.imageURL;
+        var authToken = req.body.greetingURL;
         try {
             var resultClinic;
             var users = await userDAO.getUserInfo(username);
-            if (password|| phoneNumber|| fullName|| role|| isActive|| email != null) {
+            if (password || phoneNumber || fullName || role || isActive || email != null) {
                 var resultUser = await userDAO.updateUser(username, password, phoneNumber, fullName, role, isActive, email);
                 if (users.role == Const.ROLE_CLINIC) {
-                    resultClinic = await userDAO.updateClinic(username, address, clinicName);
+                    resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
                     var results = Object.assign(resultUser, resultClinic);
                     res.json(utils.responseSuccess(results));
                 } else {

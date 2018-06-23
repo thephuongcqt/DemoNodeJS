@@ -99,8 +99,8 @@ var userDao = {
                 });
         });
     },
-    updateClinic: function (username, address, clinicName) {
-        var json = { "username": username, "address": address, "clinicName": clinicName };
+    updateClinic: function (username, address, clinicName, accountSid, authToken) {
+        var json = { "username": username, "address": address, "clinicName": clinicName, "accountSid": accountSid, "authToken": authToken };
         return new Promise((resolve, reject) => {
             dao.update(db.Clinic, json, "username")
                 .then(collection => {
