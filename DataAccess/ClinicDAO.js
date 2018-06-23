@@ -84,7 +84,7 @@ var clinicDao = {
     registerClinic: async function (username, password, email, fullName, address, clinicName, applyDateList) {
         var results = null;
         var userJson = { "username": username, "password": password, "fullName": fullName, "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION, "email": email };
-        var clinicJson = { "username": username, "address": address, "clinicName": clinicName, "imageURL": "qweeq", "greetingURL": "eqweqw" };
+        var clinicJson = { "username": username, "address": address, "clinicName": clinicName, "imageURL": null, "greetingURL": null };
         try {
             var addUser = await dao.create(db.User, userJson);
             var addClinic = await dao.create(db.Clinic, clinicJson);
