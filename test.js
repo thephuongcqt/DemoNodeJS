@@ -10,9 +10,7 @@ var test = async function () {
     var appointmentDao = require("./DataAccess/AppointmentDAO");
     var scheduler = require("./Scheduler/Scheduler");
 
-
-    var url = await clinicDao.getGreetingURL("a");
-    console.log(url);
+    
+    
 };
 test();
-

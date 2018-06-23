@@ -4,7 +4,16 @@ var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
 
-var clinicDao = {    
+var clinicDao = {
+    getClinicsWaitingForPhoneNumber: async function () {
+        var result = await db.User.query(user => {
+            user.where('phoneNumber', null);
+        })
+            .fetchAll({ withRelated: ["clinic"]})
+            .query(user => {
+            });
+        return result.toJSON();
+    },
 
     findClinicByPhone: async function (phoneNumber) {
         var result = null;
@@ -59,8 +68,8 @@ var clinicDao = {
             if (!clinics || clinics.length == 0) {
                 throw new Error("Cannot find clinic by phone number");
             }
-            var clinic = clinics[0];
-            if (clinic && clinic.greetingURL) {
+            var clinic = clinics[0].clinic;            
+            if (clinic && clinic.greetingURL) {                
                 return clinic.greetingURL;
             } else {
                 throw new Error("Fail to get greeting URL");
