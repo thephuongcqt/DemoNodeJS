@@ -128,7 +128,7 @@ module.exports = function (app, express) {
             });
     });
     // update information
-    apiRouter.post("/update", function (req, res) {
+    apiRouter.post("/update", async function (req, res) {
         var username = req.body.username;
         var password;
         var fullName = req.body.fullName;
@@ -142,34 +142,31 @@ module.exports = function (app, express) {
         var expiredLicense = req.body.expiredLicense;
         var imageURL = req.body.imageURL;
         var greetingURL = req.body.greetingURL;
-
-        userDAO.getUserInfo(username)
-            .then(function (result) {
-                userDAO.updateUser(username, password, phoneNumber, fullName, role, isActive, email)
-                    .then(function (resultsUser) {
-                        if (result.role == Const.ROLE_CLINIC) {
-                            userDAO.updateClinic(username, address, clinicName)
-                                .then(function (resultsCilinc) {
-                                    var results = Object.assign(resultsUser, resultsCilinc);
-                                    res.json(utils.responseSuccess(results));
-                                })
-                                .catch(function (err) {
-                                    res.json(utils.responseFailure(err));
-                                    logger.log(err.message, "update", "UserController");
-                                });
-                        } else {
-                            res.json(utils.responseSuccess(resultsUser));
-                        }
-                    })
-                    .catch(function (err) {
-                        res.json(utils.responseFailure(err));
-                        logger.log(err.message, "update", "UserController");
-                    });
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-                logger.log(err.message, "update", "UserController");
-            });
+        try {
+            var resultClinic;
+            var users = await userDAO.getUserInfo(username);
+            if (password|| phoneNumber|| fullName|| role|| isActive|| email != null) {
+                var resultUser = await userDAO.updateUser(username, password, phoneNumber, fullName, role, isActive, email);
+                if (users.role == Const.ROLE_CLINIC) {
+                    resultClinic = await userDAO.updateClinic(username, address, clinicName);
+                    var results = Object.assign(resultUser, resultClinic);
+                    res.json(utils.responseSuccess(results));
+                } else {
+                    res.json(utils.responseSuccess(resultUser));
+                }
+            } else {
+                if (users.role == Const.ROLE_CLINIC) {
+                    resultClinic = await userDAO.updateClinic(username, address, clinicName);
+                    res.json(utils.responseSuccess(resultClinic));
+                } else {
+                    res.json(utils.responseFailure("Không thể cập nhật"));
+                }
+            }
+        }
+        catch (err) {
+            res.json(utils.responseFailure("Không thể cập nhật"));
+            logger.log(err, "update", "UserController");
+        }
     });
     // create user for admin
     apiRouter.post("/create", function (req, res) {
