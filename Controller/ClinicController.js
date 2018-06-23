@@ -10,45 +10,68 @@ var baseDAO = require("../DataAccess/BaseDAO");
 module.exports = function (app, express) {
     apiRouter = express.Router();
 
-    apiRouter.post("/changeInformation", function (req, res) {
+    apiRouter.post("/changeInformation", async function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
         var address = req.body.address;
         var clinicName = req.body.clinicName;
         var examinationDuration = req.body.examinationDuration;
-        db.User.where({ "username": username, "password": password })
-            .fetch()
-            .then(function (collection) {
-                var user = collection.toJSON();
-                if (collection == null) {
-                    res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
-                } else {
-                    db.Clinic.where({ "username": username })
-                        .save({ "address": address, "clinicName": clinicName, "examinationDuration": examinationDuration }, { patch: true })
-                        .then(function (model) {
-                            res.json(utils.responseSuccess(model.toJSON()));
-                        })
-                        .catch(function (err) {
-                            res.json(utils.responseFailure(err.message));
-                            logger.log(err.message, "changeInformation");
-                        });
+        var email = req.body.email;
+
+        try {
+            var user = await baseDAO.findByIDWithRelated(db.User, "username", username, "clinic");
+            if (!user || !user.clinic) {
+                throw new Error(Const.Error.IncorrectUsernameOrPassword);
+            }
+            var correctPassword = await hash.comparePassword(password, user.password);
+            if (!correctPassword) {
+                throw new Error(Const.Error.IncorrectUsernameOrPassword);
+            }
+            var json = { "username": username };
+            if (address || clinicName || examinationDuration) {
+                // update clinic table
+                if (address) {
+                    json.address = address;
                 }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "changeInformation");
-            });
+                if (clinicName) {
+                    json.clinicName = clinicName;
+                }
+                if (examinationDuration) {
+                    json.examinationDuration = examinationDuration;
+                }
+
+                await baseDAO.update(db.Clinic, json, "username");
+            }
+
+            if (email) {
+                // update user table
+                var userJson = { "username": username, "email": email };
+                await baseDAO.update(db.User, userJson, "username");
+
+                json.email = email;
+            }
+            
+            json = await getClinicInfo(username);
+            res.json(utils.responseSuccess(json));
+        } catch (error) {
+            logger.log(error);
+            if (error.message == Const.Error.IncorrectUsernameOrPassword) {
+                res.json(utils.responseFailure(error.message));
+            } else {
+                res.json(utils.responseFailure(Const.Error.ClinicChangeInformationError));
+            }
+        }
     });
 
-    apiRouter.post("/changeClinicProfile", async function(req, res){
+    apiRouter.post("/changeClinicProfile", async function (req, res) {
         var greetingURL = req.body.greetingURL;
         var username = req.body.username;
         var imageURL = req.body.imageURL;
-        var json = {"username": username};
-        if(greetingURL){
+        var json = { "username": username };
+        if (greetingURL) {
             json.greetingURL = greetingURL;
         }
-        if(imageURL){
+        if (imageURL) {
             json.imageURL = imageURL;
         }
         try {
