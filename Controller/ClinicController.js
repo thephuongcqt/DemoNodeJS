@@ -5,6 +5,7 @@ var logger = require("../Utils/Logger");
 var Moment = require("moment");
 var hash = require("../Utils/Bcrypt");
 var clinicDAO = require("../DataAccess/ClinicDAO");
+var baseDAO = require("../DataAccess/BaseDAO");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -37,6 +38,26 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err.message));
                 logger.log(err.message, "changeInformation");
             });
+    });
+
+    apiRouter.post("/changeClinicProfile", async function(req, res){
+        var greetingURL = req.body.greetingURL;
+        var username = req.body.username;
+        var imageURL = req.body.imageURL;
+        var json = {"username": username};
+        if(greetingURL){
+            json.greetingURL = greetingURL;
+        }
+        if(imageURL){
+            json.imageURL = imageURL;
+        }
+        try {
+            await baseDAO.update(db.Clinic, json, "username");
+            res.json(utils.responseSuccess("Thay đổi thông tin thành công"));
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(Const.Error.UpdateClinicError));
+        }
     });
 
     apiRouter.get("/getAllClinic", function (req, res) {
