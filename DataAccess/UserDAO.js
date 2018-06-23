@@ -92,8 +92,8 @@ var userDao = {
                 });
         });
     },
-    createUser: function (username, password, phoneNumber, fullName, email) {
-        var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullName": fullName, "role": Const.ROLE_ADMIN, "isActive": Const.ACTIVATION, "email": email };
+    createUser: function (username, password, phoneNumber, fullName, email, role) {
+        var json = { "username": username, "password": password, "phoneNumber": phoneNumber, "fullName": fullName, "role": role, "isActive": Const.ACTIVATION, "email": email };
         return new Promise((resolve, reject) => {
             dao.create(db.User, json)
                 .then(collection => {
