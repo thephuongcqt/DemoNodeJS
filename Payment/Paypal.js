@@ -2,13 +2,7 @@ var braintree = require("braintree");
 var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
-
-// var gateway = braintree.connect({
-//     environment: braintree.Environment.Sandbox,
-//     merchantId: "pfg7tm6zrnm22cjc",
-//     publicKey: "f5b3g3dznrmgqwxj",
-//     privateKey: "b305cabe62b01c1cc1d6c37b575139b8"
-// });
+var baseDao = require("../DataAccess/BaseDAO");
 
 var gateway = braintree.connect({
     environment:  braintree.Environment.Sandbox,
@@ -31,48 +25,55 @@ module.exports = function (app, express) {
         });        
     });
 
-    apiRouter.post("/checkout", function (req, res) {
+    apiRouter.post("/checkout", async function (req, res) {
         var username = req.body.username;
         var licenseID = req.body.licenseID;
-        var nonce = req.body.nonce;
-        console.log(nonce);
-        var saleRequest = {
-            amount: 1,
-            paymentMethodNonce: nonce,
-            orderId: "Mapped to PayPal Invoice Number",
-            options: {
-                submitForSettlement: true,
-                paypal: {
-                    customField: "PayPal custom field PhuongNT",
-                    description: "Description for PayPal email receipt PhuongNT",
-                },
-            }
-        };
-        gateway.transaction.sale(saleRequest, function (err, result) {
-            if (err) {
-                console.log("Error: " + err);
-            } else if (result.success) {
-                console.log(result.transaction.id);
-            } else {
-                console.log("Message: " + result.message);
-            }
-            res.end();
-        })
+        var nonce = req.body.nonce;                
+
+        try {
+            await handleBuyLicense(username, licenseID);
+            res.json(utils.responseSuccess("Thanh toán thành công"));
+        } catch (error) {        
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
     });
-
-    // apiRouter.get("/getTokenForCustomer", function (req, res) {
-    //     var aCustomerId = "259682334";
-    //     gateway.clientToken.generate({
-    //         customerId: aCustomerId
-    //     }, function (err, response) {
-    //         if (typeof response !== 'undefined') {
-    //             res.json(utils.responseSuccess(response));
-    //         } else {
-    //             res.json(utils.responseFailure(err.message));
-    //             console.log(err);
-    //         }
-    //     });
-    // });
-
     return apiRouter;
+}
+
+async function handleBuyLicense(username, licenseID) {
+    var promises = [baseDao.findByID(db.Clinic, "username", username), baseDao.findByID(db.License, "licenseID", licenseID)];
+
+    var result = await Promise.all(promises);
+    if (result && result.length > 1) {
+        clinic = result[0];
+        license = result[1];
+        if (!clinic || !license) {
+            throw new Error("Null Pointer for Clinic or License");
+        }
+
+        addExpiryDate(clinic, license);
+
+        var bill = {
+            clinicUsername: clinic.username,
+            licenseID: license.licenseID,
+            startDate: new Date(),
+            salePrice: license.price
+        }
+
+        var json = {"username": clinic.username, "expiredLicense": clinic.expiredLicense};
+        var makeBillPromises = [baseDao.create(db.Bill, bill), baseDao.update(db.Clinic, json, "username")];
+        await Promise.all(makeBillPromises);
+    }
+}
+
+function addExpiryDate(clinic, license) {
+    var expiredLicense = clinic.expiredLicense;
+    if (!expiredLicense) {
+        var expiredLicense = new Date();
+        expiredLicense.setHours(0, 0, 0, 0);
+    }
+    var days = license.duration == null ? 0 : license.duration;
+    expiredLicense.setTime(expiredLicense.getTime() + days * 86400000);
+    clinic.expiredLicense = expiredLicense;
 }

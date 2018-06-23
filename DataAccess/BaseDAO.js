@@ -4,7 +4,11 @@ var dao = {
             table.forge(json)
                 .save()
                 .then(model => {
-                    resolve(model.toJSON());
+                    if(model){
+                        resolve(model.toJSON());
+                    } else{
+                        resolve(model);
+                    }
                 })
                 .catch(err => {
                     reject(err);
@@ -20,7 +24,11 @@ var dao = {
             table.where(existedObj)
             .save(json, { patch: true })
             .then(model => {
-                resolve(model.toJSON());
+                if(model){
+                    resolve(model.toJSON());
+                } else{
+                    resolve(model);
+                }
             })
             .catch(err => {
                 reject(err);
@@ -38,7 +46,11 @@ var dao = {
             table.where(existedObj)
             .save(json, { patch: true })
             .then(model => {
-                resolve(model.toJSON());
+                if(model){
+                    resolve(model.toJSON());
+                } else{
+                    resolve(model);
+                }
             })
             .catch(err => {
                 reject(err);
@@ -54,7 +66,11 @@ var dao = {
             table.where(json)
             .destroy()
             .then(model => {
-                resolve(model.toJSON());
+                if(model){
+                    resolve(model.toJSON());
+                } else{
+                    resolve(model);
+                }
             })
             .catch(err => {
                 reject(err);
@@ -69,7 +85,11 @@ var dao = {
             table.forge(json)
                 .fetch()
                 .then(model => {
-                    resolve(model.toJSON());
+                    if(model){
+                        resolve(model.toJSON());
+                    } else{
+                        resolve(model);
+                    }                    
                 })
                 .catch(err => {
                     reject(err);
@@ -85,7 +105,11 @@ var dao = {
             table.forge(json)
                 .fetch(relatedJson)
                 .then(model => {
-                    resolve(model.toJSON());
+                    if(model){
+                        resolve(model.toJSON());
+                    } else{
+                        resolve(model);
+                    }
                 })
                 .catch(err => {
                     reject(err);
@@ -98,7 +122,11 @@ var dao = {
             table.where(json)
                 .fetchAll()
                 .then(model => {
-                    resolve(model.toJSON());
+                    if(model){
+                        resolve(model.toJSON());
+                    } else{
+                        resolve(model);
+                    }
                 })
                 .catch(err => {
                     reject(err);
@@ -112,7 +140,11 @@ var dao = {
             table.where(json)
                 .fetchAll(relatedJson)
                 .then(model => {
-                    resolve(model.toJSON());
+                    if(model){
+                        resolve(model.toJSON());
+                    } else{
+                        resolve(model);
+                    }
                 })
                 .catch(err => {
                     reject(err);
@@ -125,7 +157,11 @@ var dao = {
             table.forge()
             .fetchAll()
             .then(collection => {
-                resolve(collection.toJSON());
+                if(collection){
+                    resolve(collection.toJSON());
+                } else{
+                    resolve(collection);
+                }
             })
             .catch(err => {
                 reject(err);
@@ -139,7 +175,11 @@ var dao = {
             table.forge()
             .fetchAll(relatedJson)
             .then(collection => {
-                resolve(collection.toJSON());
+                if(collection){
+                    resolve(collection.toJSON());
+                } else{
+                    resolve(collection);
+                }
             })
             .catch(err => {
                 reject(err);
