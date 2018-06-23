@@ -123,7 +123,7 @@ var clinicDao = {
             }
         } catch (error) {
             logger.log(error);
-            return Const.DefaultGreetingURL;
+            return configUtils.getDefaultGreetingURL();
         }
     },
 

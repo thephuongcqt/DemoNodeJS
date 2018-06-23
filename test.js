@@ -11,10 +11,11 @@ var test = async function () {
     var appointmentDao = require("./DataAccess/AppointmentDAO");
     var scheduler = require("./Scheduler/Scheduler");
 
-    var acc1 = await clinicDao.getTwilioAccountByID("AC0182c9b950c8fe1229f93aeb40900a5d");
-    var acc2 = await clinicDao.getTwilioAccountByPhoneNumber("+19792136847");
-    console.log(acc1);
+    // var acc1 = await clinicDao.getTwilioAccountByID("AC0182c9b950c8fe1229f93aeb40900a5d");
+    // var acc2 = await clinicDao.getTwilioAccountByPhoneNumber("+19792136847");
+    // console.log(acc1);
     // console.log(acc2);
     // console.log(configUtils.getDefaultTwilio());
+    console.log(configUtils.getDefaultGreetingURL());
 };
 test();

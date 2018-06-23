@@ -45,6 +45,11 @@ var config = {
             logger.log(error.message);
             return null;
         }    
+    },
+
+    getDefaultGreetingURL: function(){
+        var config = getConfigJson();
+        return config.defaultGreetingURL;
     }
 };
 module.exports = config;
