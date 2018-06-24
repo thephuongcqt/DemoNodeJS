@@ -143,19 +143,27 @@ module.exports = function (app, express) {
         try {
             var resultClinic;
             var users = await userDAO.getUserInfo(username);
-            if (!password || !phoneNumber || !fullName || !role || !isActive || !email) {
+            if (password || phoneNumber || fullName || role || isActive || email) {
                 var resultUser = await userDAO.updateUser(username, password, phoneNumber, fullName, role, isActive, email);
                 if (users.role == Const.ROLE_CLINIC) {
-                    resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
-                    var results = Object.assign(resultUser, resultClinic);
-                    res.json(utils.responseSuccess(results));
+                    if (address || clinicName || accountSid || authToken) {
+                        resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
+                        var results = Object.assign(resultUser, resultClinic);
+                        res.json(utils.responseSuccess(results));
+                    } else {
+                        res.json(utils.responseSuccess(resultUser));
+                    }
                 } else {
                     res.json(utils.responseSuccess(resultUser));
                 }
             } else {
                 if (users.role == Const.ROLE_CLINIC) {
-                    resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
-                    res.json(utils.responseSuccess(resultClinic));
+                    if (address || clinicName || accountSid || authToken) {
+                        resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
+                        res.json(utils.responseSuccess(resultClinic));
+                    } else {
+                        res.json(utils.responseFailure("Không có thông tin cập nhật"));
+                    }
                 } else {
                     res.json(utils.responseFailure("Không có thông tin cập nhật"));
                 }

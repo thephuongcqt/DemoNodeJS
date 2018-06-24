@@ -9,24 +9,24 @@ var baseDAO = require("../DataAccess/BaseDAO");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
-    
-    apiRouter.get("/getClinicsForStaff", async function(req, res){        
+
+    apiRouter.get("/getClinicsForStaff", async function (req, res) {
         try {
-            var clinics = await baseDAO.findByPropertiesWithRelated(db.User, {role: Const.ROLE_CLINIC, isActive: Const.ACTIVATION}, "clinic");    
-            for(var i in clinics){
+            var clinics = await baseDAO.findByPropertiesWithRelated(db.User, { role: Const.ROLE_CLINIC, isActive: Const.ACTIVATION }, "clinic");
+            for (var i in clinics) {
                 var user = clinics[i];
-                    delete user.password;
-                    delete user.role;
-                    delete user.isActive;
-                    user.address = user.clinic.address;
-                    user.clinicName = user.clinic.clinicName;
-                    user.examinationDuration = user.clinic.examinationDuration;
-                    user.expiredLicense = user.clinic.expiredLicense;
-                    user.imageURL = user.clinic.imageURL;
-                    user.greetingURL = user.clinic.greetingURL;
-                    user.accountSid = user.clinic.accountSid;
-                    user.authToken = user.clinic.authToken;
-                    delete user.clinic;
+                delete user.password;
+                delete user.role;
+                delete user.isActive;
+                user.address = user.clinic.address;
+                user.clinicName = user.clinic.clinicName;
+                user.examinationDuration = user.clinic.examinationDuration;
+                user.expiredLicense = user.clinic.expiredLicense;
+                user.imageURL = user.clinic.imageURL;
+                user.greetingURL = user.clinic.greetingURL;
+                user.accountSid = user.clinic.accountSid;
+                user.authToken = user.clinic.authToken;
+                delete user.clinic;
             }
             res.json(utils.responseSuccess(clinics));
         } catch (error) {
@@ -35,7 +35,7 @@ module.exports = function (app, express) {
         }
     });
 
-    apiRouter.post("/registerPhoneNumber", async function(req, res){
+    apiRouter.post("/registerPhoneNumber", async function (req, res) {
         var username = req.body.username;
         var phoneNumber = req.body.phoneNumber;
         var accountSid = req.body.accountSid;
@@ -48,7 +48,7 @@ module.exports = function (app, express) {
         var clinicJson = {
             username: username,
             accountSid: accountSid,
-            authToken: authToken,      
+            authToken: authToken,
         };
         try {
             var promises = [baseDAO.update(db.User, userJson, "username"), baseDAO.update(db.Clinic, clinicJson, "username")];
@@ -60,10 +60,10 @@ module.exports = function (app, express) {
         }
     });
 
-    apiRouter.get("/getClinicsWaitingForPhone", async function(req, res){
+    apiRouter.get("/getClinicsWaitingForPhone", async function (req, res) {
         try {
             result = await clinicDAO.getClinicsWaitingForPhoneNumber();
-            for(var i in result){
+            for (var i in result) {
                 var user = result[i];
                 user.address = user.clinic.address;
                 user.clinicName = user.clinic.clinicName;
@@ -72,7 +72,7 @@ module.exports = function (app, express) {
                 user.imageURL = user.clinic.imageURL;
                 user.greetingURL = user.clinic.greetingURL;
                 delete user.clinic;
-                delete user.password;                
+                delete user.password;
             }
             res.json(utils.responseSuccess(result));
         } catch (error) {
@@ -121,7 +121,7 @@ module.exports = function (app, express) {
 
                 json.email = email;
             }
-            
+
             json = await getClinicInfo(username);
             res.json(utils.responseSuccess(json));
         } catch (error) {
@@ -138,7 +138,7 @@ module.exports = function (app, express) {
         var greetingURL = req.body.greetingURL;
         var username = req.body.username;
         var imageURL = req.body.imageURL;
-        var examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss").format("HH:mm:ss");;
+        var examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss").format("HH:mm:ss");
         var json = { "username": username };
         if (greetingURL) {
             json.greetingURL = greetingURL;
@@ -147,7 +147,12 @@ module.exports = function (app, express) {
             json.imageURL = imageURL;
         }
         if (examinationDuration) {
-            json.examinationDuration = examinationDuration;
+            var checkDuration = Moment(examinationDuration, "HH:mm:ss").isValid();
+            if (checkDuration == true) {
+                json.examinationDuration = examinationDuration;
+            } else {
+                json.examinationDuration = undefined;
+            }
         }
         try {
             await baseDAO.update(db.Clinic, json, "username");
