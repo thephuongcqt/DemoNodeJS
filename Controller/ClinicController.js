@@ -194,35 +194,30 @@ module.exports = function (app, express) {
             });
     });
 
-    apiRouter.post("/Login", function (req, res) {
+    apiRouter.post("/Login", async function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
-        getClinicInfo(username)
-            .then(function (results) {
-                hash.comparePassword(password, results.password)
-                    .then(function (result) {
-                        if (result == true) {
-                            if (results.isActive == Const.ACTIVATION && results.role == Const.ROLE_CLINIC) {
-                                delete results.password;
-                                delete results.role;
-                                delete results.isActive;
-                                res.json(utils.responseSuccess(results));
-                            } else {
-                                res.json(utils.responseFailure("Tài khoản không tồn tại"));
-                            }
-                        } else {
-                            res.json(utils.responseFailure("Mật khẩu không đúng"));
-                        }
-                    })
-                    .catch(function (err) {
-                        res.json(utils.responseFailure(err));
-                        logger.log(err);
-                    });
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-                logger.log(err);
-            });
+        try {
+            var json = {
+                "username": username,
+                "isActive": Const.ACTIVATION,
+                "role": Const.ROLE_CLINIC
+            }
+            var users = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");
+            if (users && users.length > 0) {
+                var user = users[0];
+                var isCorrectPassword = await hash.comparePassword(password, user.password);
+                if (isCorrectPassword) {
+                    var result = await getClinicInfo(username);
+                    res.json(utils.responseSuccess(result));
+                    return;
+                }
+            }
+            res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure("Đã xảy ra lỗi khi đăng nhập, vui lòng thử lại sau"));
+        }
     });
 
     // register
