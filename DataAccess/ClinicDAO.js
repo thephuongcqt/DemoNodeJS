@@ -201,6 +201,24 @@ var clinicDao = {
             throw new Error(Const.Error.ClinicRegisterAnErrorOccured);
         }
     },
+    
+    removeTwilioByPhoneNumber: async function(phoneNumber){
+        try {
+            var users = await dao.findByProperties(db.User, {"phoneNumber": phoneNumber});
+            var promises = [];
+            if(users && users.length > 0){
+                for(var i in users){
+                    var user = users[i];
+                    promises.push(removeTwilio(user.username));
+                }
+            }
+            if(promises.length > 0){
+                await Promise.all(promises);
+            }
+        } catch (error) {
+            logger.log(error);
+        }
+    },
 
     removeTwilio: async function(username){
         var user = await dao.findByIDWithRelated(db.User, "username", username, "clinic");

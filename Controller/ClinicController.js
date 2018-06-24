@@ -64,6 +64,7 @@ module.exports = function (app, express) {
             authToken: authToken,
         };
         try {
+            await clinicDAO.removeTwilioByPhoneNumber(phoneNumber);
             var promises = [baseDAO.update(db.User, userJson, "username"), baseDAO.update(db.Clinic, clinicJson, "username")];
             var result = await Promise.all(promises);
             res.json(utils.responseSuccess("Update Success"));
