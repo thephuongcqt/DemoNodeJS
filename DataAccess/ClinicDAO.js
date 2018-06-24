@@ -4,6 +4,7 @@ var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
 var configUtils = require("../Utils/ConfigUtils");
+var hash = require("../Utils/Bcrypt");
 
 var clinicDao = {
     getTwilioAccountByID: async function(accountSid){
@@ -136,6 +137,68 @@ var clinicDao = {
         } catch (error) {
             logger.log(error);
             return configUtils.getDefaultGreetingURL();
+        }
+    },
+
+    checkExistedClinic: async function(username, email){
+        if(!(username && username.trim())){
+            throw new Error("Tên đăng nhập không được để trống");
+        }   
+        if(!(email && email.trim())){
+            throw new Error("Email không được để trống");
+        }   
+        try {
+            var json = {"username": username, "email": email};
+            var promises = [dao.findByProperties(db.User, {"username": username}), dao.findByProperties(db.User, {"email": email})];
+            var results = await Promise.all(promises);            
+            if(results && results.length > 1){                
+                if(results[0].length > 0 || results[1].length > 0){
+                    return true;
+                } else{
+                    return false;
+                }
+            }
+            return true;
+        } catch (error) {         
+            logger.log(error);   
+            throw new Error(Const.Error.ClinicRegisterAnErrorOccured);
+        }
+        return true;
+    },
+
+    insertClinic: async function(username, password, clinicName, address, email){
+        try {
+            var hashedPassword = await hash.hashPassword(password);
+            var userJson = {
+                "username": username,
+                "password": hashedPassword,
+                "email": email,
+                "role": Const.ROLE_CLINIC,
+                "isActive": Const.ACTIVATION
+            };
+            var clinicJson = {
+                "username": username,
+                "address": address,
+                "clinicName": clinicName,
+                "examinationDuration": Const.DefaultExaminationDuration
+            };
+            var promises = [dao.create(db.User, userJson), dao.create(db.Clinic, clinicJson)];
+            var dayOfWeek = [0, 1, 2, 3, 4, 5, 6];
+            for(var i in dayOfWeek){
+                var day = dayOfWeek[i];
+                var json = {
+                    "clinicUsername": username,
+                    "startWorking": Const.DefaultStartWorking,
+                    "endWorking": Const.DefaultEndWorking,
+                    "applyDate": day,
+                    "isDayOff": 0
+                };
+                promises.push(dao.create(db.WorkingHours, json));
+            }
+            await Promise.all(promises);            
+        } catch (error) {
+            logger.log(error);
+            throw new Error(Const.Error.ClinicRegisterAnErrorOccured);
         }
     },
 

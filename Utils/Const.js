@@ -11,10 +11,16 @@ module.exports = {
         UpdateClinicError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin",
         ClinicChangeInformationError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin phòng khám",
         IncorrectUsernameOrPassword: "Sai tên đăng nhập hoặc mật khẩu",
-        ScheduleAppointmentError: "Đã có lỗi xảy ra khi sắp xếp lịch khám, xin quý khách vui lòng thử lại sau"
+        ScheduleAppointmentError: "Đã có lỗi xảy ra khi sắp xếp lịch khám, xin quý khách vui lòng thử lại sau",
+        ClinicRegisterMissingFields: "Vui lòng điền đủ thông tin để đăng ký tài khoản",
+        ClinicRegisterExistedClinic: "Tên đăng nhập hoặc Email đã tồn tại!",
+        ClinicRegisterAnErrorOccured: "Đã có lỗi xảy ra trong quá trình đăng ký tài khoản, Vui lòng thử lại sau"
     },
 
     DefaultGreetingURL: "https://firebasestorage.googleapis.com/v0/b/chatfirebase-1e377.appspot.com/o/Welcome.mp3?alt=media&token=6914df70-85d3-4ea4-9ce0-edf4516ea353",
+    DefaultExaminationDuration: "00:30:00",
+    DefaultStartWorking: "17:00:00",
+    DefaultEndWorking: "20:00:00",
 
     Day: {
         Sun: 0,
