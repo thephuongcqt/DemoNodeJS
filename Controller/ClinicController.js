@@ -3,6 +3,7 @@ var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var logger = require("../Utils/Logger");
 var hash = require("../Utils/Bcrypt");
+var Moment = require('moment');
 var clinicDAO = require("../DataAccess/ClinicDAO");
 var baseDAO = require("../DataAccess/BaseDAO");
 
@@ -137,12 +138,16 @@ module.exports = function (app, express) {
         var greetingURL = req.body.greetingURL;
         var username = req.body.username;
         var imageURL = req.body.imageURL;
+        var examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss").format("HH:mm:ss");;
         var json = { "username": username };
         if (greetingURL) {
             json.greetingURL = greetingURL;
         }
         if (imageURL) {
             json.imageURL = imageURL;
+        }
+        if (examinationDuration) {
+            json.examinationDuration = examinationDuration;
         }
         try {
             await baseDAO.update(db.Clinic, json, "username");
