@@ -202,6 +202,23 @@ var clinicDao = {
         }
     },
 
+    removeTwilio: async function(username){
+        var user = await dao.findByIDWithRelated(db.User, "username", username, "clinic");
+        if(user){
+            var userJson = {
+                "username": username,
+                "phoneNumber": null
+            };
+            var clinicJson = {
+                "username": username,
+                "accountSid": null,
+                "authToken": null
+            };
+            var promises = [dao.update(db.User, userJson, "username"), dao.update(db.Clinic, clinicJson, "username")];
+            await Promise.all(promises);
+        }        
+    },
+
     registerClinic: async function (username, password, email, fullName, address, clinicName, applyDateList) {
         var results = null;
         var userJson = { "username": username, "password": password, "fullName": fullName, "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION, "email": email };

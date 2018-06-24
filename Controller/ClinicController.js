@@ -11,6 +11,18 @@ var firebase = require("../Notification/FirebaseAdmin");
 module.exports = function (app, express) {
     apiRouter = express.Router();
 
+    apiRouter.post("/removeTwilioAccount", async function (req, res) {
+        var username = req.body.username;
+
+        try {
+            await clinicDAO.removeTwilio(username);
+            res.json(utils.responseSuccess("Remove success"));
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
+    });
+
     apiRouter.get("/getClinicsForStaff", async function (req, res) {
         try {
             var clinics = await baseDAO.findByPropertiesWithRelated(db.User, { role: Const.ROLE_CLINIC, isActive: Const.ACTIVATION }, "clinic");
@@ -219,21 +231,21 @@ module.exports = function (app, express) {
         var password = req.body.password;
         var clinicName = req.body.clinicName;
         var address = req.body.address;
-        var email = req.body.email;        
+        var email = req.body.email;
 
         try {
-            if(username == null || password == null || clinicName == null || address == null || email == null){                        
+            if (username == null || password == null || clinicName == null || address == null || email == null) {
                 throw new Error(Const.Error.ClinicRegisterMissingFields);
             }
-            if(await clinicDAO.checkExistedClinic(username, email)){
+            if (await clinicDAO.checkExistedClinic(username, email)) {
                 throw new Error(Const.Error.ClinicRegisterExistedClinic);
             }
-            await clinicDAO.insertClinic(username, password, clinicName, address, email);            
+            await clinicDAO.insertClinic(username, password, clinicName, address, email);
             res.json(utils.responseSuccess("Đăng ký tài khoản thành công"));
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
-        }        
+        }
     });
 
     apiRouter.post("/getClinicInformation", async function (req, res) {
@@ -246,7 +258,7 @@ module.exports = function (app, express) {
             res.json(utils.responseFailure(error.message));
         }
     });
-   
+
     return apiRouter;
 }
 function getAllClinic() {
@@ -287,6 +299,7 @@ function getClinicInfo(username) {
                 results.imageURL = results.clinic.imageURL;
                 results.greetingURL = results.clinic.greetingURL;
                 delete results.clinic;
+                delete results.password;
                 var workingHourList = [];
                 for (var i in results.workingHours) {
                     var workingHour = results.workingHours[i];

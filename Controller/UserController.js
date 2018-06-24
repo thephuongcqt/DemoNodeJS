@@ -38,13 +38,11 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err);
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err);
             });
     });
     // get all user by role from database
@@ -58,7 +56,6 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err);
                 });
         } else if (role == Const.ROLE_CLINIC) {
             userDAO.getAllClinic()
@@ -67,7 +64,6 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err);
                 });
         } else {
             userDAO.getAll()
@@ -76,7 +72,6 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err);
                 });
         }
     });
@@ -104,12 +99,10 @@ module.exports = function (app, express) {
                                                 })
                                                 .catch(function (err) {
                                                     res.json(utils.responseFailure(err));
-                                                    logger.log(err);
                                                 });
                                         })
                                         .catch(function (err) {
                                             res.json(utils.responseFailure(err));
-                                            logger.log(err);
                                         });
                                 }
                             } else {
@@ -118,13 +111,11 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err);
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err);
             });
     });
     // update information
@@ -146,24 +137,16 @@ module.exports = function (app, express) {
             if (password || phoneNumber || fullName || role || isActive || email) {
                 var resultUser = await userDAO.updateUser(username, password, phoneNumber, fullName, role, isActive, email);
                 if (users.role == Const.ROLE_CLINIC) {
-                    if (address || clinicName || accountSid || authToken) {
-                        resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
-                        var results = Object.assign(resultUser, resultClinic);
-                        res.json(utils.responseSuccess(results));
-                    } else {
-                        res.json(utils.responseSuccess(resultUser));
-                    }
+                    resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
+                    var results = Object.assign(resultUser, resultClinic);
+                    res.json(utils.responseSuccess(results));
                 } else {
                     res.json(utils.responseSuccess(resultUser));
                 }
             } else {
                 if (users.role == Const.ROLE_CLINIC) {
-                    if (address || clinicName || accountSid || authToken) {
-                        resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
-                        res.json(utils.responseSuccess(resultClinic));
-                    } else {
-                        res.json(utils.responseFailure("Không có thông tin cập nhật"));
-                    }
+                    resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
+                    res.json(utils.responseSuccess(resultClinic));
                 } else {
                     res.json(utils.responseFailure("Không có thông tin cập nhật"));
                 }
@@ -171,7 +154,6 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure("Không thể cập nhật"));
-            logger.log(err);
         }
     });
     // create user for admin
@@ -264,7 +246,6 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err);
             });
     });
     //check password
@@ -286,13 +267,11 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err);
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err);
             });
     });
     //reset password
@@ -321,13 +300,11 @@ module.exports = function (app, express) {
                                         })
                                         .catch(function (err) {
                                             res.json(utils.responseFailure(err));
-                                            logger.log(err);
                                         });
                                     nodeMailer.sendEmailToPatient(username, randomstring, results.fullName, email);
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err));
-                                    logger.log(err);
                                 });
                         } else {
                             res.json(utils.responseFailure("Email này không tồn tại"));
@@ -337,7 +314,6 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err);
             });
     });
     // delete account
