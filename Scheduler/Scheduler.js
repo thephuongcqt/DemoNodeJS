@@ -17,6 +17,9 @@ function getTotalDuration(count, duration) {
 
 module.exports = {
     getExpectationTime: function (startWorking, endWorking, count, duration, lastAppointment) {        
+        if(!(startWorking && endWorking && count && duration)){        
+            throw new Error("Null pointer Exception at getExpectationTime");
+        }
         var mCurrentTime = utils.getMomentTime(new Date());        
         if (endWorking < mCurrentTime) {
             return null;
@@ -66,10 +69,12 @@ module.exports = {
                         no: appointments.length + 1
                     };
                 } else return null;
+            } else{
+                throw new Error("Cannot find config working hours at method getExpectationAppointment");
             }
         } catch (error) {
-            logger.log(error);
-            return null;
+            logger.log(error);           
         }
-    }
+        return null;
+    } 
 }
