@@ -13,7 +13,7 @@ module.exports = function (app, express) {
                 res.json(utils.responseSuccess(results));
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err));
+                res.json(utils.responseFailure(err.message));
                 logger.log(err);
             });
     });
@@ -25,60 +25,76 @@ module.exports = function (app, express) {
                 res.json(utils.responseSuccess(results));
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err));
+                res.json(utils.responseFailure(err.message));
                 logger.log(err);
             });
     });
     // create license
     apiRouter.post("/create", function (req, res) {
-        licenseDAO.createLicense(req.body.price, req.body.duration, req.body.name, req.body.description)
+        var price = req.body.price;
+        var duration = req.body.duration;
+        if (isNaN(price)) {
+            price = undefined;
+        }
+        if (isNaN(duration)) {
+            duration = undefined;
+        }
+        licenseDAO.createLicense(price, duration, req.body.name, req.body.description)
             .then(function (results) {
                 res.json(utils.responseSuccess(results));
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err));
+                res.json(utils.responseFailure(err.message));
                 logger.log(err);
             });
     });
     // update license
-    apiRouter.post("/update", function (req, res) {
-        licenseDAO.getLicenseInfo(req.body.licenseID)
-            .then(function (result) {
-                licenseDAO.updateLicense(req.body.licenseID, req.body.price, req.body.duration, req.body.name, req.body.description, req.body.isActive)
-                    .then(function (results) {
-                        res.json(utils.responseSuccess(results));
-                    })
-                    .catch(function (err) {
-                        res.json(utils.responseFailure(err));
-                        logger.log(err);
-                    });
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-                logger.log(err);
-            });
+    apiRouter.post("/update", async function (req, res) {
+        var price = req.body.price;
+        var duration = req.body.duration;
+        var isActive = req.body.isActive;
+        try {
+            var resultInfo = await licenseDAO.getLicenseInfo(req.body.licenseID);
+            if (!resultInfo) {
+                res.json(utils.responseFailure("License is not exist"));
+            } else {
+                if (isNaN(price)) {
+                    price = undefined;
+                }
+                if (isNaN(duration)) {
+                    duration = undefined;
+                }
+                if (isNaN(isActive)) {
+                    isActive = undefined;
+                }
+                var resultUpdate = await licenseDAO.updateLicense(req.body.licenseID, price, duration, req.body.name, req.body.description, isActive);
+                res.json(utils.responseSuccess(resultUpdate));
+            }
+        }
+        catch (err) {
+            res.json(utils.responseFailure(err.message));
+            logger.log(err);
+        }
     });
     // delete license
-    apiRouter.get("/delete", function (req, res) {
-        licenseDAO.getLicenseBill(req.query.licenseID)
-            .then(function (results) {
-                if (results.bills.length == 0) {
-                    licenseDAO.deleteLicense(req.query.licenseID)
-                        .then(function (result) {
-                            res.json(utils.responseSuccess(result));
-                        })
-                        .catch(function (err) {
-                            res.json(utils.responseFailure(err));
-                            logger.log(err);
-                        });
-                } else {
+    apiRouter.get("/delete", async function (req, res) {
+        try {
+            var resultLicense = await licenseDAO.getLicenseBill(req.query.licenseID);
+            if (!resultLicense) {
+                res.json(utils.responseFailure("Giấy phép không tồn tại"));
+            } else {
+                if (resultLicense.bills.length != 0) {
                     res.json(utils.responseFailure("Giấy phép này đang được sử dụng"));
+                } else {
+                    var resultDelete = await licenseDAO.deleteLicense(req.query.licenseID);
+                    res.json(utils.responseFailure(resultDelete));
                 }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-                logger.log(err);
-            });
+            }
+        }
+        catch (err) {
+            res.json(utils.responseFailure(err.message));
+            logger.log(err);
+        }
     });
     return apiRouter;
 }
