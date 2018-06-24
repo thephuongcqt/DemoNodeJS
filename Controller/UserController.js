@@ -341,46 +341,20 @@ module.exports = function (app, express) {
             });
     });
     // delete account
-    apiRouter.post("/delete", function (req, res) {
+    apiRouter.get("/delete", async function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
-        userDAO.getUserInfo(username)
-            .then(function (results) {
-                if (password == null) {
-                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
-                } else {
-                    hash.comparePassword(password, results.password)
-                        .then(function (result) {
-                            if (result == true) {
-                                if (results.role == Const.ROLE_ADMIN) {
-                                    userDAO.deleteUser(username)
-                                        .then(function (result) {
-                                            res.json(utils.responseSuccess(result));
-                                        })
-                                        .catch(function (err) {
-                                            res.json(utils.responseFailure(err));
-                                            logger.log(err);
-                                        });
-                                } else if (results.role = Const.ROLE_CLINIC) {
-                                    // Xóa clinic chưa làm
-                                    res.json(utils.responseFailure("Tài khoản không thể xóa"));
-                                } else {
-                                    res.json(utils.responseFailure("Tài khoản không thể xóa"));
-                                }
-                            } else {
-                                res.json(utils.responseFailure("Mật khẩu không đúng"));
-                            }
-                        })
-                        .catch(function (err) {
-                            res.json(utils.responseFailure(err));
-                            logger.log(err);
-                        });
-                }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-                logger.log(err);
-            });
+        try {
+            var resultUser = await userDAO.getUserInfo(req.body.username);
+            if (resultUser) {
+                res.json(utils.responseFailure("Không tồn tại tài khoản nào"));
+            }
+            console.log(resultUser);
+        }
+        catch (err) {
+            res.json(utils.responseFailure(err.message));
+            logger.log(err);
+        }
     });
     //-------------------------------------------------------------------------//
     apiRouter.post("/hash", function (req, res) {
@@ -403,7 +377,7 @@ module.exports = function (app, express) {
                 }
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err));
+                res.json(utils.responseFailure(err.message));
                 logger.log(err);
             });
     });
