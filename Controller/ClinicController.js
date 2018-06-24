@@ -2,7 +2,6 @@ var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var logger = require("../Utils/Logger");
-var Moment = require("moment");
 var hash = require("../Utils/Bcrypt");
 var clinicDAO = require("../DataAccess/ClinicDAO");
 var baseDAO = require("../DataAccess/BaseDAO");
@@ -209,11 +208,12 @@ module.exports = function (app, express) {
             .then(async function (newPassword) {
                 var allClinics;
                 try {
-                    allClinics = await getAllClinic();
+                    allClinics = await clinicDAO.getAllUser();
                     var checkClinic = true;
                     for (var i in allClinics) {
                         var clinic = allClinics[i];
-                        if (clinic.username == username && clinic.email == email) {
+                        console.log(clinic.username + " " + clinic.email);
+                        if (clinic.username == username || clinic.email == email) {
                             checkClinic = false;
                             break;
                         }
@@ -221,22 +221,23 @@ module.exports = function (app, express) {
                             checkClinic = true;
                         }
                     }
+                    console.log(checkClinic);
                     if (checkClinic == true) {
                         var register = await clinicDAO.registerClinic(username, newPassword, email, fullName, address, clinicName, applyDateList);
                         delete register.password;
                         delete register.id;
                         res.json(utils.responseSuccess(register));
                     } else {
-                        res.json(utils.responseFailure("Không thể tạo tài khoản này"));
+                        res.json(utils.responseFailure("Tài khoản hoặc email đã tồn tại"));
                     }
                 }
                 catch (err) {
-                    res.json(utils.responseFailure(err));
+                    res.json(utils.responseFailure(err.message));
                     logger.log(err, "register", "ClinicController");
                 }
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err));
+                res.json(utils.responseFailure(err.message));
                 logger.log(err, "register", "ClinicController");
             });
     });

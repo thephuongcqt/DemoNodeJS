@@ -87,6 +87,18 @@ var clinicDao = {
                 });
         });
     },
+    getAllUser: function () {
+        return new Promise((resolve, reject) => {
+            dao.findAllWithRelated(db.User, "clinic")
+                .then(collection => {
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Không tồn tại tài khoản nào");
+                });
+        });
+    },
 
     getClinicInfo: async function (username) {
         var results = null;
@@ -130,7 +142,7 @@ var clinicDao = {
     registerClinic: async function (username, password, email, fullName, address, clinicName, applyDateList) {
         var results = null;
         var userJson = { "username": username, "password": password, "fullName": fullName, "role": Const.ROLE_CLINIC, "isActive": Const.ACTIVATION, "email": email };
-        var clinicJson = { "username": username, "address": address, "clinicName": clinicName, "imageURL": null, "greetingURL": null };
+        var clinicJson = { "username": username, "address": address, "clinicName": clinicName, "examinationDuration": "0:30:00", "imageURL": null, "greetingURL": null };
         try {
             var addUser = await dao.create(db.User, userJson);
             var addClinic = await dao.create(db.Clinic, clinicJson);
