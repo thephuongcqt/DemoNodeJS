@@ -6,6 +6,7 @@ var hash = require("../Utils/Bcrypt");
 var Moment = require('moment');
 var clinicDAO = require("../DataAccess/ClinicDAO");
 var baseDAO = require("../DataAccess/BaseDAO");
+var firebase = require("../Notification/FirebaseAdmin");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -54,6 +55,13 @@ module.exports = function (app, express) {
             var promises = [baseDAO.update(db.User, userJson, "username"), baseDAO.update(db.Clinic, clinicJson, "username")];
             var result = await Promise.all(promises);
             res.json(utils.responseSuccess("Update Success"));
+
+            //Begin notify to clinic
+            var notifyTitle = "Phòng khám đã được cấp số điện thành công";
+            var notifyMessage = "Số điện thoại của phòng khám là: " + phoneNumber;
+            var topic = username;
+            firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
+            //End notify to clinic
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
