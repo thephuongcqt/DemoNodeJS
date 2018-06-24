@@ -12,14 +12,16 @@ var test = async function () {
     var scheduler = require("./Scheduler/Scheduler");
     // logger.log(new Error("dm"));
     try {
-        var clinic = await dao.findByID(db.Clinic, "username", "thuan");
-        
+        var clinic = await dao.findByID(db.Clinic, "username", "hoanghoa");
+
         var time = await scheduler.getExpectationAppointment(clinic);
         console.log(time);
     } catch (error) {
         logger.log(error);
+        console.log(error);
     }
-    // var acc1 = await clinicDao.getTwilioAccountByID("AC0182c9b950c8fe1229f93aeb40900a5d");
+
+    //  await clinicDao.getTwilioAccountByID("AC0182c9b950c8fe1229f93aeb40900a5d");
     // var acc2 = await clinicDao.getTwilioAccountByPhoneNumber("+19792136847");
     // console.log(acc1);
     // console.log(acc2);

@@ -59,7 +59,8 @@ var utils = {
         }
         // Directly return the joined string
         return splitStr.join(' ');
-    }
+    },
+    
 
 }
 module.exports = utils;

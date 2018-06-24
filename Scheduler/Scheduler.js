@@ -17,7 +17,7 @@ function getTotalDuration(count, duration) {
 
 module.exports = {
     getExpectationTime: function (startWorking, endWorking, count, duration, lastAppointment) {
-        if (!(startWorking && endWorking && count && duration)) {
+        if ((startWorking == null) || (endWorking == null) || (count == null) || (duration == null)) {            
             throw new Error("Null pointer Exception at getExpectationTime");
         }
         var mCurrentTime = utils.getMomentTime(new Date());
@@ -45,7 +45,6 @@ module.exports = {
             mExpectation.add(aExaminationDuration, "milliseconds");
         }
         // End WhileExpectation time is early than current time
-
         if (mExpectation < mEnd) {
             return mExpectation.toDate();
         } else {
@@ -61,7 +60,7 @@ module.exports = {
         if (configs != null && configs.length > 0) {
             var config = configs[0];
             var appointments = await appointmentDao.getAppointmentsInCurrentDayWithProperties({ "clinicUsername": clinicUsername });
-            var lastAppointment = appointments.length > 0 ? appointments[appointments.length - 1] : null;
+            var lastAppointment = appointments.length > 0 ? appointments[appointments.length - 1] : null;            
             var time = this.getExpectationTime(config.startWorking, config.endWorking, appointments.length, clinic.examinationDuration, lastAppointment);
             if (time) {
                 return {

@@ -78,14 +78,15 @@ module.exports = function (app, express) {
 
 async function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
     //  Send SMS to announcement appointment for patient has book successfull 
-    // var client = configUtils.getTwilioByPhone(clinicPhone);
+    // var client = configUtils.getTwilioByPhone(clinicPhone);    
     var client = await clinicDao.getTwilioAccountByPhoneNumber(clinicPhone);
-    if (client) {
+    if (client) {        
         client.messages.create({
             body: messageBody,
             from: clinicPhone,
             to: patientPhone
-        }).then(messages => { })
+        }).then(messages => {            
+        })
             .catch(function (err) {
                 logger.log(err);
             })
@@ -126,12 +127,13 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCoun
 
 async function scheduleAppointment(user, patient, patientPhone) {    
     try {
-        var detailAppointment = await scheduler.getExpectationAppointment(user.clinic);    
+        var clinic = user.clinic;
+        var detailAppointment = await scheduler.getExpectationAppointment(clinic);            
         if (detailAppointment) {
             saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, patientPhone);
         } else {
             sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
-            logger.log(user.clinic + patient + Const.FullSlot);
+            logger.log(new Error(user.phoneNumber + " " + patientPhone + " " + Const.FullSlot));
         }
     } catch (error) {
         logger.log(error);
