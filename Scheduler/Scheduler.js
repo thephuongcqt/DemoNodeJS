@@ -16,28 +16,28 @@ function getTotalDuration(count, duration) {
 }
 
 module.exports = {
-    getExpectationTime: function (startWorking, endWorking, count, duration, lastAppointment) {        
-        if(!(startWorking && endWorking && count && duration)){        
+    getExpectationTime: function (startWorking, endWorking, count, duration, lastAppointment) {
+        if (!(startWorking && endWorking && count && duration)) {
             throw new Error("Null pointer Exception at getExpectationTime");
         }
-        var mCurrentTime = utils.getMomentTime(new Date());        
+        var mCurrentTime = utils.getMomentTime(new Date());
         if (endWorking < mCurrentTime) {
             return null;
         }
-        
+
         var mStart = utils.getMomentTime(startWorking);
         var mEnd = utils.getMomentTime(endWorking);
         var mDuration = utils.getMomentTime(duration);
         var aExaminationDuration = getTotalDuration(1, mDuration);
 
         var mExpectation = null;
-        if(lastAppointment){
+        if (lastAppointment) {
             mExpectation = utils.getMomentTime(lastAppointment.appointmentTime);
-            mExpectation.add(aExaminationDuration, "milliseconds");            
-        } else{
+            mExpectation.add(aExaminationDuration, "milliseconds");
+        } else {
             mExpectation = utils.getMomentTime(startWorking);
             var miliseconds = getTotalDuration(count, mDuration);
-            mExpectation.add(miliseconds, "milliseconds");            
+            mExpectation.add(miliseconds, "milliseconds");
         }
 
         // Begin WhileExpectation time is early than current time        
@@ -53,28 +53,25 @@ module.exports = {
         }
     },
 
-    getExpectationAppointment: async function (clinic) {        
+    getExpectationAppointment: async function (clinic) {
         var bookingDate = new Date().getDay();
-        var clinicUsername = clinic.username;        
-        try {
-            var configs = await baseDao.findByProperties(db.WorkingHours, { "clinicUsername": clinicUsername, "applyDate": bookingDate });
-            if (configs != null && configs.length > 0) {
-                var config = configs[0];
-                var appointments = await appointmentDao.getAppointmentsInCurrentDayWithProperties({ "clinicUsername": clinicUsername });
-                var lastAppointment = appointments.length > 0 ? appointments[appointments.length - 1] : null;
-                var time = this.getExpectationTime(config.startWorking, config.endWorking, appointments.length, clinic.examinationDuration, lastAppointment);
-                if (time) {
-                    return { 
-                        bookedTime: time, 
-                        no: appointments.length + 1
-                    };
-                } else return null;
-            } else{
-                throw new Error("Cannot find config working hours at method getExpectationAppointment");
-            }
-        } catch (error) {
-            logger.log(error);           
-        }
-        return null;
-    } 
+        var clinicUsername = clinic.username;
+
+        var configs = await baseDao.findByProperties(db.WorkingHours, { "clinicUsername": clinicUsername, "applyDate": bookingDate });
+        if (configs != null && configs.length > 0) {
+            var config = configs[0];
+            var appointments = await appointmentDao.getAppointmentsInCurrentDayWithProperties({ "clinicUsername": clinicUsername });
+            var lastAppointment = appointments.length > 0 ? appointments[appointments.length - 1] : null;
+            var time = this.getExpectationTime(config.startWorking, config.endWorking, appointments.length, clinic.examinationDuration, lastAppointment);
+            if (time) {
+                return {
+                    bookedTime: time,
+                    no: appointments.length + 1
+                };
+            } 
+            return null;
+        } else {
+            throw new Error("Cannot find config working hours at method getExpectationAppointment");
+        }        
+    }
 }

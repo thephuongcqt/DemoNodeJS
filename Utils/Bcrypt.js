@@ -9,7 +9,7 @@ var hash = {
                     resolve(hash);
                 })
                 .catch(function (err) {
-                    reject(err.message);
+                    reject(err);
                 });
         });
     },
@@ -20,7 +20,7 @@ var hash = {
                     resolve(res);
                 })
                 .catch(function (err) {
-                    reject(err.message);
+                    reject(err);
                 });
         });
     }

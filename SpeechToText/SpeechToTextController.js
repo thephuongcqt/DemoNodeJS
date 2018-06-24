@@ -40,7 +40,7 @@ var sttFunctions = {
                             resolve(transcription);
                         })
                         .catch(err => {
-                            logger.log(err.message, "getTextFromVoice", "SpeechToTextController");
+                            logger.log(err);
                             reject(err);
                         });
                 });

@@ -14,7 +14,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "getAllLicense", "LicenseController");
+                logger.log(err);
             });
     });
     // get lincese info
@@ -26,7 +26,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "getAllLicense", "LicenseController");
+                logger.log(err);
             });
     });
     // create license
@@ -37,7 +37,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "create", "LicenseController");
+                logger.log(err);
             });
     });
     // update license
@@ -50,12 +50,12 @@ module.exports = function (app, express) {
                     })
                     .catch(function (err) {
                         res.json(utils.responseFailure(err));
-                        logger.log(err.message, "update", "LicenseController");
+                        logger.log(err);
                     });
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "update", "LicenseController");
+                logger.log(err);
             });
     });
     // delete license
@@ -69,7 +69,7 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err.message, "delete", "LicenseController");
+                            logger.log(err);
                         });
                 } else {
                     res.json(utils.responseFailure("Giấy phép này đang được sử dụng"));
@@ -77,7 +77,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "delete", "LicenseController");
+                logger.log(err);
             });
     });
     return apiRouter;

@@ -27,7 +27,7 @@ var firebaseAdmin = {
                 //send success
             })
             .catch((error) => {
-                console.log('Error sending message:', error);
+                logger.log(err);
             });
     }
 };
