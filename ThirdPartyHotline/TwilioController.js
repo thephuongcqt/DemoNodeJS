@@ -85,7 +85,7 @@ async function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
             to: patientPhone
         }).then(messages => { })
             .catch(function (err) {
-                logger.log(err, "sendSMSToPatient");
+                logger.log(err);
             })
             .done();
     }
@@ -120,13 +120,19 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCoun
     }
 }
 
-async function scheduleAppointment(user, patient, patientPhone) {
-    var detailAppointment = await scheduler.getExpectationAppointment(user.clinic);
-    if (detailAppointment) {
-        saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, patientPhone);
-    } else {
-        sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
-        logger.log(user.clinic + patient + Const.FullSlot);
+async function scheduleAppointment(user, patient, patientPhone) {    
+    try {
+        var detailAppointment = await scheduler.getExpectationAppointment(user.clinic);    
+        if (detailAppointment) {
+            saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, patientPhone);
+        } else {
+            sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
+            logger.log(user.clinic + patient + Const.FullSlot);
+        }
+    } catch (error) {
+        logger.log(error);
+        sendSMSToPatient(user.phoneNumber, patientPhone, Const.Error.ScheduleAppointmentError);
+        return;
     }
 }
 

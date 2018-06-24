@@ -16,7 +16,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err, "getWorkingHours", "WorkingHoursController");
+                logger.log(err);
             });
     });
 
@@ -40,7 +40,7 @@ module.exports = function (app, express) {
                             workingHoursDAO.updateWorkingHour(username, applyDate, parseStartWorking, parseEndWorking, isDayOff)
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err));
-                                    logger.log(err, "update", "WorkingHoursController");
+                                    logger.log(err);
                                 });
                         }
                     }
@@ -50,13 +50,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err, "update", "WorkingHoursController");
+                            logger.log(err);
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err, "update", "WorkingHoursController");
+                logger.log(err);
             });
     });
     // update working hours with all apply date
@@ -86,7 +86,7 @@ module.exports = function (app, express) {
                     workingHoursDAO.updateWorkingHours(username, applyDate, parseStartWorking, parseEndWorking)
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err, "update", "WorkingHoursController");
+                            logger.log(err);
                         });
                 }
             }
@@ -96,7 +96,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err, "update", "WorkingHoursController");
+                    logger.log(err);
                 });
         }
     });

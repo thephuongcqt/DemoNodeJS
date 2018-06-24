@@ -42,7 +42,7 @@ var config = {
             var account = require('twilio')(accountSid, authToken);    
             return account;
         } catch (error) {
-            logger.log(error.message);
+            logger.log(error);
             return null;
         }    
     },

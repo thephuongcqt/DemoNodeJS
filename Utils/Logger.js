@@ -6,17 +6,14 @@ function getFilePath(){
 }
 
 var logger = {
-    log: function(message, method, file){
+    log: function(error){
         var time = Moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
         var logMessage = "\r\n" + time;
-        if(file){
-            logMessage += "\r\n\t File: " + file;
+        try {
+            logMessage += "\r\n\t" + error.stack;
+        } catch (error) {            
+            logMessage += "\r\n\t" + error;
         }
-        if(method){
-            logMessage += "\r\n\t Method: " + method;
-        }
-        logMessage += "\r\n\t" + message;
-
         var filePath = getFilePath();
         fs.appendFileSync(filePath, logMessage);
     }

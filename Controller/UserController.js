@@ -38,13 +38,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err.message, "login", "UserController");
+                            logger.log(err);
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "login", "UserController");
+                logger.log(err);
             });
     });
     // get all user by role from database
@@ -58,7 +58,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err.message, "getAllUser", "UserController");
+                    logger.log(err);
                 });
         } else if (role == Const.ROLE_CLINIC) {
             userDAO.getAllClinic()
@@ -67,7 +67,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err.message, "getAllUser", "UserController");
+                    logger.log(err);
                 });
         } else {
             userDAO.getAll()
@@ -76,7 +76,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err.message, "getAllUser", "UserController");
+                    logger.log(err);
                 });
         }
     });
@@ -104,12 +104,12 @@ module.exports = function (app, express) {
                                                 })
                                                 .catch(function (err) {
                                                     res.json(utils.responseFailure(err));
-                                                    logger.log(err.message, "changePassword", "UserController");
+                                                    logger.log(err);
                                                 });
                                         })
                                         .catch(function (err) {
                                             res.json(utils.responseFailure(err));
-                                            logger.log(err.message, "changePassword", "UserController");
+                                            logger.log(err);
                                         });
                                 }
                             } else {
@@ -118,13 +118,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err.message, "changePassword", "UserController");
+                            logger.log(err);
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "changePassword", "UserController");
+                logger.log(err);
             });
     });
     // update information
@@ -163,7 +163,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure("Không thể cập nhật"));
-            logger.log(err, "update", "UserController");
+            logger.log(err);
         }
     });
     // create user for admin
@@ -195,7 +195,7 @@ module.exports = function (app, express) {
                                     })
                                     .catch(function (err) {
                                         res.json(utils.responseFailure(err));
-                                        logger.log(err.message, "createAdmin", "UserController");
+                                        logger.log(err);
                                     });
                             }
                             else {
@@ -204,7 +204,7 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err.message, "createAdmin", "UserController");
+                            logger.log(err);
                         });
                 } else {
                     res.json(utils.responseFailure("Không thể tạo tài khoản này"));
@@ -212,7 +212,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "createAdmin", "UserController");
+                logger.log(err);
             });
     });
     //check duplicate
@@ -256,7 +256,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "checkDuplicate", "UserController");
+                logger.log(err);
             });
     });
     //check password
@@ -278,13 +278,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err.message, "checkPassword", "UserController");
+                            logger.log(err);
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "checkPassword", "UserController");
+                logger.log(err);
             });
     });
     //reset password
@@ -313,13 +313,13 @@ module.exports = function (app, express) {
                                         })
                                         .catch(function (err) {
                                             res.json(utils.responseFailure(err));
-                                            logger.log(err.message, "resetPassword", "UserController");
+                                            logger.log(err);
                                         });
                                     nodeMailer.sendEmailToPatient(username, randomstring, results.fullName, email);
                                 })
                                 .catch(function (err) {
                                     res.json(utils.responseFailure(err));
-                                    logger.log(err.message, "resetPassword", "UserController");
+                                    logger.log(err);
                                 });
                         } else {
                             res.json(utils.responseFailure("Email này không tồn tại"));
@@ -329,7 +329,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "resetPassword", "UserController");
+                logger.log(err);
             });
     });
     // delete account
@@ -351,7 +351,7 @@ module.exports = function (app, express) {
                                         })
                                         .catch(function (err) {
                                             res.json(utils.responseFailure(err));
-                                            logger.log(err.message, "delete", "UserController");
+                                            logger.log(err);
                                         });
                                 } else if (results.role = Const.ROLE_CLINIC) {
                                     // Xóa clinic chưa làm
@@ -365,13 +365,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err.message, "delete", "UserController");
+                            logger.log(err);
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "delete", "UserController");
+                logger.log(err);
             });
     });
     //-------------------------------------------------------------------------//
@@ -396,7 +396,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "hash", "UserController");
+                logger.log(err);
             });
     });
     //-------------------------------------------------------------------------//

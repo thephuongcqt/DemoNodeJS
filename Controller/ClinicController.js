@@ -165,7 +165,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err, "getAllClinic", "ClinicController");
+                logger.log(err);
             });
     });
 
@@ -191,12 +191,12 @@ module.exports = function (app, express) {
                     })
                     .catch(function (err) {
                         res.json(utils.responseFailure(err));
-                        logger.log(err, "login", "ClinicController");
+                        logger.log(err);
                     });
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err, "Login", "ClinicController");
+                logger.log(err);
             });
     });
 
@@ -235,13 +235,13 @@ module.exports = function (app, express) {
                     }
                 }
                 catch (err) {
-                    res.json(utils.responseFailure(err.message));
-                    logger.log(err, "register", "ClinicController");
+                    res.json(utils.responseFailure(err));
+                    logger.log(err);
                 }
             })
             .catch(function (err) {
-                res.json(utils.responseFailure(err.message));
-                logger.log(err, "register", "ClinicController");
+                res.json(utils.responseFailure(err));
+                logger.log(err);
             });
     });
 

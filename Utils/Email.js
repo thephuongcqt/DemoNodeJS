@@ -42,7 +42,7 @@ var nodeMailer = {
         transporter.sendMail(mailOptions, function (err, info) {
             if (err) {
                 res.json(utils.responseFailure(err.message));
-                logger.log(err.message, "sendEmailError", "UserController");
+                logger.log(err);
             }
         });
     }
