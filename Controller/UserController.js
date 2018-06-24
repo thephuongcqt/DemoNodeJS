@@ -38,13 +38,13 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err.message, "login", "UserController");
+                            logger.log(err.message);
                         });
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "login", "UserController");
+                logger.log(err.message);
             });
     });
     // get all user by role from database
@@ -58,7 +58,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err.message, "getAllUser", "UserController");
+                    logger.log(err.message);
                 });
         } else if (role == Const.ROLE_CLINIC) {
             userDAO.getAllClinic()
@@ -67,7 +67,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err.message, "getAllUser", "UserController");
+                    logger.log(err.message);
                 });
         } else {
             userDAO.getAll()
@@ -76,7 +76,7 @@ module.exports = function (app, express) {
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
-                    logger.log(err.message, "getAllUser", "UserController");
+                    logger.log(err.message);
                 });
         }
     });
@@ -195,7 +195,7 @@ module.exports = function (app, express) {
                                     })
                                     .catch(function (err) {
                                         res.json(utils.responseFailure(err));
-                                        logger.log(err.message, "createAdmin", "UserController");
+                                        logger.log(err);
                                     });
                             }
                             else {
@@ -204,7 +204,7 @@ module.exports = function (app, express) {
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
-                            logger.log(err.message, "createAdmin", "UserController");
+                            logger.log(err);
                         });
                 } else {
                     res.json(utils.responseFailure("Không thể tạo tài khoản này"));
@@ -212,7 +212,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
-                logger.log(err.message, "createAdmin", "UserController");
+                logger.log(err);
             });
     });
     //check duplicate
