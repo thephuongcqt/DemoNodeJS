@@ -209,7 +209,7 @@ var clinicDao = {
             if(users && users.length > 0){
                 for(var i in users){
                     var user = users[i];
-                    promises.push(removeTwilio(user.username));
+                    promises.push(this.removeTwilio(user.username));
                 }
             }
             if(promises.length > 0){
