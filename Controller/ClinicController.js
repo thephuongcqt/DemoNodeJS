@@ -2,8 +2,8 @@ var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var logger = require("../Utils/Logger");
-var Moment = require("moment");
 var hash = require("../Utils/Bcrypt");
+var Moment = require('moment');
 var clinicDAO = require("../DataAccess/ClinicDAO");
 var baseDAO = require("../DataAccess/BaseDAO");
 
@@ -138,12 +138,16 @@ module.exports = function (app, express) {
         var greetingURL = req.body.greetingURL;
         var username = req.body.username;
         var imageURL = req.body.imageURL;
+        var examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss").format("HH:mm:ss");;
         var json = { "username": username };
         if (greetingURL) {
             json.greetingURL = greetingURL;
         }
         if (imageURL) {
             json.imageURL = imageURL;
+        }
+        if (examinationDuration) {
+            json.examinationDuration = examinationDuration;
         }
         try {
             await baseDAO.update(db.Clinic, json, "username");
@@ -209,11 +213,11 @@ module.exports = function (app, express) {
             .then(async function (newPassword) {
                 var allClinics;
                 try {
-                    allClinics = await getAllClinic();
+                    allClinics = await clinicDAO.getAllUser();
                     var checkClinic = true;
                     for (var i in allClinics) {
                         var clinic = allClinics[i];
-                        if (clinic.username == username && clinic.email == email) {
+                        if (clinic.username == username || clinic.email == email) {
                             checkClinic = false;
                             break;
                         }
@@ -227,7 +231,7 @@ module.exports = function (app, express) {
                         delete register.id;
                         res.json(utils.responseSuccess(register));
                     } else {
-                        res.json(utils.responseFailure("Không thể tạo tài khoản này"));
+                        res.json(utils.responseFailure("Tài khoản hoặc email đã tồn tại"));
                     }
                 }
                 catch (err) {
