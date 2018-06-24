@@ -212,7 +212,6 @@ module.exports = function (app, express) {
                     var checkClinic = true;
                     for (var i in allClinics) {
                         var clinic = allClinics[i];
-                        console.log(clinic.username + " " + clinic.email);
                         if (clinic.username == username || clinic.email == email) {
                             checkClinic = false;
                             break;
@@ -221,7 +220,6 @@ module.exports = function (app, express) {
                             checkClinic = true;
                         }
                     }
-                    console.log(checkClinic);
                     if (checkClinic == true) {
                         var register = await clinicDAO.registerClinic(username, newPassword, email, fullName, address, clinicName, applyDateList);
                         delete register.password;
