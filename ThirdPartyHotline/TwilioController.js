@@ -46,6 +46,7 @@ module.exports = function (app, express) {
                     client.calls(req.body.CallSid)
                         .fetch()
                         .then(call => {
+                            logger.log(call);
                             makeAppointment(call.from, patientName, call.to);
                         })
                         .done();
