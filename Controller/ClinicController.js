@@ -151,7 +151,7 @@ module.exports = function (app, express) {
         }
         try {
             await baseDAO.update(db.Clinic, json, "username");
-            res.json(utils.responseSuccess("Thay đổi thông tin thành công"));
+            res.json(utils.responseSuccess(json));
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.Error.UpdateClinicError));
