@@ -138,12 +138,12 @@ module.exports = function (app, express) {
         var email = req.body.email;
         var address = req.body.address;
         var clinicName = req.body.clinicName;
-        var accountSid = req.body.imageURL;
-        var authToken = req.body.greetingURL;
+        var accountSid = req.body.accountSid;
+        var authToken = req.body.authToken;
         try {
             var resultClinic;
             var users = await userDAO.getUserInfo(username);
-            if (password || phoneNumber || fullName || role || isActive || email != null) {
+            if (!password || !phoneNumber || !fullName || !role || !isActive || !email) {
                 var resultUser = await userDAO.updateUser(username, password, phoneNumber, fullName, role, isActive, email);
                 if (users.role == Const.ROLE_CLINIC) {
                     resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
@@ -154,10 +154,10 @@ module.exports = function (app, express) {
                 }
             } else {
                 if (users.role == Const.ROLE_CLINIC) {
-                    resultClinic = await userDAO.updateClinic(username, address, clinicName);
+                    resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
                     res.json(utils.responseSuccess(resultClinic));
                 } else {
-                    res.json(utils.responseFailure("Không thể cập nhật"));
+                    res.json(utils.responseFailure("Không có thông tin cập nhật"));
                 }
             }
         }
