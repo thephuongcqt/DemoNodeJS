@@ -60,6 +60,8 @@ module.exports = function (app, express) {
                         })
                         .done();
                 });
+        } else{
+            logger.log(new Error("An error occurred when get twilio account"));
         }
     });
 
@@ -88,6 +90,8 @@ async function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
                 logger.log(err);
             })
             .done();
+    } else{
+        logger.log(new Error("An error occurred when get twilio account"));
     }
 }
 
@@ -131,8 +135,7 @@ async function scheduleAppointment(user, patient, patientPhone) {
         }
     } catch (error) {
         logger.log(error);
-        sendSMSToPatient(user.phoneNumber, patientPhone, Const.Error.ScheduleAppointmentError);
-        return;
+        sendSMSToPatient(user.phoneNumber, patientPhone, Const.Error.ScheduleAppointmentError);        
     }
 }
 
@@ -152,7 +155,7 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
             "fullName": patientName,
         };
         //Begin fake patient phone number
-        var fakePhone = await fakePhoneNumber(userClinic.username);
+        var fakePhone = await fakePhoneNumber(userClinic.username, patientPhone);
         if (fakePhone) {
             patient.phoneNumber = fakePhone;
         }
@@ -170,7 +173,7 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
     }
 }
 
-async function fakePhoneNumber(clinicUsername) {
+async function fakePhoneNumber(clinicUsername, patientPhone) {
     try {
         var result = await appointmentDao.getBookedNumbersInCurrentDay(clinicUsername);
         var isBooked = utils.checkNumberInArray(patientPhone, result);
