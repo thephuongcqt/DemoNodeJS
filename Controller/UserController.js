@@ -318,14 +318,37 @@ module.exports = function (app, express) {
     });
     // delete account
     apiRouter.get("/delete", async function (req, res) {
-        var username = req.body.username;
-        var password = req.body.password;
         try {
-            var resultUser = await userDAO.getUserInfo(req.body.username);
-            if (resultUser) {
-                res.json(utils.responseFailure("Không tồn tại tài khoản nào"));
+            var resultUser = await userDAO.getUserInfo(req.query.username);
+            if (!resultUser) {
+                res.json(utils.responseFailure("Account is not exist"));
+            } else {
+                if (resultUser.role == Const.ROLE_ADMIN || resultUser.role == Const.ROLE_STAFF) {
+                    var resultDelete = await userDAO.deleteUser(req.query.username);
+                    res.json(utils.responseSuccess(resultDelete));
+                } else {
+                    var resultAppointments = await userDAO.getAppointment(req.query.username);
+                    if (resultAppointments.length != 0) {
+                        for (var i in resultAppointments) {
+                            var resultAppointment = resultAppointments[i];
+                            await userDAO.deletePatient(resultAppointment.patient.patientID);
+                            await userDAO.deleteAppointment(resultAppointment.appointmentID);
+                        }
+                    }
+                    var resultClinic = await userDAO.getClinic(req.query.username);
+                    if (resultClinic != null) {
+                        if(resultClinic.workingHours.length != 0){
+                            for (var j in resultClinic.workingHours) {
+                                var resultworkingHour = resultClinic.workingHours[j];
+                                await userDAO.deleteWorkingHours(resultworkingHour.clinicUsername);
+                            }
+                        }
+                        await userDAO.deleteClinic(resultClinic.username);
+                        await userDAO.deleteUser(req.query.username);
+                        res.json(utils.responseSuccess("Delete account successfully"));
+                    }
+                }
             }
-            console.log(resultUser);
         }
         catch (err) {
             res.json(utils.responseFailure(err.message));

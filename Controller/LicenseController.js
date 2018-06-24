@@ -81,10 +81,10 @@ module.exports = function (app, express) {
         try {
             var resultLicense = await licenseDAO.getLicenseBill(req.query.licenseID);
             if (!resultLicense) {
-                res.json(utils.responseFailure("Giấy phép không tồn tại"));
+                res.json(utils.responseFailure("License is not exist"));
             } else {
                 if (resultLicense.bills.length != 0) {
-                    res.json(utils.responseFailure("Giấy phép này đang được sử dụng"));
+                    res.json(utils.responseFailure("License is using"));
                 } else {
                     var resultDelete = await licenseDAO.deleteLicense(req.query.licenseID);
                     res.json(utils.responseFailure(resultDelete));
