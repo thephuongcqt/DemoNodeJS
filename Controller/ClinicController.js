@@ -206,11 +206,13 @@ module.exports = function (app, express) {
             var users = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");
             if (users && users.length > 0) {
                 var user = users[0];
-                var isCorrectPassword = await hash.comparePassword(password, user.password);
-                if (isCorrectPassword) {
-                    var result = await getClinicInfo(username);
-                    res.json(utils.responseSuccess(result));
-                    return;
+                if (user) {
+                    var isCorrectPassword = await hash.comparePassword(password, user.password);
+                    if (isCorrectPassword) {
+                        var result = await getClinicInfo(username);
+                        res.json(utils.responseSuccess(result));
+                        return;
+                    }
                 }
             }
             res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
