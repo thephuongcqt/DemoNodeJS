@@ -7,10 +7,10 @@
         {
             "type": "node",
             "request": "attach",
-            "name": "Attach",
-            "protocol": "inspector",            
-            "port": 8080,
-            "runtimeArgs": ["--inspect=8080"]
+            // "name": "Attach",
+            // "protocol": "inspector",            
+            // "port": 8080,
+            // "runtimeArgs": ["--inspect=8080"]
             
         }
     //     {
