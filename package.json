@@ -37,6 +37,7 @@
     "mysql": "^2.15.0",
     "nodemailer": "^4.6.7",
     "paypal-rest-sdk": "^1.8.1",
-    "twilio": "^3.17.1"
+    "twilio": "^3.17.1",
+    "uuid": "^3.2.1"
   }
 }

@@ -7,6 +7,7 @@ var workController = require("./Controller/WorkingHoursController")(app, express
 var licenseController = require("./Controller/LicenseController")(app, express);
 var paypalController = require("./Payment/Paypal")(app, express);
 var appointmentController = require("./Controller/AppointmentController")(app, express);
+var authenticationController = require("./Controller/AuthenticationController")(app, express);
 // Add headers
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -48,6 +49,8 @@ app.use("/work", workController);
 app.use("/license", licenseController);
 // route to Paypal Controller 
 app.use("/paypal", paypalController);
+// route to authentication Controller 
+app.use("/authen", authenticationController);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/", function(req, res){

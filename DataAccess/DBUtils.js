@@ -23,6 +23,9 @@ var db = {
     tableName: 'tbl_user',
     clinic: function () {
       return this.hasOne(db.Clinic, 'username', "username");
+    },
+    tokens: function(){
+      return this.hasMany(db.Token, "username", "username");
     }
   }),
 
@@ -71,5 +74,12 @@ var db = {
   Patient: bookshelf.Model.extend({
     tableName: 'tbl_patient'
   }),
+
+  Token: bookshelf.Model.extend({
+    tableName: 'tbl_token',
+    user: function(){
+      return this.belongsTo(db.User, 'username', 'username');
+    }
+  })
 };
 module.exports = db;
