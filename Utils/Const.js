@@ -18,7 +18,7 @@ module.exports = {
         IncorrectUsernameOrPassword: "Sai tên đăng nhập hoặc mật khẩu",
         ScheduleAppointmentError: "Đã có lỗi xảy ra khi sắp xếp lịch khám, xin quý khách vui lòng thử lại sau",
         ClinicRegisterMissingFields: "Vui lòng điền đủ thông tin để đăng ký tài khoản",
-        ClinicRegisterExistedClinic: "Tên đăng nhập hoặc Email đã tồn tại!",
+        ClinicRegisterExistedClinic: "Tên đăng nhập hoặc Email hoặc số điện thoại đã tồn tại!",
         ClinicRegisterAnErrorOccured: "Đã có lỗi xảy ra trong quá trình đăng ký tài khoản, Vui lòng thử lại sau"
     },
 
