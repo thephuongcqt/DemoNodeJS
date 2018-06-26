@@ -7,6 +7,7 @@ var Moment = require('moment');
 var clinicDAO = require("../DataAccess/ClinicDAO");
 var baseDAO = require("../DataAccess/BaseDAO");
 var firebase = require("../Notification/FirebaseAdmin");
+var authenUtils = require("../Utils/AuthenUtils");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -210,13 +211,6 @@ module.exports = function (app, express) {
                     var isCorrectPassword = await hash.comparePassword(password, user.password);
                     if (isCorrectPassword) {
                         var result = await clinicDAO.getClinicResponse(username);
-                        for (var i in result.workingHours) {
-                            var workingHour = result.workingHours[i];
-                            if (!workingHour.startWorking && !workingHour.endWorking) {
-                                delete result.workingHours;
-                                break;
-                            }
-                        }
                         res.json(utils.responseSuccess(result));
                         return;
                     }
@@ -245,7 +239,12 @@ module.exports = function (app, express) {
                 throw new Error(Const.Error.ClinicRegisterExistedClinic);
             }
             await clinicDAO.insertClinic(username, password, clinicName, address, email);
+
+            var host = req.protocol + '://' + req.get('host');
+
             res.json(utils.responseSuccess("Đăng ký tài khoản thành công"));
+
+            authenUtils.sendConfirmRegister(host, username, email);
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
@@ -265,6 +264,7 @@ module.exports = function (app, express) {
 
     return apiRouter;
 }
+
 function getAllClinic() {
     return new Promise((resolve, reject) => {
         clinicDAO.getAllClinic()

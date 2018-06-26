@@ -5,21 +5,19 @@ var logger = require("./Logger");
 var nodemailer = require('nodemailer');
 var Moment = require('moment');
 
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'callcentercapstone@gmail.com',
+        pass: 'Callcenterpass1Callcenterpass1'
+    }
+});
+
 var nodeMailer = {
-    sendEmailToPatient: function (username, password, fullName, email) {
-        //  Send Email to patient when reset password successfull 
-        //setup email by link
-        //https://myaccount.google.com/lesssecureapps?pli=1
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'callcentercapstone@gmail.com',
-                pass: 'Callcenterpass1Callcenterpass1'
-            }
-        });
+    sendEmailToPatient: function (username, password, fullName, email) {        
         var currentDate = Moment(new Date()).format('DD-MM-YYYY');
         var currentTime = Moment(new Date()).format('HH:mm:ss');
-        const mailOptions = {
+        var mailOptions = {
             from: 'callcentercapstone@gmail.com', // sender address
             to: email, // list of receivers
             subject: 'Thông tin khôi phục mật khẩu', // Subject line
@@ -40,8 +38,23 @@ var nodeMailer = {
                 '</div></body></html>'
         };
         transporter.sendMail(mailOptions, function (err, info) {
-            if (err) {
-                res.json(utils.responseFailure(err.message));
+            if (err) {                
+                logger.log(err);
+            }
+        });
+    },
+
+    sendConfirmRegisterEmail: function(email, link){
+        var html = "<b>Để xác nhận tài khoản bạn vui lòng ấn vào <a href='" + link + "'> Link </a></b>";
+        var mailOptions = {
+            from: 'callcentercapstone@gmail.com', // sender address
+            to: email, // list of receivers
+            subject: 'Xác nhận đăng ký', // Subject line            
+            html: html
+        }
+
+        transporter.sendMail(mailOptions, function (err, info) {
+            if (err) {                
                 logger.log(err);
             }
         });
