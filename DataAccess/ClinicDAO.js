@@ -140,16 +140,19 @@ var clinicDao = {
         }
     },
 
-    checkExistedClinic: async function (username, email) {
+    checkExistedClinic: async function (username, email, phoneNumber) {
         if (!(username && username.trim())) {
             throw new Error("Tên đăng nhập không được để trống");
         }
         if (!(email && email.trim())) {
             throw new Error("Email không được để trống");
         }
+        if (!(phoneNumber && phoneNumber.trim())) {
+            throw new Error("Số điện thoại không được để trống");
+        }
         try {
-            var json = { "username": username, "email": email };
-            var promises = [dao.findByProperties(db.User, { "username": username }), dao.findByProperties(db.User, { "email": email })];
+            var json = { "username": username, "email": email, "phoneNumber": phoneNumber };
+            var promises = [dao.findByProperties(db.User, { "username": username }), dao.findByProperties(db.User, { "email": email }), dao.findByProperties(db.User, { "phoneNumber": phoneNumber })];
             var results = await Promise.all(promises);
             if (results && results.length > 1) {
                 if (results[0].length > 0 || results[1].length > 0) {
@@ -166,11 +169,12 @@ var clinicDao = {
         return true;
     },
 
-    insertClinic: async function (username, password, clinicName, address, email) {
+    insertClinic: async function (username, password, clinicName, address, email, phoneNumber) {
         try {
             var hashedPassword = await hash.hashPassword(password);
             var userJson = {
                 "username": username,
+                "phoneNumber": phoneNumber,
                 "password": hashedPassword,
                 "email": email,
                 "role": Const.ROLE_CLINIC,
