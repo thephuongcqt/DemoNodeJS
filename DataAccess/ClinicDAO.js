@@ -192,7 +192,7 @@ var clinicDao = {
                     "endWorking": undefined,
                     "applyDate": day,
                     "isDayOff": 0
-                };                
+                };     
                 promises.push(dao.create(db.WorkingHours, json));
             }
             await Promise.all(promises);
@@ -256,6 +256,38 @@ var clinicDao = {
             logger.log(error);
         }
         return results;
+    },
+
+    getClinic: function(username) {
+        return new Promise((resolve, reject) => {
+            this.getClinicInfo(username)
+                .then(function (results) {
+                    results.address = results.clinic.address;
+                    results.clinicName = results.clinic.clinicName;
+                    results.examinationDuration = results.clinic.examinationDuration;
+                    results.expiredLicense = utils.parseDate(results.clinic.expiredLicense);
+                    results.currentTime = utils.parseDate(new Date());
+                    results.imageURL = results.clinic.imageURL;
+                    results.greetingURL = results.clinic.greetingURL;
+                    delete results.clinic;
+                    delete results.password;
+                    var workingHourList = [];
+                    for (var i in results.workingHours) {
+                        var workingHour = results.workingHours[i];
+                        delete workingHour.id;
+                        delete workingHour.clinicUsername;
+                        workingHourList.push(workingHour);
+                    }
+                    workingHourList.sort(function (a, b) {
+                        return a.applyDate - b.applyDate;
+                    });
+                    results.workingHours = workingHourList;
+                    resolve(results);
+                })
+                .catch(function (err) {
+                    reject(err);
+                });
+        });
     }
 }
 module.exports = clinicDao;

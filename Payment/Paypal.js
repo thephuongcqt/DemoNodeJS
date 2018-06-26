@@ -4,6 +4,7 @@ var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var baseDao = require("../DataAccess/BaseDAO");
 var logger = require("../Utils/Logger");
+var clinicDao = require("../DataAccess/ClinicDAO");
 
 var gateway = braintree.connect({
     environment:  braintree.Environment.Sandbox,
@@ -33,7 +34,8 @@ module.exports = function (app, express) {
 
         try {
             await handleBuyLicense(username, licenseID);
-            res.json(utils.responseSuccess("Thanh toán thành công"));
+            var clinic = await clinicDao.getClinic(username);            
+            res.json(utils.responseSuccess(clinic));
         } catch (error) {        
             logger.log(error);
             res.json(utils.responseFailure(error.message));
