@@ -34,7 +34,7 @@ module.exports = function (app, express) {
 
         try {
             await handleBuyLicense(username, licenseID);
-            var clinic = await clinicDao.getClinic(username);            
+            var clinic = await clinicDao.getClinicResponse(username);            
             res.json(utils.responseSuccess(clinic));
         } catch (error) {        
             logger.log(error);

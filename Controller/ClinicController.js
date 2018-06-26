@@ -209,7 +209,7 @@ module.exports = function (app, express) {
                 if (user) {
                     var isCorrectPassword = await hash.comparePassword(password, user.password);
                     if (isCorrectPassword) {
-                        var result = await getClinicInfo(username);
+                        var result = await clinicDAO.getClinicResponse(username);
                         for (var i in result.workingHours) {
                             var workingHour = result.workingHours[i];
                             if (!workingHour.startWorking && !workingHour.endWorking) {
@@ -255,7 +255,7 @@ module.exports = function (app, express) {
     apiRouter.post("/getClinicInformation", async function (req, res) {
         var username = req.body.username;
         try {
-            var result = await getClinicInfo(username);
+            var result = await getClinicResponse(username);
             res.json(utils.responseSuccess(result));
         } catch (error) {
             logger.log(error);

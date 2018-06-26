@@ -10,16 +10,12 @@ var test = async function () {
     var clinicDao = require("./DataAccess/ClinicDAO");
     var appointmentDao = require("./DataAccess/AppointmentDAO");
     var scheduler = require("./Scheduler/Scheduler");
-    // logger.log(new Error("dm"));
+    
     try {
-        // var clinic = await dao.findByID(db.Clinic, "username", "hoanghoa");
-
-        // var time = await scheduler.getExpectationAppointment(clinic);
-        // console.log(time);
-        var client = configUtils.getDefaultTwilio();
+        var result = await dao.findByPropertiesWithManyRelated(db.Clinic, {"username": "hoanghoa"}, ["user", "workingHours"]);
+        console.log(result[0]);
         
     } catch (error) {
-        logger.log(error);
         console.log(error);
     }
 
