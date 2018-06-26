@@ -259,7 +259,6 @@ var clinicDao = {
     },
 
     getClinicResponse: async function (username) {
-
         var results = await dao.findByPropertiesWithManyRelated(db.Clinic, { "username": username }, ["user", "workingHours"]);
         if (results && results.length > 0) {
             var clinic = results[0];
@@ -277,16 +276,21 @@ var clinicDao = {
             clinic.username = clinic.user.username;
             delete clinic.user;
             var workingHourList = [];
-            for (var i in results.workingHours) {
-                var workingHour = results.workingHours[i];
+            var emptyWorking = false;
+            for (var i in clinic.workingHours) {
+                var workingHour = clinic.workingHours[i];
                 delete workingHour.id;
                 delete workingHour.clinicUsername;
                 workingHourList.push(workingHour);
+                if(!(workingHour.startWorking && workingHour.endWorking)){
+                    emptyWorking = true;
+                    break;
+                }
             }
             workingHourList.sort(function (a, b) {
                 return a.applyDate - b.applyDate;
             });
-            clinic.workingHours = workingHourList.length > 0 ? workingHourList : null;
+            clinic.workingHours = emptyWorking ? null : workingHourList;
             return clinic
         } else {
             throw new Error("Đã xảy ra lỗi khi lấy thông tin phòng khám");
