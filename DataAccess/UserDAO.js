@@ -138,15 +138,89 @@ var userDao = {
                 });
         });
     },
-    deleteUser: function () {
+    deleteUser: function (username) {
         return new Promise((resolve, reject) => {
             dao.delete(db.User, "username", username)
                 .then(collection => {
-                    resolve("Tài khoản đã xóa thành công");
+                    resolve("Delete account successfully");
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Tài khoản không xóa được");
+                    reject("Delete account fail");
+                });
+        });
+    },
+    getAppointment: function (username) {
+        var json = { "clinicUsername": username };
+        return new Promise((resolve, reject) => {
+            dao.findByPropertiesWithRelated(db.Appointment, json, "patient")
+                .then(collection => {
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Appointment is not exist");
+                });
+        });
+    },
+    deletePatient: function (patientID) {
+        return new Promise((resolve, reject) => {
+            dao.delete(db.Patient, "patientID", patientID)
+                .then(collection => {
+                    resolve("Delete patient successfully");
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Delete patient fail");
+                });
+        });
+    },
+    deleteAppointment: function (appointmentID) {
+        return new Promise((resolve, reject) => {
+            dao.delete(db.Appointment, "appointmentID", appointmentID)
+                .then(collection => {
+                    resolve("Delete appointment successfully");
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Delete appointment fail");
+                });
+        });
+    },
+    getClinic: function (username) {
+        return new Promise((resolve, reject) => {
+            dao.findByIDWithRelated(db.Clinic, "username", username, "workingHours")
+                .then(collection => {
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Clinic is not exist");
+                });
+        });
+    },
+
+    deleteWorkingHours: function (clinicUsername) {
+        return new Promise((resolve, reject) => {
+            dao.delete(db.WorkingHours, "clinicUsername", clinicUsername)
+                .then(collection => {
+                    resolve("Delete working hours successfully");
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Delete working hours fail");
+                });
+        });
+    },
+    deleteClinic: function (username) {
+        return new Promise((resolve, reject) => {
+            dao.delete(db.Clinic, "username", username)
+                .then(collection => {
+                    resolve("Delete clinic successfully");
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Delete clinic fail");
                 });
         });
     }

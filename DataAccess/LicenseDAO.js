@@ -13,7 +13,7 @@ var licenseDao = {
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Không tồn tại giấy phép nào");
+                    reject("License is not exist");
                 });
         });
     },
@@ -25,7 +25,7 @@ var licenseDao = {
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Không tồn tại giấy phép nào");
+                    reject("License is not exist");
                 });
         });
     },
@@ -38,7 +38,7 @@ var licenseDao = {
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Cập nhật không thành công");
+                    reject("Update license successfully");
                 });
         });
     },
@@ -51,7 +51,7 @@ var licenseDao = {
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Tạo giấy phép không thành công");
+                    reject("Create license successfully");
                 });
         });
     },
@@ -59,11 +59,11 @@ var licenseDao = {
         return new Promise((resolve, reject) => {
             dao.delete(db.License, "licenseID", licenseID)
                 .then(collection => {
-                    resolve("Giấy phép đã xóa thành công");
+                    resolve("Delete license successfully");
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Giấy phép không xóa được");
+                    reject("Delete license is fail");
                 });
         });
     },
@@ -75,7 +75,7 @@ var licenseDao = {
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Không tồn tại giấy phép nào");
+                    reject("License is not exist");
                 });
         });
     }
