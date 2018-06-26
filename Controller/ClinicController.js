@@ -211,6 +211,13 @@ module.exports = function (app, express) {
                     var isCorrectPassword = await hash.comparePassword(password, user.password);
                     if (isCorrectPassword) {
                         var result = await getClinicInfo(username);
+                        for (var i in result.workingHours) {
+                            var workingHour = result.workingHours[i];
+                            if (!workingHour.startWorking && !workingHour.endWorking) {
+                                delete result.workingHours;
+                                break;
+                            }
+                        }
                         res.json(utils.responseSuccess(result));
                         return;
                     }
