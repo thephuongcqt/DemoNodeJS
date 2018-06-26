@@ -4,6 +4,7 @@ var Const = require("../Utils/Const");
 var logger = require("../Utils/Logger");
 var baseDao = require("../DataAccess/BaseDAO");
 var tokenDao = require("../DataAccess/TokenDAO");
+var path = require("path");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -25,12 +26,13 @@ module.exports = function (app, express) {
                             }
                             baseDao.update(db.User, userJson, "username");
                             baseDao.delete(db.Token, "ID", dbToken.ID);
-                            res.json("Authentication success");
+                            // res.json("Authentication success");
+                            res.sendFile(path.resolve('html/success.html'));
                             return;
                             //need to delete token
                         } else {
                             logger.log(new Error("Expired Token: " + token + " Username: " + username));
-                            res.json("An error occured. Expired Token");
+                            res.sendFile(path.resolve('html/error.html'));                            
                             return;
                         }
                     }
@@ -38,10 +40,11 @@ module.exports = function (app, express) {
             }
         } catch (error) {
             logger.log(error);
+            res.sendFile(path.resolve('html/error.html'));
             return;
         }
         logger.log(new Error("Cannot authenticate token: " + token + " Username: " + username));
-        res.json("An error occured. Cannot authenticate a token");
+        res.sendFile(path.resolve('html/error.html'));
     });
 
     return apiRouter;
