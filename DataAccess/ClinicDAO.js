@@ -174,7 +174,7 @@ var clinicDao = {
                 "password": hashedPassword,
                 "email": email,
                 "role": Const.ROLE_CLINIC,
-                "isActive": Const.ACTIVATION
+                "isActive": Const.DEACTIVATION
             };
             var clinicJson = {
                 "username": username,
@@ -192,10 +192,10 @@ var clinicDao = {
                     "endWorking": Const.DefaultEndWorking,
                     "applyDate": day,
                     "isDayOff": 0
-                };
+                };                
                 promises.push(dao.create(db.WorkingHours, json));
             }
-            await Promise.all(promises);            
+            await Promise.all(promises);
         } catch (error) {
             logger.log(error);
             throw new Error(Const.Error.ClinicRegisterAnErrorOccured);

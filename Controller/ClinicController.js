@@ -200,8 +200,7 @@ module.exports = function (app, express) {
         var password = req.body.password;
         try {
             var json = {
-                "username": username,
-                "isActive": Const.ACTIVATION,
+                "username": username,                
                 "role": Const.ROLE_CLINIC
             }
             var users = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");

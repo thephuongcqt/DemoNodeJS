@@ -12,10 +12,12 @@ var test = async function () {
     var scheduler = require("./Scheduler/Scheduler");
     // logger.log(new Error("dm"));
     try {
-        var clinic = await dao.findByID(db.Clinic, "username", "hoanghoa");
+        // var clinic = await dao.findByID(db.Clinic, "username", "hoanghoa");
 
-        var time = await scheduler.getExpectationAppointment(clinic);
-        console.log(time);
+        // var time = await scheduler.getExpectationAppointment(clinic);
+        // console.log(time);
+        var client = configUtils.getDefaultTwilio();
+        
     } catch (error) {
         logger.log(error);
         console.log(error);
