@@ -30,8 +30,8 @@ var workingHoursDao = {
                 });
         });
     },
-    updateWorkingHours: function (username, applyDate, parseStartWorking, parseEndWorking) {
-        var json = { "clinicUsername": username, "applyDate": applyDate, "startWorking": parseStartWorking, "endWorking": parseEndWorking };
+    updateWorkingHours: function (username, applyDate, parseStartWorking, parseEndWorking, isDayOff) {
+        var json = { "clinicUsername": username, "applyDate": applyDate, "startWorking": parseStartWorking, "endWorking": parseEndWorking, "isDayOff": isDayOff };
         return new Promise((resolve, reject) => {
             dao.updateArray(db.WorkingHours, json, "clinicUsername", "applyDate")
                 .then(collection => {

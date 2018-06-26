@@ -3,6 +3,7 @@ var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var Moment = require('moment');
 var logger = require("../Utils/Logger");
+var baseDAO = require("../DataAccess/BaseDAO");
 var workingHoursDAO = require("../DataAccess/WokingHoursDAO");
 
 module.exports = function (app, express) {
@@ -21,7 +22,7 @@ module.exports = function (app, express) {
     });
 
     // update one working hours for apply dates
-    apiRouter.post("/update",async function (req, res) {
+    apiRouter.post("/update", async function (req, res) {
         var username = req.body.username;
         var startWorking = req.body.startWorking;
         var endWorking = req.body.endWorking;
@@ -60,17 +61,28 @@ module.exports = function (app, express) {
     apiRouter.post("/updateAll", async function (req, res) {
         var username = req.body.username;
         var listValue = req.body.values;
+        var examinationDuration = req.body.examinationDuration;
+        var isDayOff = Const.DAYWORK;
         // var listValue = [{
         //     "startWorking": "08:00:00 AM",
         //     "endWorking": "8:00:00 PM",
-        //     "applyDate": "r1"
+        //     "applyDate": 1
         // },
         // {
-        //     "startWorking": "AM",
+        //     "startWorking": "08:00:00 AM",
         //     "endWorking": "10:00:00 PM",
         //     "applyDate": 0
         // }];
         try {
+            if (req.body.examinationDuration) {
+                examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss").format("HH:mm:ss");
+                var checkDuration = Moment(examinationDuration, "HH:mm:ss").isValid();
+                if (checkDuration == true) {
+                    var json = { "username": username };
+                    json.examinationDuration = examinationDuration;
+                    await baseDAO.update(db.Clinic, json, "username");
+                }
+            }
             if (listValue == null) {
                 res.json(utils.responseFailure("Vui lòng nhập giờ làm việc"));
             } else {
@@ -83,25 +95,33 @@ module.exports = function (app, express) {
                             var startWorking = listValue[i].startWorking;
                             var parseStartWorking = Moment(startWorking, "h:mm:ss A").format("HH:mm:ss");
                             var checkStartWorking = Moment(parseStartWorking, "HH:mm:ss").isValid();
-                            if (checkStartWorking == false) {
-                                parseStartWorking = undefined;
-                            }
                             var endWorking = listValue[i].endWorking;
                             var parseEndWorking = Moment(endWorking, "h:mm:ss A").format("HH:mm:ss");
                             var checkEndWorking = Moment(parseEndWorking, "HH:mm:ss").isValid();
-                            if (checkEndWorking == false) {
-                                parseEndWorking = undefined;
-                            }
-                            if (isNaN(applyDate)) {
+                            if (isNaN(applyDate) || checkStartWorking == false || checkEndWorking == false) {
                                 applyDate = undefined;
                                 parseEndWorking = undefined;
                                 parseStartWorking = undefined;
+                                isDayOff = undefined;
                             }
-                            await workingHoursDAO.updateWorkingHours(username, applyDate, parseStartWorking, parseEndWorking);
+                            if (!isNaN(applyDate)) {
+                                await workingHoursDAO.updateWorkingHours(username, applyDate, parseStartWorking, parseEndWorking, isDayOff);
+                            }
                         }
                     }
                 }
                 var resultUpdate = await getWorkingHours(username);
+                for (var j in resultUpdate) {
+                    var getResult = resultUpdate[j];
+                    if (!getResult.startWorking || !getResult.endWorking) {
+                        parseStartWorking = Const.DefaultStartWorking;
+                        parseEndWorking = Const.DefaultEndWorking;
+                        isDayOff = Const.DAYOFF;
+                        applyDate = getResult.applyDate;
+                        await workingHoursDAO.updateWorkingHours(username, applyDate, parseStartWorking, parseEndWorking, isDayOff);
+                    }
+                }
+                resultUpdate = await getWorkingHours(username);
                 res.json(utils.responseSuccess(resultUpdate));
             }
         }

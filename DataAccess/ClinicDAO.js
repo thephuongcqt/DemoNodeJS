@@ -191,7 +191,7 @@ var clinicDao = {
                     "startWorking": undefined,
                     "endWorking": undefined,
                     "applyDate": day,
-                    "isDayOff": 0
+                    "isDayOff": Const.DAYOFF
                 };
                 promises.push(dao.create(db.WorkingHours, json));
             }

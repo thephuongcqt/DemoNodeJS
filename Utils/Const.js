@@ -4,6 +4,8 @@ module.exports = {
     ROLE_STAFF: 2,
     ACTIVATION: 1,
     DEACTIVATION: 0,
+    DAYOFF: 1,
+    DAYWORK: 0,
     FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",        
     BookAppointmentFailure: "Đã có lỗi xảy ra khi đặt lịch hẹn, xin quý khách vui lòng thử lại sau",
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",
