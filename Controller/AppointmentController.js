@@ -3,6 +3,7 @@ var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 const dateFormat = require('dateformat');
 var Moment = require('moment');
+var baseDAO = require("../DataAccess/BaseDAO");
 var logger = require("../Utils/Logger");
 var appointmentDao = require("../DataAccess/AppointmentDAO");
 
@@ -18,7 +19,7 @@ module.exports = function (app, express) {
             var appointments;
             if (searchDate) {
                 appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, "patient");
-            } else{
+            } else {
                 appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, "patient");
             }
             for (var i in appointments) {
@@ -32,6 +33,38 @@ module.exports = function (app, express) {
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
+        }
+    });
+    apiRouter.post("/checkVisit", async function (req, res) {
+        var clinicUsername = req.body.clinicUsername;
+        var appointmentID = req.body.appointmentID;
+        var status = req.body.status;
+        try {
+            var json = { "appointmentID": appointmentID };
+            if (!isNaN(appointmentID) || !isNaN(status)) {
+                if (status == Const.VISIT) {
+                    json.status = Const.VISIT;
+                } else if (status == Const.NOTVISIT) {
+                    json.status = Const.NOTVISIT;
+                } else {
+                    json.status = Const.UNCHECK;
+                }
+                await baseDAO.update(db.Appointment, json, "appointmentID");
+                var json = { "clinicUsername": clinicUsername };
+                var resultUpdate = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, "patient");
+                for (var i in resultUpdate) {
+                    var appointment = resultUpdate[i];
+                    delete appointment.clinicUsername;
+                    delete appointment.patientID;
+                    appointment.currentTime = utils.parseDate(new Date());
+                    appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
+                }
+                res.json(utils.responseSuccess(resultUpdate));
+            }
+        }
+        catch (err) {
+            logger.log(err);
+            res.json(utils.responseFailure(err.message));
         }
     });
     return apiRouter;

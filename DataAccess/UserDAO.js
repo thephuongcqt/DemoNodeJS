@@ -200,9 +200,9 @@ var userDao = {
         });
     },
 
-    deleteWorkingHours: function (clinicUsername) {
+    deleteWorkingHours: function (id) {
         return new Promise((resolve, reject) => {
-            dao.delete(db.WorkingHours, "clinicUsername", clinicUsername)
+            dao.delete(db.WorkingHours, "id", id)
                 .then(collection => {
                     resolve("Delete working hours successfully");
                 })

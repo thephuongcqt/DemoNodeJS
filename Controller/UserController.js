@@ -338,14 +338,13 @@ module.exports = function (app, express) {
                     if (resultClinic != null) {
                         if (resultClinic.workingHours.length != 0) {
                             for (var j in resultClinic.workingHours) {
-                                var resultworkingHour = resultClinic.workingHours[j];
-                                await userDAO.deleteWorkingHours(resultworkingHour.clinicUsername);
+                                await userDAO.deleteWorkingHours(resultClinic.workingHours[j].id);
                             }
                         }
                         await userDAO.deleteClinic(resultClinic.username);
-                        await userDAO.deleteUser(req.query.username);
-                        res.json(utils.responseSuccess("Delete account successfully"));
                     }
+                    await userDAO.deleteUser(req.query.username);
+                    res.json(utils.responseSuccess("Delete account successfully"));
                 }
             }
         }
