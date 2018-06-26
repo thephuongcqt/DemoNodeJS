@@ -8,7 +8,10 @@ admin.initializeApp({
 
 var firebaseAdmin = {
     notifyToClinic: function (clinicUsername, notifyTitle, notifyMessage) {
-        var message = {            
+        var message = {          
+            data: {
+                code: "0"
+            },
             android: {
                 ttl: 3600 * 1000, // 1 hour in milliseconds
                 priority: 'high',
