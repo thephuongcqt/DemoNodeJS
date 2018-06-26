@@ -6,44 +6,43 @@ var nodeMailer = require("../Utils/Email");
 var hash = require("../Utils/Bcrypt");
 var userDAO = require("../DataAccess/UserDAO");
 var baseDao = require("../DataAccess/BaseDAO");
+var clinicDAO = require("../DataAccess/ClinicDAO");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
     // login
-    apiRouter.post("/Login", function (req, res) {
+    apiRouter.post("/Login", async function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
-        userDAO.getUserInfo(username)
-            .then(function (results) {
-                if (password == null) {
-                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
+        try {
+            var user = await userDAO.getUserInfo(username);
+            if (password == null) {
+                res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
+            } else {
+                var isCorrectPassword = await hash.comparePassword(password, user.password);
+                if (isCorrectPassword) {
+                    if (user.isActive == Const.ACTIVATION && user.role == Const.ROLE_ADMIN) {
+                        delete user.password;
+                        delete user.isActive;
+                        res.json(utils.responseSuccess(user));
+                    } else if (user.isActive == Const.ACTIVATION && user.role == Const.ROLE_STAFF) {
+                        delete user.password;
+                        delete user.isActive;
+                        res.json(utils.responseSuccess(user));
+                    } else if (user.role == Const.ROLE_CLINIC) {
+                        var clinic = await clinicDAO.getClinicResponse(username);
+                        res.json(utils.responseSuccess(clinic));
+                    } else {
+                        res.json(utils.responseFailure("Tài khoản không tồn tại"));
+                    }
                 } else {
-                    hash.comparePassword(password, results.password)
-                        .then(function (result) {
-                            if (result == true) {
-                                if (results.isActive == Const.ACTIVATION && results.role == Const.ROLE_ADMIN) {
-                                    delete results.password;
-                                    delete results.isActive;
-                                    res.json(utils.responseSuccess(results));
-                                } else if (results.isActive == Const.ACTIVATION && results.role == Const.ROLE_STAFF) {
-                                    delete results.password;
-                                    delete results.isActive;
-                                    res.json(utils.responseSuccess(results));
-                                } else {
-                                    res.json(utils.responseFailure("Tài khoản không tồn tại"));
-                                }
-                            } else {
-                                res.json(utils.responseFailure("Mật khẩu không đúng"));
-                            }
-                        })
-                        .catch(function (err) {
-                            res.json(utils.responseFailure(err));
-                        });
+                    res.json(utils.responseFailure("Mật khẩu không đúng"));
                 }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-            });
+            }
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
     });
     // get all user by role from database
     apiRouter.get("/getAllUser", function (req, res) {
@@ -337,7 +336,7 @@ module.exports = function (app, express) {
                     }
                     var resultClinic = await userDAO.getClinic(req.query.username);
                     if (resultClinic != null) {
-                        if(resultClinic.workingHours.length != 0){
+                        if (resultClinic.workingHours.length != 0) {
                             for (var j in resultClinic.workingHours) {
                                 var resultworkingHour = resultClinic.workingHours[j];
                                 await userDAO.deleteWorkingHours(resultworkingHour.clinicUsername);
