@@ -7,20 +7,20 @@ var configUtils = require("../Utils/ConfigUtils");
 var hash = require("../Utils/Bcrypt");
 
 var clinicDao = {
-    getTwilioAccountByID: async function(accountSid){
+    getTwilioAccountByID: async function (accountSid) {
         try {
-            var json = {accountSid: accountSid};
+            var json = { accountSid: accountSid };
             var clinics = await dao.findByProperties(db.Clinic, json);
-            if(clinics && clinics.length > 0){
-                var clinic = clinics[0];                
-                if(clinic){
+            if (clinics && clinics.length > 0) {
+                var clinic = clinics[0];
+                if (clinic) {
                     var accountSid = clinic.accountSid;
                     var authToken = clinic.authToken;
-                    if(accountSid && authToken){
+                    if (accountSid && authToken) {
                         return configUtils.getTwilioAccount(accountSid, authToken);
                     }
                 }
-            } 
+            }
             throw new Error("Cannot find Clinic by accountSid");
         } catch (error) {
             logger.log(error);
@@ -28,21 +28,21 @@ var clinicDao = {
         return configUtils.getDefaultTwilio();
     },
 
-    getTwilioAccountByPhoneNumber: async function(phoneNumber){
+    getTwilioAccountByPhoneNumber: async function (phoneNumber) {
         try {
-            var json = {phoneNumber: phoneNumber};
+            var json = { phoneNumber: phoneNumber };
             var users = await dao.findByPropertiesWithRelated(db.User, json, "clinic");
-            if(users && users.length > 0){
-                var user = users[0];                
-                if(user && user.clinic){
+            if (users && users.length > 0) {
+                var user = users[0];
+                if (user && user.clinic) {
                     var clinic = user.clinic;
-                    if(clinic){
+                    if (clinic) {
                         var accountSid = clinic.accountSid;
                         var authToken = clinic.authToken;
-                        if(accountSid && authToken){
+                        if (accountSid && authToken) {
                             return configUtils.getTwilioAccount(accountSid, authToken);
                         }
-                    }                    
+                    }
                 }
             }
             throw new Error("Cannot find clinic by phone number");
@@ -140,33 +140,33 @@ var clinicDao = {
         }
     },
 
-    checkExistedClinic: async function(username, email){
-        if(!(username && username.trim())){
+    checkExistedClinic: async function (username, email) {
+        if (!(username && username.trim())) {
             throw new Error("Tên đăng nhập không được để trống");
-        }   
-        if(!(email && email.trim())){
+        }
+        if (!(email && email.trim())) {
             throw new Error("Email không được để trống");
-        }   
+        }
         try {
-            var json = {"username": username, "email": email};
-            var promises = [dao.findByProperties(db.User, {"username": username}), dao.findByProperties(db.User, {"email": email})];
-            var results = await Promise.all(promises);            
-            if(results && results.length > 1){                
-                if(results[0].length > 0 || results[1].length > 0){
+            var json = { "username": username, "email": email };
+            var promises = [dao.findByProperties(db.User, { "username": username }), dao.findByProperties(db.User, { "email": email })];
+            var results = await Promise.all(promises);
+            if (results && results.length > 1) {
+                if (results[0].length > 0 || results[1].length > 0) {
                     return true;
-                } else{
+                } else {
                     return false;
                 }
             }
             return true;
-        } catch (error) {         
-            logger.log(error);   
+        } catch (error) {
+            logger.log(error);
             throw new Error(Const.Error.ClinicRegisterAnErrorOccured);
         }
         return true;
     },
 
-    insertClinic: async function(username, password, clinicName, address, email){
+    insertClinic: async function (username, password, clinicName, address, email) {
         try {
             var hashedPassword = await hash.hashPassword(password);
             var userJson = {
@@ -174,7 +174,7 @@ var clinicDao = {
                 "password": hashedPassword,
                 "email": email,
                 "role": Const.ROLE_CLINIC,
-                "isActive": Const.ACTIVATION
+                "isActive": Const.DEACTIVATION
             };
             var clinicJson = {
                 "username": username,
@@ -184,7 +184,7 @@ var clinicDao = {
             };
             var promises = [dao.create(db.User, userJson), dao.create(db.Clinic, clinicJson)];
             var dayOfWeek = [0, 1, 2, 3, 4, 5, 6];
-            for(var i in dayOfWeek){
+            for (var i in dayOfWeek) {
                 var day = dayOfWeek[i];
                 var json = {
                     "clinicUsername": username,
@@ -195,24 +195,24 @@ var clinicDao = {
                 };
                 promises.push(dao.create(db.WorkingHours, json));
             }
-            await Promise.all(promises);            
+            await Promise.all(promises);
         } catch (error) {
             logger.log(error);
             throw new Error(Const.Error.ClinicRegisterAnErrorOccured);
         }
     },
-    
-    removeTwilioByPhoneNumber: async function(phoneNumber){
+
+    removeTwilioByPhoneNumber: async function (phoneNumber) {
         try {
-            var users = await dao.findByProperties(db.User, {"phoneNumber": phoneNumber});
+            var users = await dao.findByProperties(db.User, { "phoneNumber": phoneNumber });
             var promises = [];
-            if(users && users.length > 0){
-                for(var i in users){
+            if (users && users.length > 0) {
+                for (var i in users) {
                     var user = users[i];
                     promises.push(this.removeTwilio(user.username));
                 }
             }
-            if(promises.length > 0){
+            if (promises.length > 0) {
                 await Promise.all(promises);
             }
         } catch (error) {
@@ -220,9 +220,9 @@ var clinicDao = {
         }
     },
 
-    removeTwilio: async function(username){
+    removeTwilio: async function (username) {
         var user = await dao.findByIDWithRelated(db.User, "username", username, "clinic");
-        if(user){
+        if (user) {
             var userJson = {
                 "username": username,
                 "phoneNumber": null
@@ -234,7 +234,7 @@ var clinicDao = {
             };
             var promises = [dao.update(db.User, userJson, "username"), dao.update(db.Clinic, clinicJson, "username")];
             await Promise.all(promises);
-        }        
+        }
     },
 
     registerClinic: async function (username, password, email, fullName, address, clinicName, applyDateList) {
@@ -256,6 +256,41 @@ var clinicDao = {
             logger.log(error);
         }
         return results;
+    },
+
+    getClinicResponse: async function (username) {
+
+        var results = await dao.findByPropertiesWithManyRelated(db.Clinic, { "username": username }, ["user", "workingHours"]);
+        if (results && results.length > 0) {
+            var clinic = results[0];
+            clinic.address = clinic.address;
+            clinic.clinicName = clinic.clinicName;
+            clinic.examinationDuration = clinic.examinationDuration;
+            clinic.expiredLicense = utils.parseDate(clinic.expiredLicense);
+            clinic.currentTime = utils.parseDate(new Date());
+            clinic.imageURL = clinic.imageURL;
+            clinic.greetingURL = clinic.greetingURL;
+            clinic.phoneNumber = clinic.user.phoneNumber;
+            clinic.role = clinic.user.role;
+            clinic.isActive = clinic.user.isActive;
+            clinic.email = clinic.user.email;
+            clinic.username = clinic.user.username;
+            delete clinic.user;
+            var workingHourList = [];
+            for (var i in results.workingHours) {
+                var workingHour = results.workingHours[i];
+                delete workingHour.id;
+                delete workingHour.clinicUsername;
+                workingHourList.push(workingHour);
+            }
+            workingHourList.sort(function (a, b) {
+                return a.applyDate - b.applyDate;
+            });
+            clinic.workingHours = workingHourList.length > 0 ? workingHourList : null;
+            return clinic
+        } else {
+            throw new Error("Đã xảy ra lỗi khi lấy thông tin phòng khám");
+        }
     }
 }
 module.exports = clinicDao;

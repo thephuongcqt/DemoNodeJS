@@ -143,7 +143,7 @@ module.exports = function (app, express) {
                 json.email = email;
             }
 
-            json = await getClinicInfo(username);
+            json = await clinicDAO.getClinicResponse(username);
             res.json(utils.responseSuccess(json));
         } catch (error) {
             logger.log(error);
@@ -200,8 +200,7 @@ module.exports = function (app, express) {
         var password = req.body.password;
         try {
             var json = {
-                "username": username,
-                "isActive": Const.ACTIVATION,
+                "username": username,                
                 "role": Const.ROLE_CLINIC
             }
             var users = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");
@@ -210,7 +209,7 @@ module.exports = function (app, express) {
                 if (user) {
                     var isCorrectPassword = await hash.comparePassword(password, user.password);
                     if (isCorrectPassword) {
-                        var result = await getClinicInfo(username);
+                        var result = await clinicDAO.getClinicResponse(username);
                         for (var i in result.workingHours) {
                             var workingHour = result.workingHours[i];
                             if (!workingHour.startWorking && !workingHour.endWorking) {
@@ -256,7 +255,7 @@ module.exports = function (app, express) {
     apiRouter.post("/getClinicInformation", async function (req, res) {
         var username = req.body.username;
         try {
-            var result = await getClinicInfo(username);
+            var result = await clinicDAO.getClinicResponse(username);
             res.json(utils.responseSuccess(result));
         } catch (error) {
             logger.log(error);
@@ -286,37 +285,6 @@ function getAllClinic() {
                     userList.push(user);
                 }
                 resolve(userList);
-            })
-            .catch(function (err) {
-                reject(err);
-            });
-    });
-}
-function getClinicInfo(username) {
-    return new Promise((resolve, reject) => {
-        clinicDAO.getClinicInfo(username)
-            .then(function (results) {
-                results.address = results.clinic.address;
-                results.clinicName = results.clinic.clinicName;
-                results.examinationDuration = results.clinic.examinationDuration;
-                results.expiredLicense = utils.parseDate(results.clinic.expiredLicense);
-                results.currentTime = utils.parseDate(new Date());
-                results.imageURL = results.clinic.imageURL;
-                results.greetingURL = results.clinic.greetingURL;
-                delete results.clinic;
-                delete results.password;
-                var workingHourList = [];
-                for (var i in results.workingHours) {
-                    var workingHour = results.workingHours[i];
-                    delete workingHour.id;
-                    delete workingHour.clinicUsername;
-                    workingHourList.push(workingHour);
-                }
-                workingHourList.sort(function (a, b) {
-                    return a.applyDate - b.applyDate;
-                });
-                results.workingHours = workingHourList;
-                resolve(results);
             })
             .catch(function (err) {
                 reject(err);

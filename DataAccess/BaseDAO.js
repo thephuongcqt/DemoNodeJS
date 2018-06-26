@@ -151,6 +151,24 @@ var dao = {
                 });
         });
     },
+
+    findByPropertiesWithManyRelated: function(table, json, relateds){
+        var relatedJson = { withRelated: relateds };
+        return new Promise((resolve, reject) => {
+            table.where(json)
+                .fetchAll(relatedJson)
+                .then(model => {
+                    if(model){
+                        resolve(model.toJSON());
+                    } else{
+                        resolve(model);
+                    }
+                })
+                .catch(err => {
+                    reject(err);
+                });
+        });
+    },
     
     findAll: function(table){
         return new Promise((resolve, reject) => {
