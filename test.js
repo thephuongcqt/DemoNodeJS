@@ -10,7 +10,7 @@ var test = async function () {
     var clinicDao = require("./DataAccess/ClinicDAO");
     var appointmentDao = require("./DataAccess/AppointmentDAO");
     var scheduler = require("./Scheduler/Scheduler");
-    
+        
     // try {
     //     var result = await dao.findByPropertiesWithManyRelated(db.Clinic, {"username": "hoanghoa"}, ["user", "workingHours"]);
     //     console.log(result[0]);

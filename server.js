@@ -8,6 +8,7 @@ var licenseController = require("./Controller/LicenseController")(app, express);
 var paypalController = require("./Payment/Paypal")(app, express);
 var appointmentController = require("./Controller/AppointmentController")(app, express);
 var authenticationController = require("./Controller/AuthenticationController")(app, express);
+var backgroundService = require("./Scheduler/BackgroundService");
 // Add headers
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -60,6 +61,8 @@ app.use("/", function(req, res){
         "error": "Someting went wrong!!! this is a default route"
     });
 });
+
+backgroundService();
 
 var server = app.listen(process.env.PORT || 8080, function(){
 });
