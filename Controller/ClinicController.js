@@ -161,7 +161,7 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var imageURL = req.body.imageURL;
         var dur = req.body.examinationDuration;
-        var examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss A").format("HH:mm:ss");
+        var examinationDuration = utils.parseTime(req.body.examinationDuration);
         var json = { "username": username };
         if (greetingURL) {
             json.greetingURL = greetingURL;
@@ -170,7 +170,7 @@ module.exports = function (app, express) {
             json.imageURL = imageURL;
         }
         if (examinationDuration) {
-            var checkDuration = Moment(examinationDuration, "HH:mm:ss").isValid();
+            var checkDuration = utils.getMomentTime(examinationDuration).isValid();
             if (checkDuration == true) {
                 json.examinationDuration = examinationDuration;
             } else {

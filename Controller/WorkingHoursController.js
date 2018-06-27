@@ -26,12 +26,12 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var startWorking = req.body.startWorking;
         var endWorking = req.body.endWorking;
-        var parseStartWorking = Moment(req.body.startWorking, "h:mm:ss A").format("HH:mm:ss");
-        var parseEndWorking = Moment(req.body.endWorking, "h:mm:ss A").format("HH:mm:ss");
+        var parseStartWorking = utils.parseTime(req.body.startWorking);
+        var parseEndWorking = utils.parseTime(req.body.endWorking);
         var applyDates = req.body.applyDate;
         var isDayOff = req.body.isDayOff;
-        var checkStartWorking = Moment(parseStartWorking, "HH:mm:ss").isValid();
-        var checkEndWorking = Moment(parseEndWorking, "HH:mm:ss").isValid();
+        var checkStartWorking = utils.getMomentTime(parseStartWorking).isValid();
+        var checkEndWorking = utils.getMomentTime(parseEndWorking).isValid();
         if (checkStartWorking == false) {
             parseStartWorking = undefined;
         }
@@ -75,8 +75,8 @@ module.exports = function (app, express) {
         // }];
         try {
             if (req.body.examinationDuration) {
-                examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss A").format("HH:mm:ss");
-                var checkDuration = Moment(examinationDuration, "HH:mm:ss").isValid();
+                examinationDuration = utils.parseTime(req.body.examinationDuration);
+                var checkDuration = utils.getMomentTime(examinationDuration).isValid();
                 if (checkDuration == true) {
                     var json = { "username": username };
                     json.examinationDuration = examinationDuration;
@@ -93,11 +93,11 @@ module.exports = function (app, express) {
                             logger.log(applyDate);
                         } else {
                             var startWorking = listValue[i].startWorking;
-                            var parseStartWorking = Moment(startWorking, "h:mm:ss A").format("HH:mm:ss");
-                            var checkStartWorking = Moment(parseStartWorking, "HH:mm:ss").isValid();
+                            var parseStartWorking = utils.parseTime(startWorking);
+                            var checkStartWorking = utils.getMomentTime(parseStartWorking).isValid();
                             var endWorking = listValue[i].endWorking;
-                            var parseEndWorking = Moment(endWorking, "h:mm:ss A").format("HH:mm:ss");
-                            var checkEndWorking = Moment(parseEndWorking, "HH:mm:ss").isValid();
+                            var parseEndWorking = utils.parseTime(endWorking);
+                            var checkEndWorking = utils.getMomentTime(parseEndWorking).isValid();
                             if (isNaN(applyDate) || checkStartWorking == false || checkEndWorking == false) {
                                 applyDate = undefined;
                                 parseEndWorking = undefined;
