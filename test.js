@@ -31,9 +31,12 @@ var test = async function () {
 
 
     try {
+        var tokenDao = require(".//DataAccess/TokenDAO");
+        var tokens = await tokenDao.getExpiredTokens();
+        console.log(tokens);
         // var mBookedTime = Moment(new Date());
         // var message = "Cuộc hẹn của bạn sẽ diễn ra vào lúc " + mBookedTime.format("HH:mm") + " phút ngày " + mBookedTime.format("YYYY-MM-DD") + ". Mong bạn có mặt đúng giờ";
-        
+
         // twilioUtils.sendSMS("+19792136847", "+18327795475", message);
         // var appointments = await appointmentDao.getAppointmentsToRemind(new Date());
         // console.log(appointments);

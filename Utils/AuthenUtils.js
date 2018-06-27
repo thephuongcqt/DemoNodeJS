@@ -15,4 +15,5 @@ var authen = {
         emailUtils.sendConfirmRegisterEmail(email, link);
     }
 };
+
 module.exports = authen;

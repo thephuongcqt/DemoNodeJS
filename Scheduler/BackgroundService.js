@@ -2,6 +2,7 @@ var schedule = require('node-schedule');
 var logger = require("../Utils/Logger");
 var appointmentDao = require("../DataAccess/AppointmentDAO");
 var baseDao = require("../DataAccess/BaseDAO");
+var tokenDao = require("../DataAccess/TokenDAO");
 var db = require("../DataAccess/DBUtils");
 var twilioUtils = require("../ThirdPartyHotline/TwilioUtils");
 var Moment = require("moment");
@@ -40,5 +41,14 @@ module.exports = function(){
     var removeTokensTask = schedule.scheduleJob({hour: 00, minute: 00}, async function(){
         //task running on everyday midnight to remove expired tokens
         logger.log("removeTokensTask");
+        try {
+            tokenDao.deleteExpiredTokens()
+            .then(result => {})
+            .catch(err => {
+                logger.log(err);
+            })
+        } catch (error) {
+            logger.log(error);
+        }
     });
 }
