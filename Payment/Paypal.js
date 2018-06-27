@@ -30,8 +30,7 @@ module.exports = function (app, express) {
     apiRouter.post("/checkout", async function (req, res) {
         var username = req.body.username;
         var licenseID = req.body.licenseID;
-        var nonce = req.body.nonce;
-
+        var nonce = req.body.nonce;        
         try {
             var license = await baseDao.findByID(db.License, "licenseID", licenseID);
             gateway.transaction.sale({
@@ -40,7 +39,7 @@ module.exports = function (app, express) {
                 options: {
                     submitForSettlement: true
                 }
-            }, function (err, result) {
+            }, async function (err, result) {
                 if (result) {
                     logger.log(result);
                     await handleBuyLicense(username, licenseID);
@@ -51,12 +50,13 @@ module.exports = function (app, express) {
                 if(err){
                     logger.log(err);
                 }
+                res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
             });
 
         } catch (error) {
             logger.log(error);
-        }
-        res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
+            res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
+        }        
     });
     return apiRouter;
 }
