@@ -11,6 +11,7 @@ var patientDao = require("../DataAccess/PatientDAO");
 var baseDao = require("../DataAccess/BaseDAO");
 var clinicDao = require("../DataAccess/ClinicDAO");
 var appointmentDao = require("../DataAccess/AppointmentDAO");
+var twilioDao = require("../DataAccess/twilioDAO");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -39,7 +40,7 @@ module.exports = function (app, express) {
         res.set('Content-Type', 'text/xml');
         res.end();
         // var client = configUtils.getTwilioByID(req.body.AccountSid);
-        var client = await clinicDao.getTwilioAccountByID(req.body.AccountSid);
+        var client = await twilioDao.getTwilioByID(req.body.AccountSid);
         if (client) {
             speechToText.getTextFromVoice(req.body.RecordingUrl)
                 .then(patientName => {
@@ -79,7 +80,7 @@ module.exports = function (app, express) {
 async function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
     //  Send SMS to announcement appointment for patient has book successfull 
     // var client = configUtils.getTwilioByPhone(clinicPhone);    
-    var client = await clinicDao.getTwilioAccountByPhoneNumber(clinicPhone);
+    var client = await twilioDao.getTwilioByPhone(clinicPhone);
     if (client) {        
         client.messages.create({
             body: messageBody,

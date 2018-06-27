@@ -3,6 +3,32 @@ var logger = require("../Utils/Logger");
 var dao = require("./BaseDAO");
 
 var appointmentDao = {
+
+    getAppointmentsToRemind: function (time, username) {
+        var startDate = new Date(time);
+        startDate.setHours(0, 0, 0, 0);
+        var endDate = time;        
+        return new Promise((resolve, reject) => {
+            var json = { "clinicUsername": "hoanghoa", "isReminded": 0 }
+            var related = { withRelated: ["clinic", "patient"] };
+            db.Appointment.where(json)
+                .query(function (appointment) {
+                    appointment.whereBetween('remindTime', [startDate, endDate]);
+                })
+                .fetchAll(related)
+                .then(model => {
+                    if(model){
+                        resolve(model.toJSON());
+                    } else{
+                        resolve(null);
+                    }
+                })
+                .catch(err => {
+                    resolve(err);
+                });
+        });
+    },
+
     getAppointmentsInCurrentDayWithProperties: function (json) {
         var startDate = new Date(), endDate = new Date();
         startDate.setHours(0, 0, 0, 0);
@@ -41,8 +67,8 @@ var appointmentDao = {
                 });
         });
     },
-    
-    getAppointmentsForSpecifyDayWithProperties: function(json, dateString){
+
+    getAppointmentsForSpecifyDayWithProperties: function (json, dateString) {
         var startDate = new Date(dateString), endDate = new Date(dateString);
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(23, 59, 59, 999);
@@ -61,7 +87,7 @@ var appointmentDao = {
         });
     },
 
-    getAppointmentsForSpecifyDayWithRelated: function(json, dateString, related){
+    getAppointmentsForSpecifyDayWithRelated: function (json, dateString, related) {
         var relatedJson = { withRelated: [related] };
         var startDate = new Date(dateString), endDate = new Date(dateString);
         startDate.setHours(0, 0, 0, 0);
