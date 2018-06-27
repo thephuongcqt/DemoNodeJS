@@ -30,10 +30,8 @@ var test = async function () {
     // })
 
 
-    try {
-        var tokenDao = require(".//DataAccess/TokenDAO");
-        var tokens = await tokenDao.getExpiredTokens();
-        console.log(tokens);
+    try {        
+        console.log(utils.generatePasswordToken());
         // var mBookedTime = Moment(new Date());
         // var message = "Cuộc hẹn của bạn sẽ diễn ra vào lúc " + mBookedTime.format("HH:mm") + " phút ngày " + mBookedTime.format("YYYY-MM-DD") + ". Mong bạn có mặt đúng giờ";
 

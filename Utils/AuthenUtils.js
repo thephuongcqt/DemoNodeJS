@@ -12,8 +12,8 @@ var authen = {
         var token = uuidv1();
         var expiredDate = await tokenDao.createToken(token, username);
         var link = host + "/authen/authenToken?username=" + username + "&token=" + token;
-        emailUtils.sendConfirmRegisterEmail(email, link);
-    }
+        await emailUtils.sendConfirmRegisterEmail(email, link);
+    },
 };
 
 module.exports = authen;

@@ -70,12 +70,53 @@ var nodeMailer = {
             subject: 'Xác nhận đăng ký', // Subject line            
             html: html
         }
+        return new Promise((resolve, reject) => {
+            transporter.sendMail(mailOptions, function (err, info) {
+                if (err) {                
+                    logger.log(err);
+                    reject(err);
+                } else{
+                    resolve(null);
+                }
+            });
+        })        
+    },
 
-        transporter.sendMail(mailOptions, function (err, info) {
-            if (err) {                
-                logger.log(err);
-            }
-        });
+    sendCodeForResetPassword: function(email, code, username){
+        var currentDate = Moment(new Date()).format('DD-MM-YYYY');
+        var currentTime = Moment(new Date()).format('HH:mm:ss');     
+        var html = '<!DOCTYPE html>' +
+        '<html><head><title>Appointment</title>' +
+        '</head><body><div style="padding:10px 250px 5px 250px;text-align:center">' +
+        '<img src="https://www.brandcrowd.com/gallery/brands/pictures/picture13882532337876.jpg" alt="logo" width="160" height="100">' +
+        '<tr><td style="background:#00b9f2;height:5px;line-height:5px;width:233px"></td>' +
+        '<td style="background:#f7941d;height:5px;line-height:5px;width:233px"></td>' +
+        '<td style="background:#5cb85c;height:5px;line-height:5px;width:233px"></td></tr></div>' +
+        '<div style="padding:5px 250px 10px 250px"><h1 style="color:#03a9f4;text-align:center">Quên mật khẩu?</h1>' +
+        '<h1 style="color:#03a9f4;text-align:center">Thiết lập mật khẩu mới!</h1>' +
+        '<h3>Xin chào ' + username + ',</h3>' +
+        '<p>Cảm ơn bạn đã yêu cầu đặt lại mật khẩu.</p>' +
+        '<p>Mật khẩu cho tài khoản ' + '<strong style="color:#15c; font-size:120%;">' + username + '</strong>' + ' đã được thay đổi thành công.</p>' +
+        '<p>Mã xác nhận của bạn là: <strong style="color:#15c; font-size:120%;">' + code + '</strong></p>' +
+        '<p>Bạn yêu cầu đặt lại mật khẩu ngày ' + currentDate + ' lúc ' + currentTime + '.</p>' +
+        '</div></body></html>';   
+        var mailOptions = {
+            from: 'callcentercapstone@gmail.com', // sender address
+            to: email, // list of receivers
+            subject: 'Mã xác nhận thiết lập lại mật khẩu', // Subject line
+            html: html
+        };
+
+        return new Promise((resolve, reject) => {
+            transporter.sendMail(mailOptions, function (err, info) {
+                if (err) {                
+                    logger.log(err);
+                    reject(err);
+                } else{
+                    resolve(null);
+                }
+            });
+        })  
     }
 }
 module.exports = nodeMailer; 

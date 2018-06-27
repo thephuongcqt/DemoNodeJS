@@ -6,6 +6,7 @@ var baseDao = require("../DataAccess/BaseDAO");
 var tokenDao = require("../DataAccess/TokenDAO");
 var path = require("path");
 var authenUtils = require("../Utils/AuthenUtils");
+var emailUtils = require("../Utils/Email");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -50,7 +51,7 @@ module.exports = function (app, express) {
             var user = await baseDao.findByID(db.User, "username", username);
             if (user && user.isActive == Const.DEACTIVATION) {
                 var host = req.protocol + '://' + req.get('host');
-                authenUtils.sendConfirmRegister(host, username, user.email);
+                await authenUtils.sendConfirmRegister(host, username, user.email);
                 res.json(utils.responseSuccess("Gửi email thành công"));
                 return;
             }
@@ -58,6 +59,23 @@ module.exports = function (app, express) {
             logger.log(error);            
         }
         res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình gửi mail, bạn vui lòng thử lại sau"));
+    });
+
+    apiRouter.post("/requestResetPassword", async function(req, res){
+        var username = req.body.username;
+        try {
+            var user = await baseDao.findByID(db.User, "username", username);
+            if (user) {
+                var token = utils.generatePasswordToken();
+                await tokenDao.createToken(token, user.username);
+                await emailUtils.sendCodeForResetPassword(user.email, token, user.username);
+                res.json(utils.responseSuccess("Bạn vui lòng nhập mã đã được gửi tới email để xác nhận đổi mật khẩu"));
+                return;
+            }
+        } catch (error) {
+            logger.log(error);            
+        }
+        res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình gửi mail, bạn vui lòng thử lại sau")); 
     });
 
     apiRouter.get("/authenPassword", async function (req, res) {

@@ -241,10 +241,8 @@ module.exports = function (app, express) {
             await clinicDAO.insertClinic(username, password, clinicName, address, email, phoneNumber);
 
             var host = req.protocol + '://' + req.get('host');
-
+            await authenUtils.sendConfirmRegister(host, username, email);
             res.json(utils.responseSuccess("Đăng ký tài khoản thành công"));
-
-            authenUtils.sendConfirmRegister(host, username, email);
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
