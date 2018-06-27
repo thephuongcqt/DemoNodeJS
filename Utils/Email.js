@@ -14,7 +14,9 @@ const transporter = nodemailer.createTransport({
 });
 
 var nodeMailer = {
-    sendEmailToPatient: function (username, password, fullName, email) {     
+    sendEmailToPatient: function (username, password, fullName, email) {
+        var currentDate = Moment(new Date()).format('DD-MM-YYYY');
+        var currentTime = Moment(new Date()).format('HH:mm:ss');     
         var html = '<!DOCTYPE html>' +
         '<html><head><title>Appointment</title>' +
         '</head><body><div style="padding:10px 250px 5px 250px;text-align:center">' +
@@ -30,8 +32,6 @@ var nodeMailer = {
         '<p>Đây là mật khẩu mới của bạn: <strong style="color:#15c; font-size:120%;">' + password + '</strong></p>' +
         '<p>Bạn yêu cầu đặt lại mật khẩu ngày ' + currentDate + ' lúc ' + currentTime + '.</p>' +
         '</div></body></html>';   
-        var currentDate = Moment(new Date()).format('DD-MM-YYYY');
-        var currentTime = Moment(new Date()).format('HH:mm:ss');
         var mailOptions = {
             from: 'callcentercapstone@gmail.com', // sender address
             to: email, // list of receivers
