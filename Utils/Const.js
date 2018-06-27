@@ -26,7 +26,7 @@ module.exports = {
     DefaultExaminationDuration: "00:30:00",
     DefaultStartWorking: "17:00:00",
     DefaultEndWorking: "20:00:00",
-
+    
     Day: {
         Sun: 0,
         Mon: 1,
