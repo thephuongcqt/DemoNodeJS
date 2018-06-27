@@ -75,7 +75,7 @@ module.exports = function (app, express) {
         // }];
         try {
             if (req.body.examinationDuration) {
-                examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss").format("HH:mm:ss");
+                examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss A").format("HH:mm:ss");
                 var checkDuration = Moment(examinationDuration, "HH:mm:ss").isValid();
                 if (checkDuration == true) {
                     var json = { "username": username };

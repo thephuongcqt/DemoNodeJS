@@ -160,7 +160,8 @@ module.exports = function (app, express) {
         var greetingURL = req.body.greetingURL;
         var username = req.body.username;
         var imageURL = req.body.imageURL;
-        var examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss").format("HH:mm:ss");
+        var dur = req.body.examinationDuration;
+        var examinationDuration = Moment(req.body.examinationDuration, "h:mm:ss A").format("HH:mm:ss");
         var json = { "username": username };
         if (greetingURL) {
             json.greetingURL = greetingURL;
