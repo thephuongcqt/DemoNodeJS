@@ -107,7 +107,7 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
             "no": bookingNo,
             "remindTime": remindTime,
             "isReminded": 0,
-            "bookedPhone": patientDao
+            "bookedPhone": patientPhone
         };
         console.log(newAppointment);
         var appointment = await baseDao.create(db.Appointment, newAppointment);
@@ -133,8 +133,7 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
 async function scheduleAppointment(user, patient, patientPhone) {    
     try {
         var clinic = user.clinic;
-        var detailAppointment = await scheduler.getExpectationAppointment(clinic);            
-        console.log(detailAppointment);
+        var detailAppointment = await scheduler.getExpectationAppointment(clinic);                    
         if (detailAppointment) {
             saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, detailAppointment.remindTime, patientPhone);
         } else {
