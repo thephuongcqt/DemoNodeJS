@@ -3,14 +3,13 @@ var logger = require("../Utils/Logger");
 var dao = require("./BaseDAO");
 
 var appointmentDao = {
-
-    getAppointmentsToRemind: function (time, username) {
+    getAppointmentsToRemind: function (time) {
         var startDate = new Date(time);
         startDate.setHours(0, 0, 0, 0);
         var endDate = time;        
         return new Promise((resolve, reject) => {
-            var json = { "clinicUsername": "hoanghoa", "isReminded": 0 }
-            var related = { withRelated: ["clinic", "patient"] };
+            var json = {"isReminded": 0 }
+            var related = { withRelated: ["patient"] };
             db.Appointment.where(json)
                 .query(function (appointment) {
                     appointment.whereBetween('remindTime', [startDate, endDate]);

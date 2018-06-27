@@ -4,6 +4,7 @@ var utils = require("./Utils/Utils");
 var Moment = require('moment');
 var logger = require("./Utils/Logger");
 var configUtils = require("./Utils/ConfigUtils");
+var twilioUtils = require("./ThirdPartyHotline/TwilioUtils");
 
 var test = async function () {
     var dao = require("./DataAccess/BaseDAO");
@@ -30,16 +31,22 @@ var test = async function () {
 
 
     try {
+        // var mBookedTime = Moment(new Date());
+        // var message = "Cuộc hẹn của bạn sẽ diễn ra vào lúc " + mBookedTime.format("HH:mm") + " phút ngày " + mBookedTime.format("YYYY-MM-DD") + ". Mong bạn có mặt đúng giờ";
+        
+        // twilioUtils.sendSMS("+19792136847", "+18327795475", message);
+        // var appointments = await appointmentDao.getAppointmentsToRemind(new Date());
+        // console.log(appointments);
         // var appointments = await appointmentDao.getAppointmentsToRemind(new Date("2018-06-26 20:00:00"), "hoanghoa");
         // console.log(appointments);
-        var clinic = await dao.findByIDWithRelated(db.Clinic, "username", "hoanghoa", "user");
+        // var clinic = await dao.findByIDWithRelated(db.Clinic, "username", "hoanghoa", "user");
         // var mDuration = utils.getMomentTime(clinic.examinationDuration);
         // var aDuration = getTotalDuration(1, mDuration);
-        var mDuration =  Moment.duration(clinic.examinationDuration);
-        var mTime = Moment(new Date("2018-06-26 20:00:00"));
-        console.log(mTime);
-        mTime.subtract(mDuration);
-        console.log(mTime);
+        // var mDuration =  Moment.duration(clinic.examinationDuration);
+        // var mTime = Moment(new Date("2018-06-26 20:00:00"));
+        // console.log(mTime);
+        // mTime.subtract(mDuration);
+        // console.log(mTime);
         // console.log(clinic);
         // var startDate = new Date("2018-06-26");
         // var endDate = new Date("2018-06-26 20:00:00"));
