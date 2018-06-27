@@ -28,8 +28,6 @@ var test = async function () {
     // .catch(error => {
     //     console.log(error);
     // })
-
-
     try {        
         console.log(utils.generatePasswordToken());
         // var mBookedTime = Moment(new Date());

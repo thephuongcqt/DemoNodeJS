@@ -9,15 +9,15 @@ var clinicDao = require("../DataAccess/ClinicDAO");
 var gateway = braintree.connect({
     environment:  braintree.Environment.Sandbox,
     merchantId:   'pfg7tm6zrnm22cjc',
-    publicKey:    'bwf663qdgns9n55z',
-    privateKey:   'f4b52632c8ff7c83bde508f03531dff2'
+    publicKey:    '8cgbnsy595fqw6h9',
+    privateKey:   '86b2b56d9f3265af87082e42ec5821e1'
 });
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
 
     apiRouter.get("/getToken", function (req, res) {
-        gateway.clientToken.generate({ customerId: 520840836 }, function (err, response) {
+        gateway.clientToken.generate({}, function (err, response) {
             if (typeof response !== 'undefined') {
                 res.json(utils.responseSuccess(response));
             } else {
