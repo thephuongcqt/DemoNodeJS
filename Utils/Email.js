@@ -100,6 +100,7 @@ var nodeMailer = {
         '<p>Để tạo mật khẩu mới cho tài khoản của bạn “ ' + '<strong style="color:#15c;">' + username + '</strong>' + ' ”, vui lòng nhập mã xác nhận được cung cấp.</p>' +
         '<p>Mã xác nhận của bạn là: <strong style="color:#15c; font-size:120%;">' + code + '</strong></p>' +
         '<p>Bạn yêu cầu đặt lại mật khẩu ngày ' + currentDate + ' lúc ' + currentTime + '.</p>' +
+        '<p style="color:red;">Mã xác nhận này có hiệu lực trong vòng 24 tiếng! .</p>' +
         '<p>Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này và sử dụng tài khoản hiện tại như thường lệ.</p>' +
         '</div></body></html>';   
         var mailOptions = {
