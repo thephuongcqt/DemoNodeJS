@@ -108,8 +108,7 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
             "remindTime": remindTime,
             "isReminded": 0,
             "bookedPhone": patientPhone
-        };
-        console.log(newAppointment);
+        };        
         var appointment = await baseDao.create(db.Appointment, newAppointment);
         //Begin send SMS to patient
         var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
