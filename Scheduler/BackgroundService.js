@@ -7,7 +7,7 @@ var twilioUtils = require("../ThirdPartyHotline/TwilioUtils");
 var Moment = require("moment");
 
 module.exports = function(){
-    var appointmentReminder = schedule.scheduleJob('*/1 * * * *', function(){
+    var appointmentReminder = schedule.scheduleJob('*/1 * * * *', async function(){
         // task run on every minute to notify appointment to patient
         try {
             var appointments = await appointmentDao.getAppointmentsToRemind(new Date());
@@ -37,7 +37,7 @@ module.exports = function(){
         }
     });
 
-    var removeTokensTask = schedule.scheduleJob({hour: 00, minute: 00}, function(){
+    var removeTokensTask = schedule.scheduleJob({hour: 00, minute: 00}, async function(){
         //task running on everyday midnight to remove expired tokens
         logger.log("removeTokensTask");
     });
