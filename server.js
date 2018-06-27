@@ -9,6 +9,7 @@ var paypalController = require("./Payment/Paypal")(app, express);
 var appointmentController = require("./Controller/AppointmentController")(app, express);
 var authenticationController = require("./Controller/AuthenticationController")(app, express);
 var backgroundService = require("./Scheduler/BackgroundService");
+var accountController = require("./Controller/TwilioAccountController")(app, express);
 // Add headers
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -52,6 +53,8 @@ app.use("/license", licenseController);
 app.use("/paypal", paypalController);
 // route to authentication Controller 
 app.use("/authen", authenticationController);
+// route to accountController 
+app.use("/account", accountController);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/", function(req, res){

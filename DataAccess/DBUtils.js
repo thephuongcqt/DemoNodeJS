@@ -36,7 +36,11 @@ var db = {
     tableName: 'tbl_appointment',
     patient: function(){
       return this.hasOne(db.Patient, 'patientID', 'patientID');
-    },    
+    },
+
+    clinic: function(){
+      return this.hasOne(db.Clinic, 'clinicUsername', 'username');
+    },
   }),
 
   Bill: bookshelf.Model.extend({

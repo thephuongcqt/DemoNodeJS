@@ -10,20 +10,48 @@ var test = async function () {
     var clinicDao = require("./DataAccess/ClinicDAO");
     var appointmentDao = require("./DataAccess/AppointmentDAO");
     var scheduler = require("./Scheduler/Scheduler");
-        
-    // try {
-    //     var result = await dao.findByPropertiesWithManyRelated(db.Clinic, {"username": "hoanghoa"}, ["user", "workingHours"]);
-    //     console.log(result[0]);
-        
-    // } catch (error) {
+
+    // var startDate = new Date("2018-06-25");
+    // var endDate = new Date();
+    // var sql = "SELECT * FROM tbl_appointment WHERE remindTime BETWEEN ? AND ? "
+    //     + " AND clinicUsername = ?"
+    //     + " AND isReminded = ?";
+    // db.knex.raw(sql, [startDate, endDate, "hoanghoa", 0])
+    // .then(collection => {
+    //     var result = collection[0];
+    //     if(result && result.length > 0){
+    //         var model = JSON.parse(JSON.stringify(result));
+    //         console.log(model);
+    //     }        
+    // })
+    // .catch(error => {
     //     console.log(error);
-    // }
-    // console.log(Moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.000Z"));
-    //  await clinicDao.getTwilioAccountByID("AC0182c9b950c8fe1229f93aeb40900a5d");
-    // var acc2 = await clinicDao.getTwilioAccountByPhoneNumber("+19792136847");
-    // console.log(acc1);
-    // console.log(acc2);
-    // console.log(configUtils.getDefaultTwilio());
-    // console.log(configUtils.getDefaultGreetingURL());
+    // })
+
+
+
+    try {
+        var appointments = await appointmentDao.getAppointmentsToRemind(new Date("2018-06-26 20:00:00"), "hoanghoa");
+        console.log(appointments);
+        var clinic = await dao.findByIDWithRelated(db.Clinic, "username", "hoanghoa", "user");
+        console.log(clinic);
+        // var startDate = new Date("2018-06-26");
+        // var endDate = new Date("2018-06-26 20:00:00")
+        // var json = { "clinicUsername": "hoanghoa", "isReminded": 0 }
+        // var related = { withRelated: ["clinic", "patient"] };
+        // db.Appointment.where(json)
+        //     .query(function (appointment) {
+        //         appointment.whereBetween('remindTime', [startDate, endDate]);
+        //     })
+        //     .fetchAll(related)
+        //     .then(model => {
+        //         console.log(model.toJSON());
+        //     })
+        //     .catch(err => {
+        //         console.log(err);
+        //     });
+    } catch (error) {
+        console.log(error);
+    }
 };
 test();
