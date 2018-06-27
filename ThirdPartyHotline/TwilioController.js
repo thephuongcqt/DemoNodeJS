@@ -101,14 +101,15 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
     try {
         var newPatient = await patientDao.insertNotExistedPatient(patient);
         var newAppointment = {
-            clinicUsername: user.clinic.username,
-            patientID: newPatient.patientID,
-            appointmentTime: bookedTime,
-            no: bookingNo,
-            remindTime: remindTime,
-            isReminded: 0,
-            bookedPhone: patientDao
+            "clinicUsername": user.clinic.username,
+            "patientID": newPatient.patientID,
+            "appointmentTime": bookedTime,
+            "no": bookingNo,
+            "remindTime": remindTime,
+            "isReminded": 0,
+            "bookedPhone": patientDao
         };
+        console.log(newAppointment);
         var appointment = await baseDao.create(db.Appointment, newAppointment);
         //Begin send SMS to patient
         var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
@@ -133,6 +134,7 @@ async function scheduleAppointment(user, patient, patientPhone) {
     try {
         var clinic = user.clinic;
         var detailAppointment = await scheduler.getExpectationAppointment(clinic);            
+        console.log(detailAppointment);
         if (detailAppointment) {
             saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, detailAppointment.remindTime, patientPhone);
         } else {
