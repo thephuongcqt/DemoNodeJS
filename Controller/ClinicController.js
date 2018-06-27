@@ -12,17 +12,17 @@ var authenUtils = require("../Utils/AuthenUtils");
 module.exports = function (app, express) {
     apiRouter = express.Router();
 
-    apiRouter.post("/removeTwilioAccount", async function (req, res) {
-        var username = req.body.username;
+    // apiRouter.post("/removeTwilioAccount", async function (req, res) {
+    //     var username = req.body.username;
 
-        try {
-            await clinicDAO.removeTwilio(username);
-            res.json(utils.responseSuccess("Remove success"));
-        } catch (error) {
-            logger.log(error);
-            res.json(utils.responseFailure(error.message));
-        }
-    });
+    //     try {
+    //         await clinicDAO.removeTwilio(username);
+    //         res.json(utils.responseSuccess("Remove success"));
+    //     } catch (error) {
+    //         logger.log(error);
+    //         res.json(utils.responseFailure(error.message));
+    //     }
+    // });
 
     apiRouter.get("/getClinicsForStaff", async function (req, res) {
         try {
@@ -49,59 +49,59 @@ module.exports = function (app, express) {
         }
     });
 
-    apiRouter.post("/registerPhoneNumber", async function (req, res) {
-        var username = req.body.username;
-        var phoneNumber = req.body.phoneNumber;
-        var accountSid = req.body.accountSid;
-        var authToken = req.body.authToken;
+    // apiRouter.post("/registerPhoneNumber", async function (req, res) {
+    //     var username = req.body.username;
+    //     var phoneNumber = req.body.phoneNumber;
+    //     var accountSid = req.body.accountSid;
+    //     var authToken = req.body.authToken;
 
-        var userJson = {
-            username: username,
-            phoneNumber: phoneNumber
-        };
-        var clinicJson = {
-            username: username,
-            accountSid: accountSid,
-            authToken: authToken,
-        };
-        try {
-            await clinicDAO.removeTwilioByPhoneNumber(phoneNumber);
-            var promises = [baseDAO.update(db.User, userJson, "username"), baseDAO.update(db.Clinic, clinicJson, "username")];
-            var result = await Promise.all(promises);
-            res.json(utils.responseSuccess("Update Success"));
+    //     var userJson = {
+    //         username: username,
+    //         phoneNumber: phoneNumber
+    //     };
+    //     var clinicJson = {
+    //         username: username,
+    //         accountSid: accountSid,
+    //         authToken: authToken,
+    //     };
+    //     try {
+    //         await clinicDAO.removeTwilioByPhoneNumber(phoneNumber);
+    //         var promises = [baseDAO.update(db.User, userJson, "username"), baseDAO.update(db.Clinic, clinicJson, "username")];
+    //         var result = await Promise.all(promises);
+    //         res.json(utils.responseSuccess("Update Success"));
 
-            //Begin notify to clinic
-            var notifyTitle = "Phòng khám đã được cấp số điện thành công";
-            var notifyMessage = "Số điện thoại của phòng khám là: " + phoneNumber;
-            var topic = username;
-            firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
-            //End notify to clinic
-        } catch (error) {
-            logger.log(error);
-            res.json(utils.responseFailure(error.message));
-        }
-    });
+    //         //Begin notify to clinic
+    //         var notifyTitle = "Phòng khám đã được cấp số điện thành công";
+    //         var notifyMessage = "Số điện thoại của phòng khám là: " + phoneNumber;
+    //         var topic = username;
+    //         firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
+    //         //End notify to clinic
+    //     } catch (error) {
+    //         logger.log(error);
+    //         res.json(utils.responseFailure(error.message));
+    //     }
+    // });
 
-    apiRouter.get("/getClinicsWaitingForPhone", async function (req, res) {
-        try {
-            result = await clinicDAO.getClinicsWaitingForPhoneNumber();
-            for (var i in result) {
-                var user = result[i];
-                user.address = user.clinic.address;
-                user.clinicName = user.clinic.clinicName;
-                user.expiredLicense = utils.parseDate(user.clinic.expiredLicense);
-                user.examinationDuration = user.clinic.examinationDuration;
-                user.imageURL = user.clinic.imageURL;
-                user.greetingURL = user.clinic.greetingURL;
-                delete user.clinic;
-                delete user.password;
-            }
-            res.json(utils.responseSuccess(result));
-        } catch (error) {
-            logger.log(error);
-            res.json(utils.responseFailure(error.message));
-        }
-    });
+    // apiRouter.get("/getClinicsWaitingForPhone", async function (req, res) {
+    //     try {
+    //         result = await clinicDAO.getClinicsWaitingForPhoneNumber();
+    //         for (var i in result) {
+    //             var user = result[i];
+    //             user.address = user.clinic.address;
+    //             user.clinicName = user.clinic.clinicName;
+    //             user.expiredLicense = utils.parseDate(user.clinic.expiredLicense);
+    //             user.examinationDuration = user.clinic.examinationDuration;
+    //             user.imageURL = user.clinic.imageURL;
+    //             user.greetingURL = user.clinic.greetingURL;
+    //             delete user.clinic;
+    //             delete user.password;
+    //         }
+    //         res.json(utils.responseSuccess(result));
+    //     } catch (error) {
+    //         logger.log(error);
+    //         res.json(utils.responseFailure(error.message));
+    //     }
+    // });
 
     apiRouter.post("/changeInformation", async function (req, res) {
         var username = req.body.username;

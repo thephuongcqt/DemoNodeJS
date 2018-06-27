@@ -97,25 +97,27 @@ async function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
     }
 }
 
-async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingCount, patientPhone) {
+async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, remindTime, patientPhone) {
     try {
         var newPatient = await patientDao.insertNotExistedPatient(patient);
         var newAppointment = {
             clinicUsername: user.clinic.username,
             patientID: newPatient.patientID,
             appointmentTime: bookedTime,
-            no: bookingCount
+            no: bookingNo,
+            remindTime: remindTime,
+            isReminded: 0
         };
         var appointment = await baseDao.create(db.Appointment, newAppointment);
         //Begin send SMS to patient
         var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
         var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
-        var messageBody = patient.fullName + ' mã số ' + bookingCount + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
+        var messageBody = patient.fullName + ' mã số ' + bookingNo + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
         sendSMSToPatient(user.phoneNumber, patientPhone, messageBody);
         //End send SMS to patient
 
         //Begin send notification to Clinic
-        var notifyMessage = patient.fullName + " mã số " + bookingCount + " đã đặt lịch khám thành công ngày " + bookedDate + ' lúc ' + bookedTime;
+        var notifyMessage = patient.fullName + " mã số " + bookingNo + " đã đặt lịch khám thành công ngày " + bookedDate + ' lúc ' + bookedTime;
         var notifyTitle = "Lịch hẹn đặt thành công";
         var topic = user.username;
         firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
@@ -131,7 +133,7 @@ async function scheduleAppointment(user, patient, patientPhone) {
         var clinic = user.clinic;
         var detailAppointment = await scheduler.getExpectationAppointment(clinic);            
         if (detailAppointment) {
-            saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, patientPhone);
+            saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, detailAppointment.remindTime, patientPhone);
         } else {
             sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
             logger.log(new Error(user.phoneNumber + " " + patientPhone + " " + Const.FullSlot));

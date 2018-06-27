@@ -46,7 +46,7 @@ module.exports = {
         }
         // End WhileExpectation time is early than current time
         if (mExpectation < mEnd) {
-            return mExpectation.toDate();
+            return mExpectation;
         } else {
             return null;
         }
@@ -61,11 +61,15 @@ module.exports = {
             var config = configs[0];
             var appointments = await appointmentDao.getAppointmentsInCurrentDayWithProperties({ "clinicUsername": clinicUsername });
             var lastAppointment = appointments.length > 0 ? appointments[appointments.length - 1] : null;            
-            var time = this.getExpectationTime(config.startWorking, config.endWorking, appointments.length, clinic.examinationDuration, lastAppointment);
-            if (time) {
+            var mTime = this.getExpectationTime(config.startWorking, config.endWorking, appointments.length, clinic.examinationDuration, lastAppointment);
+            if (mTime) {
+                var bookedTime = mTime.toDate();
+                var mDuration =  Moment.duration(clinic.examinationDuration);
+                mTime.subtract(mDuration);
                 return {
-                    bookedTime: time,
-                    no: appointments.length + 1
+                    bookedTime: bookedTime,
+                    no: appointments.length + 1,
+                    remindTime: mTime.toDate()
                 };
             } 
             return null;

@@ -28,41 +28,33 @@ var test = async function () {
     //     console.log(error);
     // })
 
-    var phoneNumber1 = "0129323";
-    if(!phoneNumber1.includes("+")){
-        phoneNumber1 = "+" + phoneNumber1
-    }
-
-    var phone2 = "+1234234";
-    if(!phone2.includes("+")){
-        phone2 = "+" + phone2
-    }
-
-    console.log(phoneNumber1);
-    console.log(phone2);
 
     try {
         // var appointments = await appointmentDao.getAppointmentsToRemind(new Date("2018-06-26 20:00:00"), "hoanghoa");
         // console.log(appointments);
-        // var clinic = await dao.findByIDWithRelated(db.Clinic, "username", "hoanghoa", "user");
+        var clinic = await dao.findByIDWithRelated(db.Clinic, "username", "hoanghoa", "user");
+        // var mDuration = utils.getMomentTime(clinic.examinationDuration);
+        // var aDuration = getTotalDuration(1, mDuration);
+        var mDuration =  Moment.duration(clinic.examinationDuration);
+        var mTime = Moment(new Date("2018-06-26 20:00:00"));
+        console.log(mTime);
+        mTime.subtract(mDuration);
+        console.log(mTime);
         // console.log(clinic);
         // var startDate = new Date("2018-06-26");
-        // var endDate = new Date("2018-06-26 20:00:00")
-        // var json = { "clinicUsername": "hoanghoa", "isReminded": 0 }
-        // var related = { withRelated: ["clinic", "patient"] };
-        // db.Appointment.where(json)
-        //     .query(function (appointment) {
-        //         appointment.whereBetween('remindTime', [startDate, endDate]);
-        //     })
-        //     .fetchAll(related)
-        //     .then(model => {
-        //         console.log(model.toJSON());
-        //     })
-        //     .catch(err => {
-        //         console.log(err);
+        // var endDate = new Date("2018-06-26 20:00:00"));
         //     });
     } catch (error) {
         console.log(error);
     }
 };
 test();
+
+function getTotalDuration(count, duration) {
+    var times = miliseconds(duration.hour(), duration.minute(), duration.second());
+    return count * times;
+}
+
+function miliseconds(hours, minutes, seconds) {
+    return ((hours * 60 * 60 + minutes * 60 + seconds) * 1000);
+}
