@@ -29,7 +29,7 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure("Duplicate Phone number"))
                 return;
             }           
-        }        
+        }
         res.json(utils.responseFailure("An error occured"));
     });
 

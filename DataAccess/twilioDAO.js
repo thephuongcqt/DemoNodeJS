@@ -14,6 +14,10 @@ var twilioDao = {
     },
 
     getTwilioByPhone: async function(phoneNumber){
+        phoneNumber = phoneNumber.trim();
+        if(!phoneNumber.includes("+")){
+            phoneNumber = "+" + phoneNumber;
+        }
         var user = await dao.findByID(db.Twilio, "phoneNumber", phoneNumber);
         if(user){
             return this.getTwilioAccount(user.accountSid, user.authToken);

@@ -132,7 +132,6 @@ module.exports = function (app, express) {
                 if (examinationDuration) {
                     json.examinationDuration = examinationDuration;
                 }
-
                 await baseDAO.update(db.Clinic, json, "username");
             }
 
