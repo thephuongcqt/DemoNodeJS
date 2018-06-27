@@ -9,11 +9,11 @@ var logger = {
     log: function(error){
         var time = Moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
         var logMessage = "\r\n" + time;
-        try {
+        if(error.stack){
             logMessage += "\r\n\t" + error.stack;
-        } catch (error) {            
+        } else{
             logMessage += "\r\n\t" + error;
-        }
+        }        
         var filePath = getFilePath();
         fs.appendFileSync(filePath, logMessage);
     }

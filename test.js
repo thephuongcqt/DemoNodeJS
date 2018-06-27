@@ -10,15 +10,15 @@ var test = async function () {
     var clinicDao = require("./DataAccess/ClinicDAO");
     var appointmentDao = require("./DataAccess/AppointmentDAO");
     var scheduler = require("./Scheduler/Scheduler");
-    
-    try {
-        var result = await dao.findByPropertiesWithManyRelated(db.Clinic, {"username": "hoanghoa"}, ["user", "workingHours"]);
-        console.log(result[0]);
         
-    } catch (error) {
-        console.log(error);
-    }
-
+    // try {
+    //     var result = await dao.findByPropertiesWithManyRelated(db.Clinic, {"username": "hoanghoa"}, ["user", "workingHours"]);
+    //     console.log(result[0]);
+        
+    // } catch (error) {
+    //     console.log(error);
+    // }
+    // console.log(Moment(new Date()).format("YYYY-MM-DDTHH:mm:ss.000Z"));
     //  await clinicDao.getTwilioAccountByID("AC0182c9b950c8fe1229f93aeb40900a5d");
     // var acc2 = await clinicDao.getTwilioAccountByPhoneNumber("+19792136847");
     // console.log(acc1);

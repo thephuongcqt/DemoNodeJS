@@ -26,6 +26,9 @@ var db = {
     },
     tokens: function(){
       return this.hasMany(db.Token, "username", "username");
+    },
+    twilio: function(){
+      return this.hasOne(db.Twilio, "phoneNumber", "phoneNumber");
     }
   }),
 
@@ -80,6 +83,13 @@ var db = {
     user: function(){
       return this.belongsTo(db.User, 'username', 'username');
     }
-  })
+  }),
+
+  Twilio: bookshelf.Model.extend({
+    tableName: 'tbl_twilio',
+    user: function(){
+      return this.belongsTo(db.User, 'phoneNumber', 'phoneNumber');
+    }
+  }),
 };
 module.exports = db;

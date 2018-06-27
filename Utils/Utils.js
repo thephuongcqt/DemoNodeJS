@@ -38,7 +38,7 @@ var utils = {
 
     parseDate: function (date) {
         if (date) {
-            return Moment(date).format("YYYY-MM-DDTHH:mm:ss.sssZ");
+            return Moment(date).format("YYYY-MM-DDTHH:mm:ss.000Z");
         }
         return null;
     },

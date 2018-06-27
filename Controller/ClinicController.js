@@ -231,15 +231,15 @@ module.exports = function (app, express) {
         var clinicName = req.body.clinicName;
         var address = req.body.address;
         var email = req.body.email;
-
+        var phoneNumber = req.body.phoneNumber;
         try {
-            if (username == null || password == null || clinicName == null || address == null || email == null) {
+            if (username == null || password == null || clinicName == null || address == null || email == null || phoneNumber == null) {
                 throw new Error(Const.Error.ClinicRegisterMissingFields);
             }
-            if (await clinicDAO.checkExistedClinic(username, email)) {
+            if (await clinicDAO.checkExistedClinic(username, email, phoneNumber)) {
                 throw new Error(Const.Error.ClinicRegisterExistedClinic);
             }
-            await clinicDAO.insertClinic(username, password, clinicName, address, email);
+            await clinicDAO.insertClinic(username, password, clinicName, address, email, phoneNumber);
 
             var host = req.protocol + '://' + req.get('host');
 
