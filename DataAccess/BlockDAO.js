@@ -19,7 +19,7 @@ var blockDao = {
         });
     },
     arrayAllBlock: function (clinicUsername) {
-        var json = { "clinicUsername": clinicUsername };
+        var json = { "clinicUsername": clinicUsername, "isBlock": Const.BLOCK };
         return new Promise((resolve, reject) => {
             dao.findByProperties(db.Block, json)
                 .then(collection => {
