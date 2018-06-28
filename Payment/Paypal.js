@@ -6,11 +6,18 @@ var baseDao = require("../DataAccess/BaseDAO");
 var logger = require("../Utils/Logger");
 var clinicDao = require("../DataAccess/ClinicDAO");
 
+// var gateway = braintree.connect({
+//     environment: braintree.Environment.Sandbox,
+//     merchantId: 'pfg7tm6zrnm22cjc',
+//     publicKey: '8cgbnsy595fqw6h9',
+//     privateKey: '86b2b56d9f3265af87082e42ec5821e1'
+// });
+
 var gateway = braintree.connect({
-    environment: braintree.Environment.Sandbox,
-    merchantId: 'pfg7tm6zrnm22cjc',
-    publicKey: '8cgbnsy595fqw6h9',
-    privateKey: '86b2b56d9f3265af87082e42ec5821e1'
+    environment:  braintree.Environment.Sandbox,
+    merchantId:   '82gyv2vz8v8jx5mf',
+    publicKey:    '624r7xwxgwsfg65m',
+    privateKey:   '4bfada29f82da95728352d08183d70d9'
 });
 
 module.exports = function (app, express) {
@@ -34,54 +41,54 @@ module.exports = function (app, express) {
         try {
             nonce = JSON.parse(nonce);
             var license = await baseDao.findByID(db.License, "licenseID", licenseID);
-            var saleRequest = {
-                amount: license.price,
-                paymentMethodNonce: nonce,
-                orderId: "Mapped to PayPal Invoice Number",
-                options: {
-                  submitForSettlement: true,
-                  paypal: {
-                    customField: "PayPal custom field",
-                    description: "Description for PayPal email receipt",
-                  },
-                }
-              };
-              
-              gateway.transaction.sale(saleRequest, async function (err, result) {
-                if (err) {
-                    logger.log(err);
-                } else if (result.success) {
-                    logger.log("<h1>Success! Transaction ID: " + result.transaction.id + "</h1>");
-                    await handleBuyLicense(username, licenseID);
-                    var clinic = await clinicDao.getClinicResponse(username);
-                    res.json(utils.responseSuccess(clinic));
-                    return
-                } else {
-                    logger.log(result.message);
-                }
-                res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
-              });
-            // gateway.transaction.sale({
+            // var saleRequest = {
             //     amount: license.price,
             //     paymentMethodNonce: nonce,
+            //     orderId: "Mapped to PayPal Invoice Number",
             //     options: {
-            //         submitForSettlement: true
+            //       submitForSettlement: true,
+            //       paypal: {
+            //         customField: "PayPal custom field",
+            //         description: "Description for PayPal email receipt",
+            //       },
             //     }
-            // }, async function (err, result) {                                
-            //     if (result && result.success) {                    
+            //   };
+              
+            //   gateway.transaction.sale(saleRequest, async function (err, result) {
+            //     if (err) {
+            //         logger.log(err);
+            //     } else if (result.success) {
+            //         logger.log("<h1>Success! Transaction ID: " + result.transaction.id + "</h1>");
             //         await handleBuyLicense(username, licenseID);
             //         var clinic = await clinicDao.getClinicResponse(username);
             //         res.json(utils.responseSuccess(clinic));
             //         return
-            //     } else if(result && result.message){                    
-            //         logger.log(new Error(result.message));
-            //     }
-            //     if (err) {
-            //         console.log(err);
-            //         logger.log(err);
+            //     } else {
+            //         logger.log(result.message);
             //     }
             //     res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
-            // });
+            //   });
+            gateway.transaction.sale({
+                amount: license.price,
+                paymentMethodNonce: nonce,
+                options: {
+                    submitForSettlement: true
+                }
+            }, async function (err, result) {                                
+                if (result && result.success) {                    
+                    await handleBuyLicense(username, licenseID);
+                    var clinic = await clinicDao.getClinicResponse(username);
+                    res.json(utils.responseSuccess(clinic));
+                    return
+                } else if(result && result.message){                    
+                    logger.log(new Error(result.message));
+                }
+                if (err) {
+                    console.log(err);
+                    logger.log(err);
+                }
+                res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
+            });
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
