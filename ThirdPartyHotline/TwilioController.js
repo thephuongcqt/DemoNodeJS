@@ -26,7 +26,9 @@ module.exports = function (app, express) {
         var isBlock = await blockDao.isBlockNumber(req.query.From, req.query.phoneNumber);
         if (isBlock) {
             twiml.reject();
+            res.end(twiml.toString());            
             twilioUtils.sendSMS(req.query.phoneNumber, req.query.From, Const.BlockedError);
+            return;
         }
         // var blockNumber = await clinicDao.getBlockNumber(req.query.From, req.query.phoneNumber);
         // if(blockNumber){
