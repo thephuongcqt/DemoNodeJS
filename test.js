@@ -29,9 +29,14 @@ var test = async function () {
     //     console.log(error);
     // })
     try {        
+        var blockDao = require("./DataAccess/BlockDAO");
+        var isBlock = await blockDao.isBlockNumber("+18327795275", "+19792136847");
+        var isBlock2 = await blockDao.isBlockNumber("+18326735555", "+19792136847");
+        console.log(isBlock);
+        console.log(isBlock2);
         // var nonce = '{\n  "mBillingAddress": {},\n  "mClientMetadataId": "BA-3LH5161843851561Y",\n  "mEmail": "phuongntse62087-buyer@fpt.edu.vn",\n  "mFirstName": "test",\n  "mLastName": "buyer",\n  "mPayerId": "4PXH4BAKHM4TL",\n  "mPhone": "",\n  "mShippingAddress": {},\n  "mDefault": false,\n  "mDescription": "PayPal",\n  "mNonce": "ee71d1e2-58c2-0486-5fd4-0d7fcc4576a9"\n}';
-        nonce = JSON.parse('{\n mBillingAddress: {},\n  mClientMetadataId: "BA-3LH5161843851561Y",\n  mEmail: "phuongntse62087-buyer@fpt.edu.vn",\n  mFirstName: "test",\n  mLastName: "buyer",\n  mPayerId: "4PXH4BAKHM4TL",\n  mPhone: "",\n  mShippingAddress: {},\n  mDefault: false,\n  mDescription: "PayPal",\n  mNonce: "ee71d1e2-58c2-0486-5fd4-0d7fcc4576a9" }' );
-        console.log(nonce);
+        // nonce = JSON.parse('{\n mBillingAddress: {},\n  mClientMetadataId: "BA-3LH5161843851561Y",\n  mEmail: "phuongntse62087-buyer@fpt.edu.vn",\n  mFirstName: "test",\n  mLastName: "buyer",\n  mPayerId: "4PXH4BAKHM4TL",\n  mPhone: "",\n  mShippingAddress: {},\n  mDefault: false,\n  mDescription: "PayPal",\n  mNonce: "ee71d1e2-58c2-0486-5fd4-0d7fcc4576a9" }' );
+        // console.log(nonce);
         // var mBookedTime = Moment(new Date());
         // var message = "Cuộc hẹn của bạn sẽ diễn ra vào lúc " + mBookedTime.format("HH:mm") + " phút ngày " + mBookedTime.format("YYYY-MM-DD") + ". Mong bạn có mặt đúng giờ";
 

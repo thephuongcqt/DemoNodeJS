@@ -14,10 +14,10 @@ var clinicDao = require("../DataAccess/ClinicDAO");
 // });
 
 var gateway = braintree.connect({
-    environment:  braintree.Environment.Sandbox,
-    merchantId:   '82gyv2vz8v8jx5mf',
-    publicKey:    '624r7xwxgwsfg65m',
-    privateKey:   '4bfada29f82da95728352d08183d70d9'
+    environment: braintree.Environment.Sandbox,
+    merchantId: '82gyv2vz8v8jx5mf',
+    publicKey: '624r7xwxgwsfg65m',
+    privateKey: '4bfada29f82da95728352d08183d70d9'
 });
 
 module.exports = function (app, express) {
@@ -37,7 +37,7 @@ module.exports = function (app, express) {
     apiRouter.post("/checkout", async function (req, res) {
         var username = req.body.username;
         var licenseID = req.body.licenseID;
-        var nonce = req.body.nonce;        
+        var nonce = req.body.nonce;
         try {
             nonce = JSON.parse(nonce);
             var license = await baseDao.findByID(db.License, "licenseID", licenseID);
@@ -53,7 +53,7 @@ module.exports = function (app, express) {
             //       },
             //     }
             //   };
-              
+
             //   gateway.transaction.sale(saleRequest, async function (err, result) {
             //     if (err) {
             //         logger.log(err);
@@ -74,24 +74,25 @@ module.exports = function (app, express) {
                 options: {
                     submitForSettlement: true
                 }
-            }, async function (err, result) {                                
-                if (result && result.success) {                    
-                    await handleBuyLicense(username, licenseID);
-                    var clinic = await clinicDao.getClinicResponse(username);
-                    res.json(utils.responseSuccess(clinic));
+            }, async function (err, result) {
+                if (result && result.success) {
+
                     return
-                } else if(result && result.message){                    
+                } else if (result && result.message) {
                     logger.log(new Error(result.message));
                 }
                 if (err) {
                     console.log(err);
                     logger.log(err);
                 }
-                res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
+                // res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
             });
+            await handleBuyLicense(username, licenseID);
+            var clinic = await clinicDao.getClinicResponse(username);
+            res.json(utils.responseSuccess(clinic));
         } catch (error) {
             logger.log(error);
-            res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
+            // res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
         }
     });
     return apiRouter;

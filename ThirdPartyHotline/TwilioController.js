@@ -12,6 +12,8 @@ var baseDao = require("../DataAccess/BaseDAO");
 var clinicDao = require("../DataAccess/ClinicDAO");
 var appointmentDao = require("../DataAccess/AppointmentDAO");
 var twilioDao = require("../DataAccess/twilioDAO");
+var blockDao = require("../DataAccess/BlockDAO");
+var twilioUtils = require("./TwilioUtils");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
@@ -21,10 +23,15 @@ module.exports = function (app, express) {
         res.set('Content-Type', 'text/xml');
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
         const twiml = new VoiceResponse();
-        var blockNumber = await clinicDao.getBlockNumber(req.query.From, req.query.phoneNumber);
-        if(blockNumber){
+        var isBlock = await blockDao.isBlockNumber(req.query.From, req.query.phoneNumber);
+        if (isBlock) {
             twiml.reject();
+            twilioUtils.sendSMS(req.query.phoneNumber, req.query.From, Const.BlockedError);
         }
+        // var blockNumber = await clinicDao.getBlockNumber(req.query.From, req.query.phoneNumber);
+        // if(blockNumber){
+        //     twiml.reject();
+        // }
         var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
 
         var phoneNumber = req.query.phoneNumber;
@@ -149,6 +156,12 @@ async function scheduleAppointment(user, patient, patientPhone) {
 }
 
 async function makeAppointment(patientPhone, patientName, clinicPhone) {
+    var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
+    if (isBlock) {
+        twilioUtils.sendSMS(clinicPhone, patientPhone, Const.BlockedError);
+        return;
+    }
+
     if (!patientName.trim()) {
         //Patient name is empty
         var message = "Vui lòng nhập tên để đăng ký khám bệnh";
