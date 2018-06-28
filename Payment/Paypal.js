@@ -47,7 +47,7 @@ module.exports = function (app, express) {
                 }
               };
               
-              gateway.transaction.sale(saleRequest, function (err, result) {
+              gateway.transaction.sale(saleRequest, async function (err, result) {
                 if (err) {
                     logger.log(err);
                 } else if (result.success) {
