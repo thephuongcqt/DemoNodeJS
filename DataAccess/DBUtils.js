@@ -95,5 +95,9 @@ var db = {
       return this.belongsTo(db.User, 'phoneNumber', 'phoneNumber');
     }
   }),
+
+  Block: bookshelf.Model.extend({
+    tableName: 'tbl_block'
+  }),
 };
 module.exports = db;
