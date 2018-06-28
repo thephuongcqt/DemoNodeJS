@@ -30,9 +30,9 @@ module.exports = function (app, express) {
     apiRouter.post("/checkout", async function (req, res) {
         var username = req.body.username;
         var licenseID = req.body.licenseID;
-        var nonce = req.body.nonce;                
+        var nonce = req.body.nonce;
         try {
-            var license = await baseDao.findByID(db.License, "licenseID", licenseID);            
+            var license = await baseDao.findByID(db.License, "licenseID", licenseID);
             gateway.transaction.sale({
                 amount: license.price,
                 paymentMethodNonce: nonce,
@@ -40,15 +40,19 @@ module.exports = function (app, express) {
                     submitForSettlement: true
                 }
             }, async function (err, result) {
-                if (result) {
+                if (result && result.success) {
                     logger.log(result);
                     console.log(result);
                     await handleBuyLicense(username, licenseID);
                     var clinic = await clinicDao.getClinicResponse(username);
                     res.json(utils.responseSuccess(clinic));
                     return
+                } else if(result & result.message){                    
+                    logger.log(new Error(result.message));
+                    res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));    
+                    return;
                 }
-                if(err){
+                if (err) {
                     logger.log(err);
                 }
                 res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
@@ -57,7 +61,7 @@ module.exports = function (app, express) {
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
-        }        
+        }
     });
     return apiRouter;
 }
