@@ -24,6 +24,7 @@ module.exports = function (app, express) {
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
         const twiml = new VoiceResponse();
         var isBlock = await blockDao.isBlockNumber(req.query.From, req.query.phoneNumber);
+        console.log(req.query);
         if (isBlock) {
             twiml.reject();
             res.end(twiml.toString());            
