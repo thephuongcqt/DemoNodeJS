@@ -5,6 +5,7 @@ const dateFormat = require('dateformat');
 var Moment = require('moment');
 var baseDAO = require("../DataAccess/BaseDAO");
 var logger = require("../Utils/Logger");
+var blockDAO = require("../DataAccess/BlockDAO");
 var appointmentDao = require("../DataAccess/AppointmentDAO");
 
 module.exports = function (app, express) {
@@ -35,6 +36,44 @@ module.exports = function (app, express) {
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
         }
     });
+
+    apiRouter.get("/getAppointmentsListByDateWithBlock", async function (req, res) {
+        var clinicUsername = req.query.clinicUsername;
+        var searchDate = req.query.date;
+        var json = { "clinicUsername": clinicUsername };
+
+        try {
+            var appointments;
+            var block;
+            if (searchDate) {
+                appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, "patient");
+            } else {
+                appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, "patient");
+            }
+            for (var i in appointments) {
+                var appointment = appointments[i];
+                block = await blockDAO.getBlockNumber(appointment.clinicUsername, appointment.patient.phoneNumber);
+                delete appointment.clinicUsername;
+                delete appointment.patientID;
+                appointment.phoneNumber = appointment.patient.phoneNumber;
+                appointment.fullName = appointment.patient.fullName;
+                appointment.address = appointment.patient.address;
+                delete appointment.patient;
+                appointment.currentTime = utils.parseDate(new Date());
+                appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
+                if (block.length == 0) {
+                    appointment.isBlock = null;
+                } else {
+                    appointment.isBlock = block[0].isBlock;
+                }
+            }
+            res.json(utils.responseSuccess(appointments));
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(Const.GetAppointmentListFailure));
+        }
+    });
+
     apiRouter.post("/checkVisit", async function (req, res) {
         var clinicUsername = req.body.clinicUsername;
         var appointmentID = req.body.appointmentID;

@@ -18,6 +18,20 @@ var blockDao = {
                 });
         });
     },
+    arrayAllBlock: function (clinicUsername) {
+        var json = { "clinicUsername": clinicUsername };
+        return new Promise((resolve, reject) => {
+            dao.findByProperties(db.Block, json)
+                .then(collection => {
+                    console.log(collection);
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Không có số nào bị chặn");
+                });
+        });
+    },
     addBlock: function (clinicUsername, phoneNumber) {
         var json = { "clinicUsername": clinicUsername, "phoneNumber": phoneNumber, "isBlock": Const.BLOCK };
         return new Promise((resolve, reject) => {
