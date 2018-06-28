@@ -30,9 +30,9 @@ module.exports = function (app, express) {
     apiRouter.post("/checkout", async function (req, res) {
         var username = req.body.username;
         var licenseID = req.body.licenseID;
-        var nonce = req.body.nonce;        
+        var nonce = req.body.nonce;                
         try {
-            var license = await baseDao.findByID(db.License, "licenseID", licenseID);
+            var license = await baseDao.findByID(db.License, "licenseID", licenseID);            
             gateway.transaction.sale({
                 amount: license.price,
                 paymentMethodNonce: nonce,
@@ -42,6 +42,7 @@ module.exports = function (app, express) {
             }, async function (err, result) {
                 if (result) {
                     logger.log(result);
+                    console.log(result);
                     await handleBuyLicense(username, licenseID);
                     var clinic = await clinicDao.getClinicResponse(username);
                     res.json(utils.responseSuccess(clinic));

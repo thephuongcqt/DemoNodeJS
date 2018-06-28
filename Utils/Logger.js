@@ -7,6 +7,9 @@ function getFilePath(){
 
 var logger = {
     log: function(error){
+        if(!error){
+            error = new Error("Undefined Error");            
+        }
         var time = Moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
         var logMessage = "\r\n" + time;
         if(error.stack){
