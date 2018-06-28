@@ -25,8 +25,8 @@ var blockDao = {
                 .then(collection => {
                     var arrayPhoneNumbers = [];
                     for (var i in collection) {
-                        phoneNumber = collection[i].phoneNumber;
-                        arrayPhoneNumbers.push(phoneNumber)
+                        var blockNumber = collection[i].phoneNumber;
+                        arrayPhoneNumbers.push(blockNumber);
                     }
                     resolve(arrayPhoneNumbers);
                 })

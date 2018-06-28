@@ -5,6 +5,7 @@ var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
 var configUtils = require("../Utils/ConfigUtils");
 var hash = require("../Utils/Bcrypt");
+var blockDAO = require("../DataAccess/BlockDAO");
 
 var clinicDao = {
     getTwilioAccountByID: async function (accountSid) {
@@ -139,7 +140,31 @@ var clinicDao = {
             return configUtils.getDefaultGreetingURL();
         }
     },
-
+    getBlockNumber: async function (callFrom, phoneNumber) {
+        try {
+            if (!phoneNumber) {
+                throw new Error("Undefined phone number");
+            }
+            phoneNumber = "+" + phoneNumber.trim();
+            callFrom = "+" + callFrom.trim();
+            var json = { "phoneNumber": phoneNumber };
+            var clinics = await dao.findByProperties(db.User, json);
+            if (!clinics || clinics.length == 0) {
+                throw new Error("Cannot find clinic by phone number");
+            }
+            var clinic = clinics[0].username;
+            var arrayBlockNumber = await blockDAO.arrayAllBlock(clinic);
+            var checkBlockNumber = utils.checkNumberInArray(callFrom, arrayBlockNumber);
+            if (checkBlockNumber == true) {
+                return callFrom;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            logger.log(error);
+            return configUtils.getDefaultGreetingURL();
+        }
+    },
     checkExistedClinic: async function (username, email, phoneNumber) {
         if (!(username && username.trim())) {
             throw new Error("Tên đăng nhập không được để trống");
@@ -286,7 +311,7 @@ var clinicDao = {
                 delete workingHour.id;
                 delete workingHour.clinicUsername;
                 workingHourList.push(workingHour);
-                if(!(workingHour.startWorking && workingHour.endWorking)){
+                if (!(workingHour.startWorking && workingHour.endWorking)) {
                     emptyWorking = true;
                     break;
                 }

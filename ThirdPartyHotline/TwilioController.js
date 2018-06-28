@@ -21,7 +21,10 @@ module.exports = function (app, express) {
         res.set('Content-Type', 'text/xml');
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
         const twiml = new VoiceResponse();
-
+        var blockNumber = await clinicDao.getBlockNumber(req.query.From, req.query.phoneNumber);
+        if(blockNumber){
+            twiml.reject();
+        }
         var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
 
         var phoneNumber = req.query.phoneNumber;
@@ -61,7 +64,7 @@ module.exports = function (app, express) {
                         })
                         .done();
                 });
-        } else{
+        } else {
             logger.log(new Error("An error occurred when get twilio account"));
         }
     });
@@ -81,18 +84,18 @@ async function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
     //  Send SMS to announcement appointment for patient has book successfull 
     // var client = configUtils.getTwilioByPhone(clinicPhone);    
     var client = await twilioDao.getTwilioByPhone(clinicPhone);
-    if (client) {        
+    if (client) {
         client.messages.create({
             body: messageBody,
             from: clinicPhone,
             to: patientPhone
-        }).then(messages => {            
+        }).then(messages => {
         })
             .catch(function (err) {
                 logger.log(err);
             })
             .done();
-    } else{
+    } else {
         logger.log(new Error("An error occurred when get twilio account"));
     }
 }
@@ -108,7 +111,7 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
             "remindTime": remindTime,
             "isReminded": 0,
             "bookedPhone": patientPhone
-        };        
+        };
         var appointment = await baseDao.create(db.Appointment, newAppointment);
         //Begin send SMS to patient
         var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
@@ -129,10 +132,10 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
     }
 }
 
-async function scheduleAppointment(user, patient, patientPhone) {    
+async function scheduleAppointment(user, patient, patientPhone) {
     try {
         var clinic = user.clinic;
-        var detailAppointment = await scheduler.getExpectationAppointment(clinic);                    
+        var detailAppointment = await scheduler.getExpectationAppointment(clinic);
         if (detailAppointment) {
             saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, detailAppointment.remindTime, patientPhone);
         } else {
@@ -141,7 +144,7 @@ async function scheduleAppointment(user, patient, patientPhone) {
         }
     } catch (error) {
         logger.log(error);
-        sendSMSToPatient(user.phoneNumber, patientPhone, Const.Error.ScheduleAppointmentError);        
+        sendSMSToPatient(user.phoneNumber, patientPhone, Const.Error.ScheduleAppointmentError);
     }
 }
 

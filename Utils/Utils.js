@@ -9,7 +9,7 @@ var utils = {
         };
         return response;
     },
-    
+
     responseSuccess: function (value) {
         var response = {
             "status": true,
@@ -35,7 +35,7 @@ var utils = {
         }
         return null;
     },
-
+    
     parseDate: function (date) {
         if (date) {
             return Moment(date).format("YYYY-MM-DDTHH:mm:ss.000Z");
@@ -50,8 +50,8 @@ var utils = {
         return null;
     },
 
-    getMomentTime: function (time){
-        if(time){
+    getMomentTime: function (time) {
+        if (time) {
             return Moment(time, "HH:mm:ss");
         }
         return null;
@@ -61,11 +61,11 @@ var utils = {
         var splitStr = name.toLowerCase().split(' ');
         for (var i = 0; i < splitStr.length; i++) {
             splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
-        }        
+        }
         return splitStr.join(' ');
     },
 
-    generatePasswordToken: function() {
+    generatePasswordToken: function () {
         var min = 1000, max = 9999;
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
