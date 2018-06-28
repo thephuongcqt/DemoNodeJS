@@ -5,7 +5,7 @@ var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
 
 var blockDao = {
-    getBlock: function (clinicUsername) {
+    getAllBlock: function (clinicUsername) {
         var json = { "clinicUsername": clinicUsername };
         return new Promise((resolve, reject) => {
             dao.findByProperties(db.Block, json)
@@ -41,6 +41,19 @@ var blockDao = {
                 .catch(err => {
                     logger.log(err);
                     reject("Không thể thay đổi chặn số điện thoại");
+                });
+        });
+    },
+    getBlockNumber: function (clinicUsername, phoneNumber) {
+        var json = { "clinicUsername": clinicUsername, "phoneNumber": phoneNumber };
+        return new Promise((resolve, reject) => {
+            dao.findByProperties(db.Block, json)
+                .then(collection => {
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Không có số điện thoại nào bị chặn");
                 });
         });
     }

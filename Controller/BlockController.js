@@ -24,8 +24,18 @@ module.exports = function (app, express) {
         var phoneNumber = req.body.phoneNumber;
         var isBlock = req.body.isBlock;
         try {
-            var createBlock = await blockDAO.addBlock(clinicUsername, phoneNumber);
-            res.json(utils.responseSuccess(createBlock));
+            var blockNumber;
+            if (isNaN(isBlock)) {
+                res.json(utils.responseFailure("isBlock must be integer"));
+            } else {
+                var resultBlock = await blockDAO.getBlockNumber(clinicUsername, phoneNumber);
+                if (resultBlock.length == 0) {
+                    blockNumber = await blockDAO.addBlock(clinicUsername, phoneNumber);
+                } else {
+                    blockNumber = await blockDAO.updateBlock(clinicUsername, phoneNumber, isBlock);
+                }
+                res.json(utils.responseSuccess(blockNumber));
+            }
         }
         catch (err) {
             res.json(utils.responseFailure(err));
@@ -37,7 +47,7 @@ module.exports = function (app, express) {
 };
 function getBlock(clinicUsername) {
     return new Promise((resolve, reject) => {
-        blockDAO.getBlock(clinicUsername)
+        blockDAO.getAllBlock(clinicUsername)
             .then(function (results) {
                 resolve(results);
             })
