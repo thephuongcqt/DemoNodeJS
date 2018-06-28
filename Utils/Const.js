@@ -9,6 +9,8 @@ module.exports = {
     UNCHECK: 0,
     VISIT: 1,
     NOTVISIT: 2,
+    NOTBLOCK: 0,
+    BLOCK: 1,
     FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",        
     BookAppointmentFailure: "Đã có lỗi xảy ra khi đặt lịch hẹn, xin quý khách vui lòng thử lại sau",
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",
@@ -87,5 +89,11 @@ module.exports = {
         endWorking: "endWorking",
         applyDate: "applyDate",
         isDayOff: "isDayOff"
+    },
+    Block: {
+        blockID: "blockID",
+        clinicUsername: "clinicUsername",
+        phoneNumber: "phoneNumber",
+        isBlock: "isBlock"
     }
 }
