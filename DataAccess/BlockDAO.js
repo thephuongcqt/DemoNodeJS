@@ -23,8 +23,12 @@ var blockDao = {
         return new Promise((resolve, reject) => {
             dao.findByProperties(db.Block, json)
                 .then(collection => {
-                    console.log(collection);
-                    resolve(collection);
+                    var arrayPhoneNumbers = [];
+                    for(var i in collection){
+                        phoneNumber = collection[i].phoneNumber;
+                        arrayPhoneNumbers.push(phoneNumber)
+                    }
+                    resolve(arrayPhoneNumbers);
                 })
                 .catch(err => {
                     logger.log(err);
