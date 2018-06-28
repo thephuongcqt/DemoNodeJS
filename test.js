@@ -29,7 +29,9 @@ var test = async function () {
     //     console.log(error);
     // })
     try {        
-        console.log(utils.generatePasswordToken());
+        var nonce = '{\n  "mBillingAddress": {},\n  "mClientMetadataId": "BA-3LH5161843851561Y",\n  "mEmail": "phuongntse62087-buyer@fpt.edu.vn",\n  "mFirstName": "test",\n  "mLastName": "buyer",\n  "mPayerId": "4PXH4BAKHM4TL",\n  "mPhone": "",\n  "mShippingAddress": {},\n  "mDefault": false,\n  "mDescription": "PayPal",\n  "mNonce": "ee71d1e2-58c2-0486-5fd4-0d7fcc4576a9"\n}';
+        nonce = JSON.parse(nonce);
+        console.log(nonce);
         // var mBookedTime = Moment(new Date());
         // var message = "Cuộc hẹn của bạn sẽ diễn ra vào lúc " + mBookedTime.format("HH:mm") + " phút ngày " + mBookedTime.format("YYYY-MM-DD") + ". Mong bạn có mặt đúng giờ";
 

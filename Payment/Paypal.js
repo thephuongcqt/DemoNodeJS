@@ -32,6 +32,7 @@ module.exports = function (app, express) {
         var licenseID = req.body.licenseID;
         var nonce = req.body.nonce;
         try {
+            nonce = JSON.parse(nonce);
             var license = await baseDao.findByID(db.License, "licenseID", licenseID);
             gateway.transaction.sale({
                 amount: license.price,
@@ -40,24 +41,19 @@ module.exports = function (app, express) {
                     submitForSettlement: true
                 }
             }, async function (err, result) {
-                if (result && result.success) {
-                    logger.log(result);
-                    console.log(result);
+                if (result && result.success) {                    
                     await handleBuyLicense(username, licenseID);
                     var clinic = await clinicDao.getClinicResponse(username);
                     res.json(utils.responseSuccess(clinic));
                     return
                 } else if(result & result.message){                    
                     logger.log(new Error(result.message));
-                    res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));    
-                    return;
                 }
                 if (err) {
                     logger.log(err);
                 }
                 res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
             });
-
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
