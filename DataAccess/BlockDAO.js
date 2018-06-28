@@ -6,7 +6,7 @@ var dao = require("./BaseDAO");
 
 var blockDao = {
     getAllBlock: function (clinicUsername) {
-        var json = { "clinicUsername": clinicUsername };
+        var json = { "clinicUsername": clinicUsername, "isBlock": Const.BLOCK };
         return new Promise((resolve, reject) => {
             dao.findByProperties(db.Block, json)
                 .then(collection => {
@@ -24,7 +24,7 @@ var blockDao = {
             dao.findByProperties(db.Block, json)
                 .then(collection => {
                     var arrayPhoneNumbers = [];
-                    for(var i in collection){
+                    for (var i in collection) {
                         phoneNumber = collection[i].phoneNumber;
                         arrayPhoneNumbers.push(phoneNumber)
                     }
