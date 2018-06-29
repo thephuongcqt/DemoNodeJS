@@ -1,0 +1,45 @@
+{
+    "name": "demoheroku",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server.js",
+    "engines": {
+      "node": "8.11.2"
+    },
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node server.js"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/thephuongcqt/DemoNodeJS.git"
+    },
+    "author": "PhuongNT",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/thephuongcqt/DemoNodeJS/issues"
+    },
+    "homepage": "https://github.com/thephuongcqt/DemoNodeJS#readme",
+    "dependencies": {
+      "@google-cloud/speech": "^1.5.0",
+      "bcrypt": "^2.0.1",
+      "body-parser": "^1.18.3",
+      "bookshelf": "^0.13.3",
+      "braintree": "^2.11.0",
+      "dateformat": "^3.0.3",
+      "exceljs": "^1.4.10",
+      "express": "^4.16.3",
+      "firebase-admin": "^5.12.1",
+      "fs": "0.0.1-security",
+      "https": "^1.0.0",
+      "knex": "^0.13.0",
+      "moment": "^2.22.2",
+      "mysql": "^2.15.0",
+      "node-schedule": "^1.3.0",
+      "nodemailer": "^4.6.7",
+      "paypal-rest-sdk": "^1.8.1",
+      "twilio": "^3.17.1",
+      "uuid": "^3.2.1"
+    }
+  }
+  
