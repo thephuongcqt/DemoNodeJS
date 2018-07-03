@@ -1,15 +1,15 @@
 const knex = require('knex')({
   client: 'mysql',
   connection: {
-    host: 'capstone.cgxwlwzclurt.us-east-1.rds.amazonaws.com',
-    user: 'thephuongcqt',
-    password: 'Callcenterpass1',
-    // host: '27.74.245.84',
+    // host: 'capstone.cgxwlwzclurt.us-east-1.rds.amazonaws.com',
+    // user: 'thephuongcqt',
+    // password: 'Callcenterpass1',
+    host: '27.74.245.84',
     // host: '203.205.29.13',
     // host: 'localhost',
     port: '3306',
-    // user: 'root',
-    // password: '123456',
+    user: 'root',
+    password: '123456',
     // password: '',
     database: 'callcenter',
     charset: 'utf8'
