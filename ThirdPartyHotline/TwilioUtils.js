@@ -1,6 +1,7 @@
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var twilioDao = require("../DataAccess/twilioDAO");
+var logger = require("../Utils/Logger");
 
 var utils = {
     sendSMS: async function (fromPhone, to, message) {

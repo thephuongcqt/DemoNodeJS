@@ -23,12 +23,11 @@ module.exports = function (app, express) {
         res.set('Content-Type', 'text/xml');
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
         const twiml = new VoiceResponse();
-        var isBlock = await blockDao.isBlockNumber(req.query.From, req.query.phoneNumber);
-        console.log(req.query);
+        var isBlock = await blockDao.isBlockNumber(req.query.From, req.query.To);
         if (isBlock) {
             twiml.reject();
             res.end(twiml.toString());            
-            twilioUtils.sendSMS(req.query.phoneNumber, req.query.From, Const.BlockedError);
+            twilioUtils.sendSMS(req.query.To, req.query.From, Const.BlockedError);
             return;
         }
         // var blockNumber = await clinicDao.getBlockNumber(req.query.From, req.query.phoneNumber);
