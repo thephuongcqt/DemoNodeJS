@@ -81,12 +81,10 @@ module.exports = function (app, express) {
         try {
             var json = { "appointmentID": appointmentID };
             if (!isNaN(appointmentID) || !isNaN(status)) {
-                if (status == Const.VISIT) {
-                    json.status = Const.VISIT;
-                } else if (status == Const.NOTVISIT) {
-                    json.status = Const.NOTVISIT;
-                } else {
-                    json.status = Const.UNCHECK;
+                if(status == Const.appointmentStatus.ABSENT || status == Const.appointmentStatus.PRESENT){
+                    json.status = status;
+                } else{
+                    json.status = Const.appointmentStatus.ABSENT;
                 }
                 await baseDAO.update(db.Appointment, json, "appointmentID");
                 var json = { "clinicUsername": clinicUsername };
@@ -99,6 +97,8 @@ module.exports = function (app, express) {
                     appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
                 }
                 res.json(utils.responseSuccess(resultUpdate));
+            } else{
+                res.json(utils.responseFailure("An error occurred!"));
             }
         }
         catch (err) {

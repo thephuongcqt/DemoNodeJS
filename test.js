@@ -28,11 +28,42 @@ var test = async function () {
     // .catch(error => {
     //     console.log(error);
     // })
-    try {        
-        dao.findAll(db.License)
-        .then(model => {
-            console.log(model);
-        })
+    try {
+        var startDate = new Date('2017-04-01');
+        var endDate = new Date('2018-07-04');
+
+        var sqlReportDay = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, DATE(appointmentTime) as date " 
+        + "FROM tbl_appointment "
+        + "WHERE clinicUsername = 'kingofthekiller' "
+        + "GROUP BY DATE(appointmentTime)";
+
+        var sqlReportMonth = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month " 
+        + "FROM tbl_appointment "
+        + "WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ? "
+        + "GROUP BY MONTH(appointmentTime)"
+
+
+        var sqlTest = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month " 
+        + "FROM tbl_appointment "
+        + "WHERE appointmentTime BETWEEN  ? AND ? "
+        + "GROUP BY MONTH(appointmentTime)"
+
+
+        db.knex.raw(sqlTest, [startDate, endDate])
+            .then(collection => {
+                var result = collection[0];
+                if (result && result.length > 0) {
+                    var model = JSON.parse(JSON.stringify(result));
+                    console.log(model);
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
+        // dao.findAll(db.License)
+        // .then(model => {
+        //     console.log(model);
+        // })
         // var blockDao = require("./DataAccess/BlockDAO");
         // var isBlock = await blockDao.isBlockNumber("+18327795275", "+19792136847");
         // var isBlock2 = await blockDao.isBlockNumber("+18326735555", "+19792136847");

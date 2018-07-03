@@ -117,6 +117,7 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
             "patientID": newPatient.patientID,
             "appointmentTime": bookedTime,
             "no": bookingNo,
+            "status": Const.appointmentStatus.ABSENT,
             "remindTime": remindTime,
             "isReminded": 0,
             "bookedPhone": patientPhone

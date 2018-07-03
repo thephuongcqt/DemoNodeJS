@@ -6,6 +6,10 @@ module.exports = {
     DEACTIVATION: 0,
     DAYOFF: 1,
     DAYWORK: 0,
+    appointmentStatus: {
+        ABSENT: 0,
+        PRESENT: 1
+    },
     UNCHECK: 0,
     VISIT: 1,
     NOTVISIT: 2,
