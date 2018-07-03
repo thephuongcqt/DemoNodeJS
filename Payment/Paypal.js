@@ -39,35 +39,8 @@ module.exports = function (app, express) {
         var licenseID = req.body.licenseID;
         var nonce = req.body.nonce;
         try {
-            nonce = JSON.parse(nonce);
+            // nonce = JSON.parse(nonce);
             var license = await baseDao.findByID(db.License, "licenseID", licenseID);
-            // var saleRequest = {
-            //     amount: license.price,
-            //     paymentMethodNonce: nonce,
-            //     orderId: "Mapped to PayPal Invoice Number",
-            //     options: {
-            //       submitForSettlement: true,
-            //       paypal: {
-            //         customField: "PayPal custom field",
-            //         description: "Description for PayPal email receipt",
-            //       },
-            //     }
-            //   };
-
-            //   gateway.transaction.sale(saleRequest, async function (err, result) {
-            //     if (err) {
-            //         logger.log(err);
-            //     } else if (result.success) {
-            //         logger.log("<h1>Success! Transaction ID: " + result.transaction.id + "</h1>");
-            //         await handleBuyLicense(username, licenseID);
-            //         var clinic = await clinicDao.getClinicResponse(username);
-            //         res.json(utils.responseSuccess(clinic));
-            //         return
-            //     } else {
-            //         logger.log(result.message);
-            //     }
-            //     res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
-            //   });
             gateway.transaction.sale({
                 amount: license.price,
                 paymentMethodNonce: nonce,
@@ -76,20 +49,19 @@ module.exports = function (app, express) {
                 }
             }, async function (err, result) {
                 if (result && result.success) {
-
+                    await handleBuyLicense(username, licenseID);
+                    var clinic = await clinicDao.getClinicResponse(username);
+                    res.json(utils.responseSuccess(clinic));
                     return
                 } else if (result && result.message) {
                     logger.log(new Error(result.message));
                 }
                 if (err) {
-                    console.log(err);
                     logger.log(err);
                 }
-                // res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
+                res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
             });
-            await handleBuyLicense(username, licenseID);
-            var clinic = await clinicDao.getClinicResponse(username);
-            res.json(utils.responseSuccess(clinic));
+            
         } catch (error) {
             logger.log(error);
             // res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình thanh toán, Vui lòng kiểm tra lại"));
