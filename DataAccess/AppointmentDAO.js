@@ -3,6 +3,72 @@ var logger = require("../Utils/Logger");
 var dao = require("./BaseDAO");
 
 var appointmentDao = {
+    reportByDate: async function(username, startDate, endDate){
+        var sql = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, DATE(appointmentTime) as date " 
+        + "FROM tbl_appointment "
+        + "WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ? "
+        + "GROUP BY DATE(appointmentTime)";        
+        return new Promise((resolve, reject) => {
+            db.knex.raw(sql, [username, startDate, endDate])
+            .then(collection => {
+                var result = collection[0];
+                if (result && result.length > 0) {
+                    var model = JSON.parse(JSON.stringify(result));
+                    resolve(model);
+                } else{
+                    resolve(null);
+                }
+            })
+            .catch(err => {
+                reject(err);
+            })
+        });
+    },
+
+    reportByMonth: async function(username, startDate, endDate){
+        var sql = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month, YEAR(appointmentTime) as year" 
+        + " FROM tbl_appointment"
+        + " WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ?"
+        + " GROUP BY MONTH(appointmentTime)";        
+        return new Promise((resolve, reject) => {
+            db.knex.raw(sql, [username, startDate, endDate])
+            .then(collection => {
+                var result = collection[0];
+                if (result && result.length > 0) {
+                    var model = JSON.parse(JSON.stringify(result));
+                    resolve(model);
+                } else{
+                    resolve(null);
+                }
+            })
+            .catch(err => {
+                reject(err);
+            })
+        });
+    },
+
+    reportByYear: async function(username, startDate, endDate){
+        var sql = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, YEAR(appointmentTime) as year" 
+        + " FROM tbl_appointment"
+        + " WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ?"
+        + " GROUP BY YEAR(appointmentTime)";        
+        return new Promise((resolve, reject) => {
+            db.knex.raw(sql, [username, startDate, endDate])
+            .then(collection => {
+                var result = collection[0];
+                if (result && result.length > 0) {
+                    var model = JSON.parse(JSON.stringify(result));
+                    resolve(model);
+                } else{
+                    resolve(null);
+                }
+            })
+            .catch(err => {
+                reject(err);
+            })
+        });
+    },
+
     getAppointmentsToRemind: function (time) {
         var startDate = new Date(time);
         startDate.setHours(0, 0, 0, 0);

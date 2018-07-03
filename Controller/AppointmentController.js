@@ -15,7 +15,7 @@ module.exports = function (app, express) {
         var clinicUsername = req.query.clinicUsername;
         var searchDate = req.query.date;
         var json = { "clinicUsername": clinicUsername };
-
+        
         try {
             var appointments;
             if (searchDate) {

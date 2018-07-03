@@ -46,20 +46,21 @@ var test = async function () {
         var sqlTest = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month " 
         + "FROM tbl_appointment "
         + "WHERE appointmentTime BETWEEN  ? AND ? "
-        + "GROUP BY MONTH(appointmentTime)"
+        + "GROUP BY MONTH(appointmentTime)";
 
-
-        db.knex.raw(sqlTest, [startDate, endDate])
-            .then(collection => {
-                var result = collection[0];
-                if (result && result.length > 0) {
-                    var model = JSON.parse(JSON.stringify(result));
-                    console.log(model);
-                }
-            })
-            .catch(err => {
-                console.log(err)
-            })
+        var result = await appointmentDao.reportByYear("hoanghoa", startDate, endDate);
+        console.log(result);
+        // db.knex.raw(sqlTest, [startDate, endDate])
+        //     .then(collection => {
+        //         var result = collection[0];
+        //         if (result && result.length > 0) {
+        //             var model = JSON.parse(JSON.stringify(result));
+        //             console.log(model);
+        //         }
+        //     })
+        //     .catch(err => {
+        //         console.log(err)
+        //     })
         // dao.findAll(db.License)
         // .then(model => {
         //     console.log(model);
