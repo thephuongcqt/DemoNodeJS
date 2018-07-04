@@ -18,7 +18,7 @@ module.exports = {
     FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",        
     BookAppointmentFailure: "Đã có lỗi xảy ra khi đặt lịch hẹn, xin quý khách vui lòng thử lại sau",
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",
-    BlockedError: "Số của bạn đã bị chặn bởi phòng khám, vui lòng liên hệ phòng khám để biết thêm chi tiết",
+    BlockedError: "Bạn thông thể đặt hẹn, vui lòng liên hệ phòng khám để biết thêm chi tiết",
     Error: {
         UpdateClinicError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin",
         ClinicChangeInformationError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin phòng khám",
