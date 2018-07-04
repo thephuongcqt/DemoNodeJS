@@ -171,6 +171,12 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         sendSMSToPatient(clinicPhone, patientPhone, message);
         return;
     }
+
+    if(patientName.length > 25){
+        var message = "Tên quá dài, vui lòng thử lại";
+        sendSMSToPatient(clinicPhone, patientPhone, message);
+        return;
+    }
     patientName = utils.toUpperCaseForName(patientName);
     //get clinicUsername from phoneNumber    
     var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
