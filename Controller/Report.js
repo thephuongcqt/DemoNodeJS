@@ -16,7 +16,17 @@ module.exports = function (app, express) {
                 var startDate = new Date(startString);
                 var endDate = new Date(endString);
                 var list = await appointmentDao.reportByDate(username, startDate, endDate);
-                res.json(utils.responseSuccess(list));
+                var result = []
+                for(var i in list){
+                    var item = list[i];
+                    var tmp = {
+                        total: item.total,
+                        present: item.present,
+                        date: utils.parseDate(item.date)
+                    }
+                    result.push(tmp);
+                }
+                res.json(utils.responseSuccess(result));
             } catch (error) {
                 logger.log(error); 
                 res.json(utils.responseFailure(error.message));
