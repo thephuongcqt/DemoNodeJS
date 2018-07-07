@@ -23,21 +23,20 @@ module.exports = function (app, express) {
         res.set('Content-Type', 'text/xml');
         const VoiceResponse = require('twilio').twiml.VoiceResponse;
         const twiml = new VoiceResponse();
-        var isBlock = await blockDao.isBlockNumber(req.query.From, req.query.To);
+
+        var patientPhone = req.query.From;
+        var clinicPhone = req.query.To;
+
+        var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
         if (isBlock) {
             twiml.reject();
             res.end(twiml.toString());            
-            twilioUtils.sendSMS(req.query.To, req.query.From, Const.BlockedError);
+            twilioUtils.sendSMS(clinicPhone, patientPhone, Const.BlockedError);
             return;
         }
-        // var blockNumber = await clinicDao.getBlockNumber(req.query.From, req.query.phoneNumber);
-        // if(blockNumber){
-        //     twiml.reject();
-        // }
         var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
-
-        var phoneNumber = req.query.phoneNumber;
-        var greetingURL = await clinicDao.getGreetingURL(phoneNumber);
+        
+        var greetingURL = await clinicDao.getGreetingURL(clinicPhone);
 
         twiml.play(greetingURL);
         twiml.record({
@@ -51,7 +50,7 @@ module.exports = function (app, express) {
     apiRouter.post("/Recorded", async function (req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
-        // var client = configUtils.getTwilioByID(req.body.AccountSid);
+        
         var client = await twilioDao.getTwilioByID(req.body.AccountSid);
         if (client) {
             speechToText.getTextFromVoice(req.body.RecordingUrl)
