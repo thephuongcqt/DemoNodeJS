@@ -38,7 +38,7 @@ var licenseDao = {
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Update license successfully");
+                    reject("Update license fail");
                 });
         });
     },
@@ -51,7 +51,7 @@ var licenseDao = {
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Create license successfully");
+                    reject("Create license fail");
                 });
         });
     },
