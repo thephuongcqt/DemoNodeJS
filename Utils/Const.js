@@ -21,6 +21,7 @@ module.exports = {
     NOTBLOCK: 0,
     BLOCK: 1,
     
+    AppointmentCancelMessage: "Vì lý do bất khả kháng nên phòng khám hôm nay không thể làm viêc, phòng khám xin phép huỷ cuộc hẹn với bạn. Mong bạn thông cảm và quay lại vào hôm sau",
     FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",        
     BookAppointmentFailure: "Đã có lỗi xảy ra khi đặt lịch hẹn, xin quý khách vui lòng thử lại sau",
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",

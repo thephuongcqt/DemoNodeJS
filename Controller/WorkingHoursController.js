@@ -137,6 +137,7 @@ module.exports = function (app, express) {
     });
     return apiRouter;
 };
+
 function getWorkingHours(username) {
     return new Promise((resolve, reject) => {
         workingHoursDAO.getWorkingHours(username)

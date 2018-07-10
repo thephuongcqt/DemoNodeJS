@@ -32,26 +32,49 @@ var test = async function () {
         var startDate = new Date('2017-04-01');
         var endDate = new Date('2018-07-04');
 
-        var sqlReportDay = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, DATE(appointmentTime) as date " 
-        + "FROM tbl_appointment "
-        + "WHERE clinicUsername = 'kingofthekiller' "
-        + "GROUP BY DATE(appointmentTime)";
+        var sqlReportDay = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, DATE(appointmentTime) as date "
+            + "FROM tbl_appointment "
+            + "WHERE clinicUsername = 'kingofthekiller' "
+            + "GROUP BY DATE(appointmentTime)";
 
-        var sqlReportMonth = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month " 
-        + "FROM tbl_appointment "
-        + "WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ? "
-        + "GROUP BY MONTH(appointmentTime)"
+        var sqlReportMonth = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month "
+            + "FROM tbl_appointment "
+            + "WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ? "
+            + "GROUP BY MONTH(appointmentTime)"
 
 
-        var sqlTest = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month " 
-        + "FROM tbl_appointment "
-        + "WHERE appointmentTime BETWEEN  ? AND ? "
-        + "GROUP BY MONTH(appointmentTime)";
-        
+        var sqlTest = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month "
+            + "FROM tbl_appointment "
+            + "WHERE appointmentTime BETWEEN  ? AND ? "
+            + "GROUP BY MONTH(appointmentTime)";
+
         var sql = "SELECT SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month"
-        + " FROM tbl_appointment "
-        + " WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ? "
-        + " GROUP BY MONTH(appointmentTime)"
+            + " FROM tbl_appointment "
+            + " WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ? "
+            + " GROUP BY MONTH(appointmentTime)"
+
+        try {
+            var users = await dao.findByProperties(db.User, { "username": "hoanghoa" });
+            var clinicPhone = users[0].phoneNumber;
+            var appointmentsList = await appointmentDao.getAppointmentsForSpecifyDayWithRelated({ "clinicUsername": "hoanghoa" }, "2018-07-03", "patient");
+            var promises = [];
+            for (var index in appointmentsList) {
+                var item = appointmentsList[index];
+                var json = {
+                    "appointmentID": item.appointmentID,
+                    "status": Const.appointmentStatus.CLINIC_CANCEL
+                }
+                var patientPhone = item.patient.phoneNumber;
+                var promise = dao.update(db.Appointment, json, "appointmentID");
+                promises.push(promise);
+                twilioUtils.sendSMS(clinicPhone, patientPhone, Const.AppointmentCancelMessage);
+            }
+            await Promise.all(promises)
+            
+        } catch (error) {
+            logger.log(error);            
+        }
+
         // var result = await appointmentDao.reportByYear("hoanghoa", startDate, endDate);
         // console.log(result);
         // db.knex.raw(sql, ["hoanghoa", startDate, endDate])

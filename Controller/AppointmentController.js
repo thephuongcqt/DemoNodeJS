@@ -97,10 +97,32 @@ module.exports = function (app, express) {
     });
 
     apiRouter.post("/cancelWorking", async function (req, res) {
-        var username = req.body.username;
-        
-        var result = await getAppointmentList(username);
-        res.json(utils.responseSuccess(result));
+        var username = req.body.username;            
+        try {
+            var users = await dao.findByProperties(db.User, { "username": username});
+            var clinicPhone = users[0].phoneNumber;
+            var appointmentsList = await appointmentDao.getAppointmentsForSpecifyDayWithRelated({ "clinicUsername": username }, null, "patient");
+            var promises = [];
+            for (var index in appointmentsList) {
+                var item = appointmentsList[index];
+                if(item.appointmentTime > Date()){
+                    var json = {
+                        "appointmentID": item.appointmentID,
+                        "status": Const.appointmentStatus.CLINIC_CANCEL
+                    }
+                    var patientPhone = item.patient.phoneNumber;
+                    var promise = dao.update(db.Appointment, json, "appointmentID");
+                    promises.push(promise);
+                    twilioUtils.sendSMS(clinicPhone, patientPhone, Const.AppointmentCancelMessage);
+                }                
+            }
+            await Promise.all(promises)
+            var result = await getAppointmentList(username);
+            res.json(utils.responseSuccess(result));
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
+        }        
     });
 
     apiRouter.post("/adjustAppointment", async function (req, res) {
