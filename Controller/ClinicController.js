@@ -169,6 +169,10 @@ module.exports = function (app, express) {
             json.imageURL = imageURL;
         }
         if (examinationDuration) {
+            if (examinationDuration == "00:00:00") {
+                res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                return;
+            }
             var checkDuration = utils.getMomentTime(examinationDuration).isValid();
             if (checkDuration == true) {
                 json.examinationDuration = examinationDuration;
