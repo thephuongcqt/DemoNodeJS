@@ -103,6 +103,7 @@ module.exports = function (app, express) {
             var clinicPhone = users[0].phoneNumber;
             var appointmentsList = await appointmentDao.getAppointmentsForSpecifyDayWithRelated({ "clinicUsername": username }, null, "patient");
             var promises = [];
+            var changed = false;
             for (var index in appointmentsList) {
                 var item = appointmentsList[index];
                 if (item.appointmentTime > Date()) {
@@ -114,11 +115,17 @@ module.exports = function (app, express) {
                     var promise = baseDAO.update(db.Appointment, json, "appointmentID");
                     promises.push(promise);
                     twilioUtils.sendSMS(clinicPhone, patientPhone, Const.AppointmentCancelMessage);
+                    changed = true
                 }
             }
-            await Promise.all(promises)
-            var result = await getAppointmentList(username);
-            res.json(utils.responseSuccess(result));
+            await Promise.all(promises)        
+            if (changed){                    
+                var result = await getAppointmentList(username);
+                res.json(utils.responseSuccess(result));
+            } else{
+                res.json(utils.responseFailure("Không có cuộc hẹn nào được huỷ thành công"));
+            }
+            
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
@@ -160,15 +167,14 @@ module.exports = function (app, express) {
                         twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                         changed = true
                     }
-                }
-                await Promise.all(promises)
-                if (changed) {
+                }             
+                await Promise.all(promises)   
+                if (changed) {                    
                     var result = await getAppointmentList(username);
                     res.json(utils.responseSuccess(result));
                 } else{
                     res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
                 }
-
             } catch (error) {
                 logger.log(error);
                 res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
