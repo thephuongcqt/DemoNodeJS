@@ -102,5 +102,25 @@ var db = {
   Block: bookshelf.Model.extend({
     tableName: 'tbl_block'
   }),
+
+  MedicalRecord: bookshelf.Model.extend({
+    tableName: 'tbl_medical_record'
+  }),
+
+  MedicalMedicine: bookshelf.Model.extend({
+    tableName: 'tbl_medical_medicine'
+  }),
+
+  Medicine: bookshelf.Model.extend({
+    tableName: 'tbl_medicine'
+  }),
+
+  MedicalDiseases: bookshelf.Model.extend({
+    tableName: 'tbl_medical_deseases'
+  }),
+
+  DiseasesName: bookshelf.Model.extend({
+    tableName: 'tbl_diseases_name'
+  })
 };
 module.exports = db;
