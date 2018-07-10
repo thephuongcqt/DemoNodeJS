@@ -19,6 +19,8 @@ module.exports = {
     BookAppointmentFailure: "Đã có lỗi xảy ra khi đặt lịch hẹn, xin quý khách vui lòng thử lại sau",
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",
     BlockedError: "Bạn thông thể đặt hẹn, vui lòng liên hệ phòng khám để biết thêm chi tiết",
+    GetMedicineListFailure: "Đã có lỗi xảy ra khi lấy danh sách thuốc",
+    GetDiseaseListFailure: "Đã có lỗi xảy ra khi lấy danh sách bệnh",
     Error: {
         UpdateClinicError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin",
         ClinicChangeInformationError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin phòng khám",
