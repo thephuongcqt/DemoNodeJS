@@ -13,23 +13,9 @@ module.exports = function (app, express) {
 
     apiRouter.get("/getAppointmentsListByDate", async function (req, res) {
         var clinicUsername = req.query.clinicUsername;
-        var searchDate = req.query.date;
-        var json = { "clinicUsername": clinicUsername };
-        
+        var searchDate = req.query.date;        
         try {
-            var appointments;
-            if (searchDate) {
-                appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, "patient");
-            } else {
-                appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, "patient");
-            }
-            for (var i in appointments) {
-                var appointment = appointments[i];
-                delete appointment.clinicUsername;
-                delete appointment.patientID;
-                appointment.currentTime = utils.parseDate(new Date());
-                appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
-            }
+            var appointments = await getAppointmentList(clinicUsername, searchDate);            
             res.json(utils.responseSuccess(appointments));
         } catch (error) {
             logger.log(error);
@@ -84,9 +70,9 @@ module.exports = function (app, express) {
         try {
             var json = { "appointmentID": appointmentID };
             if (!isNaN(appointmentID) || !isNaN(status)) {
-                if(status == Const.appointmentStatus.ABSENT || status == Const.appointmentStatus.PRESENT){
+                if (status == Const.appointmentStatus.ABSENT || status == Const.appointmentStatus.PRESENT) {
                     json.status = status;
-                } else{
+                } else {
                     json.status = Const.appointmentStatus.ABSENT;
                 }
                 await baseDAO.update(db.Appointment, json, "appointmentID");
@@ -100,7 +86,7 @@ module.exports = function (app, express) {
                     appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
                 }
                 res.json(utils.responseSuccess(resultUpdate));
-            } else{
+            } else {
                 res.json(utils.responseFailure("An error occurred!"));
             }
         }
@@ -109,5 +95,38 @@ module.exports = function (app, express) {
             res.json(utils.responseFailure(err.message));
         }
     });
+
+    apiRouter.post("/cancelWorking", async function (req, res) {
+        var username = req.body.username;
+        
+        var result = await getAppointmentList(username);
+        res.json(utils.responseSuccess(result));
+    });
+
+    apiRouter.post("/adjustAppointment", async function (req, res) {
+        var username = req.body.username;
+
+        var result = await getAppointmentList(username);
+        res.json(utils.responseSuccess(result));
+    });
+
     return apiRouter;
 };
+
+async function getAppointmentList(username, searchDate) {
+    var json = {"clinicUsername": username};
+    var appointments;
+    if (searchDate) {
+        appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, "patient");
+    } else {
+        appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, "patient");
+    }
+    for (var i in appointments) {
+        var appointment = appointments[i];
+        delete appointment.clinicUsername;
+        delete appointment.patientID;
+        appointment.currentTime = utils.parseDate(new Date());
+        appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
+    }
+    return appointments;
+}
