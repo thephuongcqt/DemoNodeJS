@@ -47,10 +47,14 @@ var test = async function () {
         + "FROM tbl_appointment "
         + "WHERE appointmentTime BETWEEN  ? AND ? "
         + "GROUP BY MONTH(appointmentTime)";
-
-        var result = await appointmentDao.reportByYear("hoanghoa", startDate, endDate);
-        console.log(result);
-        // db.knex.raw(sqlTest, [startDate, endDate])
+        
+        var sql = "SELECT SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month"
+        + " FROM tbl_appointment "
+        + " WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ? "
+        + " GROUP BY MONTH(appointmentTime)"
+        // var result = await appointmentDao.reportByYear("hoanghoa", startDate, endDate);
+        // console.log(result);
+        // db.knex.raw(sql, ["hoanghoa", startDate, endDate])
         //     .then(collection => {
         //         var result = collection[0];
         //         if (result && result.length > 0) {

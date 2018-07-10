@@ -122,8 +122,7 @@ var clinicDao = {
         try {
             if (!phoneNumber) {
                 throw new Error("Undefined phone number");
-            }
-            phoneNumber = "+" + phoneNumber.trim();
+            }            
             var json = { "phoneNumber": phoneNumber };
             var clinics = await dao.findByPropertiesWithRelated(db.User, json, "clinic");
             if (!clinics || clinics.length == 0) {
