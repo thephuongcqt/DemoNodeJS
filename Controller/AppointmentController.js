@@ -58,6 +58,9 @@ module.exports = function (app, express) {
                 appointment.phoneNumber = appointment.patient.phoneNumber;
                 appointment.fullName = appointment.patient.fullName;
                 appointment.address = appointment.patient.address;
+                appointment.yob = appointment.patient.yob;
+                appointment.gender = appointment.patient.gender;
+
                 delete appointment.patient;
                 appointment.currentTime = utils.parseDate(new Date());
                 appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
