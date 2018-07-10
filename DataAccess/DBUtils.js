@@ -116,7 +116,7 @@ var db = {
   }),
 
   MedicalDiseases: bookshelf.Model.extend({
-    tableName: 'tbl_medical_deseases'
+    tableName: 'tbl_medical_diseases'
   }),
 
   DiseasesName: bookshelf.Model.extend({
