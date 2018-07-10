@@ -12,6 +12,8 @@ var backgroundService = require("./Scheduler/BackgroundService");
 var accountController = require("./Controller/TwilioAccountController")(app, express);
 var blockController = require("./Controller/BlockController")(app, express);
 var reportController = require("./Controller/Report")(app, express);
+var medicineController = require("./Controller/MedicineController")(app, express);
+var diseaseController = require("./Controller/DiseaseController")(app, express);
 // Add headers
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -61,6 +63,10 @@ app.use("/account", accountController);
 app.use("/block", blockController);
 // route to report controller 
 app.use("/report", reportController);
+// route to medicine controller 
+app.use("/medicine", medicineController);
+// route to disease controller 
+app.use("/disease", diseaseController);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/", function(req, res){
