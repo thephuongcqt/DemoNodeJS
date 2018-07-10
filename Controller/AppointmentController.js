@@ -13,9 +13,9 @@ module.exports = function (app, express) {
 
     apiRouter.get("/getAppointmentsListByDate", async function (req, res) {
         var clinicUsername = req.query.clinicUsername;
-        var searchDate = req.query.date;        
+        var searchDate = req.query.date;
         try {
-            var appointments = await getAppointmentList(clinicUsername, searchDate);            
+            var appointments = await getAppointmentList(clinicUsername, searchDate);
             res.json(utils.responseSuccess(appointments));
         } catch (error) {
             logger.log(error);
@@ -97,24 +97,24 @@ module.exports = function (app, express) {
     });
 
     apiRouter.post("/cancelWorking", async function (req, res) {
-        var username = req.body.username;            
+        var username = req.body.username;
         try {
-            var users = await dao.findByProperties(db.User, { "username": username});
+            var users = await baseDAO.findByProperties(db.User, { "username": username });
             var clinicPhone = users[0].phoneNumber;
             var appointmentsList = await appointmentDao.getAppointmentsForSpecifyDayWithRelated({ "clinicUsername": username }, null, "patient");
             var promises = [];
             for (var index in appointmentsList) {
                 var item = appointmentsList[index];
-                if(item.appointmentTime > Date()){
+                if (item.appointmentTime > Date()) {
                     var json = {
                         "appointmentID": item.appointmentID,
                         "status": Const.appointmentStatus.CLINIC_CANCEL
                     }
                     var patientPhone = item.patient.phoneNumber;
-                    var promise = dao.update(db.Appointment, json, "appointmentID");
+                    var promise = baseDAO.update(db.Appointment, json, "appointmentID");
                     promises.push(promise);
                     twilioUtils.sendSMS(clinicPhone, patientPhone, Const.AppointmentCancelMessage);
-                }                
+                }
             }
             await Promise.all(promises)
             var result = await getAppointmentList(username);
@@ -122,11 +122,21 @@ module.exports = function (app, express) {
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
-        }        
+        }
     });
 
     apiRouter.post("/adjustAppointment", async function (req, res) {
         var username = req.body.username;
+        var duration = utils.parseTime(req.body.duration);
+        var checkDuration = utils.getMomentTime(duration).isValid();
+        if (checkDuration == true) {
+            if (examinationDuration == "00:00:00") {
+                res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                return;
+            }
+            
+            console.log(duration);
+        }
 
         var result = await getAppointmentList(username);
         res.json(utils.responseSuccess(result));
@@ -136,7 +146,7 @@ module.exports = function (app, express) {
 };
 
 async function getAppointmentList(username, searchDate) {
-    var json = {"clinicUsername": username};
+    var json = { "clinicUsername": username };
     var appointments;
     if (searchDate) {
         appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, "patient");
