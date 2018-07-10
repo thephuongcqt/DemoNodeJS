@@ -130,7 +130,16 @@ module.exports = function (app, express) {
                     json.clinicName = clinicName;
                 }
                 if (examinationDuration) {
-                    json.examinationDuration = examinationDuration;
+                    if (examinationDuration == "00:00:00") {
+                        res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                        return;
+                    }
+                    var checkDuration = utils.getMomentTime(examinationDuration).isValid();
+                    if (checkDuration == true) {
+                        json.examinationDuration = examinationDuration;
+                    } else {
+                        json.examinationDuration = undefined;
+                    }
                 }
                 await baseDAO.update(db.Clinic, json, "username");
             }
@@ -169,6 +178,10 @@ module.exports = function (app, express) {
             json.imageURL = imageURL;
         }
         if (examinationDuration) {
+            if (examinationDuration == "00:00:00") {
+                res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                return;
+            }
             var checkDuration = utils.getMomentTime(examinationDuration).isValid();
             if (checkDuration == true) {
                 json.examinationDuration = examinationDuration;

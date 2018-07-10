@@ -78,13 +78,18 @@ module.exports = function (app, express) {
                 examinationDuration = utils.parseTime(req.body.examinationDuration);
                 var checkDuration = utils.getMomentTime(examinationDuration).isValid();
                 if (checkDuration == true) {
-                    var json = { "username": username };
-                    json.examinationDuration = examinationDuration;
-                    await baseDAO.update(db.Clinic, json, "username");
+                    if (examinationDuration == "00:00:00") {
+                        res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                        return;
+                    }
+                    var jsonDuration = { "username": username };
+                    jsonDuration.examinationDuration = examinationDuration;
+                    await baseDAO.update(db.Clinic, jsonDuration, "username");
                 }
             }
             if (listValue == null) {
                 res.json(utils.responseFailure("Vui lòng nhập giờ làm việc"));
+                return;
             } else {
                 if (listValue.length > 0) {
                     for (var i = 0; i < listValue.length; i++) {
