@@ -7,7 +7,7 @@ var configUtils = require("./Utils/ConfigUtils");
 var twilioUtils = require("./ThirdPartyHotline/TwilioUtils");
 
 var test = async function () {
-    var dao = require("./DataAccess/BaseDAO");
+    var baseDao = require("./DataAccess/BaseDAO");
     var clinicDao = require("./DataAccess/ClinicDAO");
     var appointmentDao = require("./DataAccess/AppointmentDAO");
     var scheduler = require("./Scheduler/Scheduler");
@@ -54,25 +54,32 @@ var test = async function () {
             + " GROUP BY MONTH(appointmentTime)"
 
         try {
-            var users = await dao.findByProperties(db.User, { "username": "hoanghoa" });
+            var duration = utils.parseTime("0:30:00 A");            
+            var mDuration = utils.getMomentTime(duration);
+            var users = await baseDao.findByProperties(db.User, { "username": "hoanghoa" });
             var clinicPhone = users[0].phoneNumber;
             var appointmentsList = await appointmentDao.getAppointmentsForSpecifyDayWithRelated({ "clinicUsername": "hoanghoa" }, "2018-07-03", "patient");
             var promises = [];
             for (var index in appointmentsList) {
-                var item = appointmentsList[index];
+                var item = appointmentsList[index];                
+                var mTime = Moment(item.appointmentTime);
+                var miliseconds = utils.getMiliseconds(mDuration);
+                mTime.add(miliseconds, "milliseconds");
+                
                 var json = {
                     "appointmentID": item.appointmentID,
-                    "status": Const.appointmentStatus.CLINIC_CANCEL
+                    "appointmentTime": mTime.toDate()
                 }
                 var patientPhone = item.patient.phoneNumber;
-                var promise = dao.update(db.Appointment, json, "appointmentID");
+                var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."                
+                var promise = baseDao.update(db.Appointment, json, "appointmentID");
                 promises.push(promise);
-                twilioUtils.sendSMS(clinicPhone, patientPhone, Const.AppointmentCancelMessage);
+                twilioUtils.sendSMS(clinicPhone, patientPhone, message);
             }
             await Promise.all(promises)
             
         } catch (error) {
-            logger.log(error);            
+            console.log(error)   
         }
 
         // var result = await appointmentDao.reportByYear("hoanghoa", startDate, endDate);

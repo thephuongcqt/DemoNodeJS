@@ -130,16 +130,50 @@ module.exports = function (app, express) {
         var duration = utils.parseTime(req.body.duration);
         var checkDuration = utils.getMomentTime(duration).isValid();
         if (checkDuration == true) {
-            if (examinationDuration == "00:00:00") {
+            if (duration == "00:00:00") {
                 res.json(utils.responseFailure("Thời lượng khám không chính xác"));
                 return;
             }
-            
-            console.log(duration);
-        }
+            var mDuration = utils.getMomentTime(duration);
+            var changed = false;
+            try {
+                var users = await baseDAO.findByProperties(db.User, { "username": username });
+                var clinicPhone = users[0].phoneNumber;
+                var appointmentsList = await appointmentDao.getAppointmentsForSpecifyDayWithRelated({ "clinicUsername": username }, null, "patient");
+                var promises = [];
+                for (var index in appointmentsList) {
+                    var item = appointmentsList[index];
+                    if (item.appointmentTime > Date()) {
+                        var mTime = Moment(item.appointmentTime);
+                        var miliseconds = utils.getMiliseconds(mDuration);
+                        mTime.add(miliseconds, "milliseconds");
 
-        var result = await getAppointmentList(username);
-        res.json(utils.responseSuccess(result));
+                        var json = {
+                            "appointmentID": item.appointmentID,
+                            "appointmentTime": mTime.toDate()
+                        }
+
+                        var patientPhone = item.patient.phoneNumber;
+                        var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."
+                        var promise = baseDao.update(db.Appointment, json, "appointmentID");
+                        promises.push(promise);
+                        twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                        changed = true
+                    }
+                }
+                await Promise.all(promises)
+                if (changed) {
+                    var result = await getAppointmentList(username);
+                    res.json(utils.responseSuccess(result));
+                } else{
+                    res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
+                }
+
+            } catch (error) {
+                logger.log(error);
+                res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
+            }
+        }
     });
 
     return apiRouter;

@@ -68,6 +68,15 @@ var utils = {
     generatePasswordToken: function () {
         var min = 1000, max = 9999;
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+
+    miliseconds: function(hours, minutes, seconds) {
+        return ((hours * 60 * 60 + minutes * 60 + seconds) * 1000);
+    },
+    
+    getMiliseconds: function(mTime) {
+        var times = this.miliseconds(mTime.hour(), mTime.minute(), mTime.second());
+        return times;
     }
 }
 module.exports = utils;
