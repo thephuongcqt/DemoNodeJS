@@ -24,7 +24,7 @@ module.exports = function (app, express) {
             res.json(utils.responseFailure(Const.GetMedicineListFailure));
         }
     });
-    
+
     apiRouter.post("/create", async function (req, res) {
         try {
             var appointmentID = req.body.appointmentID;
@@ -32,6 +32,14 @@ module.exports = function (app, express) {
             var description = req.body.description;
             var listMedicine = req.body.medicines;
             var listDisease = req.body.diseases;
+            var getAllRecords = await medicalRecordDao.getAllRecord();
+            for (var i in getAllRecords) {
+                var checkRecord = getAllRecords[i].appointmentID;
+                if (checkRecord == appointmentID) {
+                    res.json(utils.responseFailure(Const.MedicalRecordFailure));
+                    return;
+                }
+            }
             // var listMedicine = [{
             //     "medicineID": 1,
             //     "quantity": 30,

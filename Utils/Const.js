@@ -28,6 +28,7 @@ module.exports = {
     BlockedError: "Bạn thông thể đặt hẹn, vui lòng liên hệ phòng khám để biết thêm chi tiết",
     GetMedicineListFailure: "Đã có lỗi xảy ra khi lấy danh sách thuốc",
     GetDiseaseListFailure: "Đã có lỗi xảy ra khi lấy danh sách bệnh",
+    MedicalRecordFailure: "Bệnh án đã tồn tại",
     Error: {
         UpdateClinicError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin",
         ClinicChangeInformationError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin phòng khám",
