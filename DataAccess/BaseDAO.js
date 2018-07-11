@@ -78,6 +78,23 @@ var dao = {
         });
     },
 
+    deleteByProperties: function(table, json){
+        return new Promise((resolve, reject) => {
+            table.where(json)
+            .destroy()
+            .then(model => {
+                if(model){
+                    resolve(model.toJSON());
+                } else {
+                    resolve(model);
+                }
+            })
+            .catch(err => {
+                reject(err);
+            })
+        });
+    },
+
     findByID: function (table, idName, id) {
         return new Promise((resolve, reject) => {
             var json = {};

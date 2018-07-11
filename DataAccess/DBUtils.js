@@ -44,6 +44,10 @@ var db = {
     clinic: function () {
       return this.hasOne(db.Clinic, 'clinicUsername', 'username');
     },
+
+    medicalRecords: function(){
+      return this.hasOne(db.MedicalRecord, 'appointmentID', 'appointmentID')
+    }
   }),
 
   Bill: bookshelf.Model.extend({

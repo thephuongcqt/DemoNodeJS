@@ -25,9 +25,18 @@ module.exports = function (app, express) {
         }
     });
 
-    apiRouter.post("/create", async function (req, res) {
+    apiRouter.post("/getMedicalRecord", async function(req, res){
         try {
-            var appointmentID = req.body.appointmentID;
+            var patientID = req.body.patientID;
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(Const.GetMedicineListFailure));
+        }
+    });
+
+    apiRouter.post("/create", async function (req, res) {
+        var appointmentID = req.body.appointmentID;
+        try {            
             var reminding = req.body.reminding;
             var description = req.body.description;
             var listMedicine = req.body.medicines;
@@ -40,32 +49,16 @@ module.exports = function (app, express) {
                     return;
                 }
             }
-            // var listMedicine = [{
-            //     "medicineID": 1,
-            //     "quantity": 30,
-            //     "description": "Ngày uống 2 lần, mỗi lần 1 viên"
-            // },
-            // {
-            //     "medicineID": 2,
-            //     "quantity": 30,
-            //     "description": "Ngày uống 3 lần, mỗi lần 1 viên"
-            // },
-            // {
-            //     "medicineID": 3,
-            //     "quantity": 15,
-            //     "description": "Ngày uống 1 lần, mỗi lần nửa viên"
-            // }];
-            // var listDisease = [{
-            //     "diseasesID": 1
-            // },
-            // {
-            //     "diseasesID": 2
-            // }];
             await medicalRecordDao.createMedicalRecord(appointmentID, reminding, description, listMedicine, listDisease);
             res.json(utils.responseSuccess("Tạo bệnh án thành công thành công"));
         } catch (err) {
             res.json(utils.responseFailure(err.message));
             logger.log(err);
+            try {
+                await medicalRecordDao.removeStuffMedialRecord(appointmentID);
+            } catch (error) {
+                logger.log(error);
+            }
         }
     });
     return apiRouter;

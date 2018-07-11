@@ -59,5 +59,11 @@ var medicalRecordDao = {
             throw new Error(Const.Error.MecicalRecordCreatedAnErrorOccured);
         }
     },
+
+    removeStuffMedialRecord: async function(appointmentID){
+        var json = {"appointmentID": appointmentID};
+        var promises = [dao.deleteByProperties(db.MedicalRecord, json), dao.deleteByProperties(db.MedicalMedicine, json), dao.deleteByProperties(db.MedicalDiseases, json)];
+        await Promise.all(promises);
+    }
 }
 module.exports = medicalRecordDao;
