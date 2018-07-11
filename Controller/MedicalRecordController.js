@@ -37,11 +37,18 @@ module.exports = function (app, express) {
                 var items = await baseDAO.findByPropertiesWithManyRelated(db.MedicalRecord, recordJson, ["medicalDisease", "medicalMedicines"]);                                
                 if (items && items.length > 0) {
                     var item = items[0];
-                    
-                    appointment.medicalRecord.medicalMedicines = item.medicalMedicines;
-                    appointment.medicalRecord.medicalDisease = item.medicalDisease;
-                    
-                    medicalRecords.push(appointment);
+                                        
+                    var response = {
+                        appointmentID: appointment.appointmentID,
+                        appointmentTime: utils.parseDate(appointment.appointmentTime),
+                        no: appointment.no,
+                        status: appointment.status,
+                        reminding: appointment.reminding,
+                        description: appointment.description,
+                        medicalMedicines: item.medicalMedicines,
+                        medicalDisease: item.medicalDisease,                        
+                    }
+                    medicalRecords.push(response);
                 }
             }
             res.json(utils.responseSuccess(medicalRecords));
