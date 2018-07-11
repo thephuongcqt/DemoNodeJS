@@ -7,6 +7,7 @@ var baseDAO = require("../DataAccess/BaseDAO");
 var logger = require("../Utils/Logger");
 var blockDAO = require("../DataAccess/BlockDAO");
 var appointmentDao = require("../DataAccess/AppointmentDAO");
+var twilioUtils = require("../ThirdPartyHotline/TwilioUtils");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -101,12 +102,12 @@ module.exports = function (app, express) {
         try {
             var users = await baseDAO.findByProperties(db.User, { "username": username });
             var clinicPhone = users[0].phoneNumber;
-            var appointmentsList = await appointmentDao.getAppointmentsForSpecifyDayWithRelated({ "clinicUsername": username }, null, "patient");
+            var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, "patient");
             var promises = [];
             var changed = false;
             for (var index in appointmentsList) {
                 var item = appointmentsList[index];
-                if (item.appointmentTime > Date()) {
+                if (item.appointmentTime > new Date()) {
                     var json = {
                         "appointmentID": item.appointmentID,
                         "status": Const.appointmentStatus.CLINIC_CANCEL
@@ -146,11 +147,11 @@ module.exports = function (app, express) {
             try {
                 var users = await baseDAO.findByProperties(db.User, { "username": username });
                 var clinicPhone = users[0].phoneNumber;
-                var appointmentsList = await appointmentDao.getAppointmentsForSpecifyDayWithRelated({ "clinicUsername": username }, null, "patient");
+                var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, "patient");
                 var promises = [];
                 for (var index in appointmentsList) {
                     var item = appointmentsList[index];
-                    if (item.appointmentTime > Date()) {
+                    if (item.appointmentTime > new Date()) {
                         var mTime = Moment(item.appointmentTime);
                         var miliseconds = utils.getMiliseconds(mDuration);
                         mTime.add(miliseconds, "milliseconds");
@@ -162,7 +163,7 @@ module.exports = function (app, express) {
 
                         var patientPhone = item.patient.phoneNumber;
                         var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."
-                        var promise = baseDao.update(db.Appointment, json, "appointmentID");
+                        var promise = baseDAO.update(db.Appointment, json, "appointmentID");
                         promises.push(promise);
                         twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                         changed = true
