@@ -2,19 +2,26 @@ module.exports = {
     ROLE_ADMIN: 0,
     ROLE_CLINIC: 1,
     ROLE_STAFF: 2,
+    
     ACTIVATION: 1,
     DEACTIVATION: 0,
+
     DAYOFF: 1,
     DAYWORK: 0,
+
     appointmentStatus: {
         ABSENT: 0,
-        PRESENT: 1
+        PRESENT: 1,
+        CLINIC_CANCEL: 2
     },
+
     UNCHECK: 0,
     VISIT: 1,
     NOTVISIT: 2,
     NOTBLOCK: 0,
     BLOCK: 1,
+    
+    AppointmentCancelMessage: "Vì lý do bất khả kháng nên phòng khám hôm nay không thể làm viêc, phòng khám xin phép huỷ cuộc hẹn với bạn. Mong bạn thông cảm và quay lại vào hôm sau",
     FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",        
     BookAppointmentFailure: "Đã có lỗi xảy ra khi đặt lịch hẹn, xin quý khách vui lòng thử lại sau",
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",

@@ -30,12 +30,12 @@ module.exports = function (app, express) {
         var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
         if (isBlock) {
             twiml.reject();
-            res.end(twiml.toString());            
+            res.end(twiml.toString());
             twilioUtils.sendSMS(clinicPhone, patientPhone, Const.BlockedError);
             return;
         }
         var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
-        
+
         var greetingURL = await clinicDao.getGreetingURL(clinicPhone);
 
         twiml.play(greetingURL);
@@ -50,7 +50,7 @@ module.exports = function (app, express) {
     apiRouter.post("/Recorded", async function (req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
-        
+
         var client = await twilioDao.getTwilioByID(req.body.AccountSid);
         if (client) {
             speechToText.getTextFromVoice(req.body.RecordingUrl)
@@ -171,15 +171,23 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         return;
     }
 
-    if(patientName.length > 25){
+    if (patientName.length > 25) {
         var message = "Tên quá dài, vui lòng thử lại";
         sendSMSToPatient(clinicPhone, patientPhone, message);
         return;
     }
     patientName = utils.toUpperCaseForName(patientName);
     //get clinicUsername from phoneNumber    
+
     var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
     if (userClinic) {
+        var isDayOff = await checkIsDayOff(userClinic.username);        
+        if(isDayOff){
+            var message = "Hôm nay phòng khám không hoạt động. Xin quý khách vui lòng quay lại vào hôm sau.";
+            sendSMSToPatient(clinicPhone, patientPhone, message);                        
+            return 
+        }
+
         var patient = {
             "phoneNumber": patientPhone,
             "fullName": patientName,
@@ -215,4 +223,20 @@ async function fakePhoneNumber(clinicUsername, patientPhone) {
         logger.log(error);
     }
     return null;
+}
+
+async function checkIsDayOff(username) {
+    var bookingDate = new Date().getDay();
+    try {
+        var configs = await baseDao.findByProperties(db.WorkingHours, { "clinicUsername": username, "applyDate": bookingDate });
+        if (configs != null && configs.length > 0) {
+            var config = configs[0];
+            if (config && config.isDayOff === 1) {
+                return true
+            }
+        }
+    } catch (error) {
+        logger.log(error);
+    }
+    return false
 }
