@@ -28,7 +28,8 @@ module.exports = {
         ScheduleAppointmentError: "Đã có lỗi xảy ra khi sắp xếp lịch khám, xin quý khách vui lòng thử lại sau",
         ClinicRegisterMissingFields: "Vui lòng điền đủ thông tin để đăng ký tài khoản",
         ClinicRegisterExistedClinic: "Tên đăng nhập hoặc Email hoặc số điện thoại đã tồn tại!",
-        ClinicRegisterAnErrorOccured: "Đã có lỗi xảy ra trong quá trình đăng ký tài khoản, Vui lòng thử lại sau"
+        ClinicRegisterAnErrorOccured: "Đã có lỗi xảy ra trong quá trình đăng ký tài khoản, Vui lòng thử lại sau",
+        MecicalRecordCreatedAnErrorOccured: "Đã có lỗi xảy ra trong quá trình tạo bệnh án. Xin vui lòng thử lại sau"
     },
 
     DefaultGreetingURL: "https://firebasestorage.googleapis.com/v0/b/chatfirebase-1e377.appspot.com/o/Welcome.mp3?alt=media&token=6914df70-85d3-4ea4-9ce0-edf4516ea353",
