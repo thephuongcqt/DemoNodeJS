@@ -45,7 +45,7 @@ var db = {
       return this.hasOne(db.Clinic, 'clinicUsername', 'username');
     },
 
-    medicalRecords: function(){
+    medicalRecord: function(){
       return this.hasOne(db.MedicalRecord, 'appointmentID', 'appointmentID')
     }
   }),
@@ -109,7 +109,7 @@ var db = {
 
   MedicalRecord: bookshelf.Model.extend({
     tableName: 'tbl_medical_record',
-    meidicalDisease: function () {
+    medicalDisease: function () {
       return this.hasMany(db.MedicalDiseases, 'appointmentID', "appointmentID");
     },
     medicalMedicines: function () {

@@ -25,9 +25,26 @@ module.exports = function (app, express) {
         }
     });
 
-    apiRouter.post("/getMedicalRecord", async function(req, res){
+    apiRouter.post("/getMedicalRecord", async function (req, res) {
         try {
             var patientID = req.body.patientID;
+            var json = { patientID: patientID };            
+            var medicalRecords = []
+            var result = await baseDAO.findByPropertiesWithRelated(db.Appointment, json, "medicalRecord");            
+            for (var index in result) {
+                var appointment = result[index];
+                var recordJson = { appointmentID: appointment.appointmentID };
+                var items = await baseDAO.findByPropertiesWithManyRelated(db.MedicalRecord, recordJson, ["medicalDisease", "medicalMedicines"]);                                
+                if (items && items.length > 0) {
+                    var item = items[0];
+                    
+                    appointment.medicalRecord.medicalMedicines = item.medicalMedicines;
+                    appointment.medicalRecord.medicalDisease = item.medicalDisease;
+                    
+                    medicalRecords.push(appointment);
+                }
+            }
+            res.json(utils.responseSuccess(medicalRecords));
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetMedicineListFailure));
@@ -36,7 +53,7 @@ module.exports = function (app, express) {
 
     apiRouter.post("/create", async function (req, res) {
         var appointmentID = req.body.appointmentID;
-        try {            
+        try {
             var reminding = req.body.reminding;
             var description = req.body.description;
             var listMedicine = req.body.medicines;
