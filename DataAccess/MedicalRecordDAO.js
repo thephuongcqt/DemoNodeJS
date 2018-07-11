@@ -48,7 +48,7 @@ var medicalRecordDao = {
             }
             for (var i = 0; i < listDisease.length; i++) {
                 var diseaseJson = {
-                    "diseasesID": listDisease[i].diseasesID,
+                    "diseasesID": listDisease[i],
                     "appointmentID": appointmentID
                 };
                 promises.push(dao.create(db.MedicalDiseases, diseaseJson));
@@ -59,6 +59,5 @@ var medicalRecordDao = {
             throw new Error(Const.Error.MecicalRecordCreatedAnErrorOccured);
         }
     },
-
 }
 module.exports = medicalRecordDao;

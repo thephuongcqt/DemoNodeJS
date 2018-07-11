@@ -71,10 +71,10 @@ module.exports = {
                     no: appointments.length + 1,
                     remindTime: mTime.toDate()
                 };
-            } 
+            }
             return null;
         } else {
             throw new Error("Cannot find config working hours at method getExpectationAppointment");
-        }        
+        }
     }
 }

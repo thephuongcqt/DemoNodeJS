@@ -52,7 +52,18 @@ var test = async function () {
         + " FROM tbl_appointment "
         + " WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ? "
         + " GROUP BY MONTH(appointmentTime)"
-
+    var medicalDao = require("./DataAccess/MedicalRecordDAO");
+    var medicines = [{
+        medicineID: 1,
+        quantity:1
+    }];
+    var diseases = [{diseasesID: 1}];    
+    try {
+        var result = await medicalDao.createMedicalRecord(524, "remind", "des", medicines, diseases);    
+        console.log(result);
+    } catch (error) {
+        console.log(error);
+    }
     // try {
     //     var duration = utils.parseTime("0:30:00 A");            
     //     var mDuration = utils.getMomentTime(duration);
@@ -82,56 +93,56 @@ var test = async function () {
     //     console.log(error)   
     // }
 
-    var username = "hoanghoa";
-    var duration = utils.parseTime("0:30:00 A");
-    var checkDuration = utils.getMomentTime(duration).isValid();
-    if (checkDuration == true) {
-        if (duration == "00:00:00") {
-            res.json(utils.responseFailure("Thời lượng khám không chính xác"));
-            return;
-        }
-        var mDuration = utils.getMomentTime(duration);
-        var changed = false;
-        try {
-            var users = await baseDAO.findByProperties(db.User, { "username": username });
-            var clinicPhone = users[0].phoneNumber;
-            var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, "patient");
-            var promises = [];
-            for (var index in appointmentsList) {
-                var item = appointmentsList[index];
-                if (item.appointmentTime > new Date()) {                
-                    var mTime = Moment(item.appointmentTime);
-                    var miliseconds = utils.getMiliseconds(mDuration);
-                    mTime.add(miliseconds, "milliseconds");
+    // var username = "hoanghoa";
+    // var duration = utils.parseTime("0:30:00 A");
+    // var checkDuration = utils.getMomentTime(duration).isValid();
+    // if (checkDuration == true) {
+    //     if (duration == "00:00:00") {
+    //         res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+    //         return;
+    //     }
+    //     var mDuration = utils.getMomentTime(duration);
+    //     var changed = false;
+    //     try {
+    //         var users = await baseDAO.findByProperties(db.User, { "username": username });
+    //         var clinicPhone = users[0].phoneNumber;
+    //         var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, "patient");
+    //         var promises = [];
+    //         for (var index in appointmentsList) {
+    //             var item = appointmentsList[index];
+    //             if (item.appointmentTime > new Date()) {                
+    //                 var mTime = Moment(item.appointmentTime);
+    //                 var miliseconds = utils.getMiliseconds(mDuration);
+    //                 mTime.add(miliseconds, "milliseconds");
 
-                    var json = {
-                        "appointmentID": item.appointmentID,
-                        "appointmentTime": mTime.toDate()
-                    }
+    //                 var json = {
+    //                     "appointmentID": item.appointmentID,
+    //                     "appointmentTime": mTime.toDate()
+    //                 }
 
-                    var patientPhone = item.patient.phoneNumber;
-                    var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."
-                    var promise = baseDAO.update(db.Appointment, json, "appointmentID");
-                    promises.push(promise);
-                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
-                    changed = true
-                }
-            }
-            await Promise.all(promises)
-            if (changed) {
-                var result = await getAppointmentList(username);
-                // res.json(utils.responseSuccess(result));
-                console.log(result);
-            } else {
-                console.log("Không có cuộc hẹn nào được chỉnh sửa thành công");
-                // res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
-            }
-        } catch (error) {
-            logger.log(error);
-            console.log(error);
-            // res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
-        }
-    }
+    //                 var patientPhone = item.patient.phoneNumber;
+    //                 var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."
+    //                 var promise = baseDAO.update(db.Appointment, json, "appointmentID");
+    //                 promises.push(promise);
+    //                 twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+    //                 changed = true
+    //             }
+    //         }
+    //         await Promise.all(promises)
+    //         if (changed) {
+    //             var result = await getAppointmentList(username);
+    //             // res.json(utils.responseSuccess(result));
+    //             console.log(result);
+    //         } else {
+    //             console.log("Không có cuộc hẹn nào được chỉnh sửa thành công");
+    //             // res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
+    //         }
+    //     } catch (error) {
+    //         logger.log(error);
+    //         console.log(error);
+    //         // res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
+    //     }
+    // }
     // var result = await appointmentDao.reportByYear("hoanghoa", startDate, endDate);
     // console.log(result);
     // db.knex.raw(sql, ["hoanghoa", startDate, endDate])
