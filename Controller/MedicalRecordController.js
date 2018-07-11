@@ -37,7 +37,32 @@ module.exports = function (app, express) {
                 var items = await baseDAO.findByPropertiesWithManyRelated(db.MedicalRecord, recordJson, ["medicalDisease", "medicalMedicines"]);                                
                 if (items && items.length > 0) {
                     var item = items[0];
-                                        
+                    var medicalMedicines = item.medicalMedicines;
+                    var medicinesList = []
+                    for(var index in medicalMedicines){
+                        var tmp = medicalMedicines[index];                        
+                        var tmpResult = await baseDAO.findByID(db.Medicine, "medicineID", tmp.medicineID);
+                        var tmpJson = {
+                            medicineID: tmp.medicineID,
+                            quantity: tmp.quantity,
+                            description: tmp.description,
+                            medicineName: tmpResult.medicineName
+                        }
+                        medicinesList.push(tmpJson);
+                    }
+                    var medicalDisease = item.medicalDisease;
+                    var diseasesList = [];
+                    for(var index in medicalDisease){
+                        var tmp = medicalDisease[index];
+                        
+                        var tmpResult = await baseDAO.findByID(db.DiseasesName, "diseasesID", tmp.diseasesID);
+                        var tmpJson = {
+                            diseasesID: tmp.diseasesID,
+                            diseasesName: tmpResult.diseasesName
+                        }
+                        diseasesList.push(tmpJson);
+                    }                    
+                    
                     var response = {
                         appointmentID: appointment.appointmentID,
                         appointmentTime: utils.parseDate(appointment.appointmentTime),
@@ -45,8 +70,8 @@ module.exports = function (app, express) {
                         status: appointment.status,
                         reminding: appointment.reminding,
                         description: appointment.description,
-                        medicalMedicines: item.medicalMedicines,
-                        medicalDisease: item.medicalDisease,                        
+                        medicalMedicines: medicinesList,
+                        medicalDisease: diseasesList                      
                     }
                     medicalRecords.push(response);
                 }
