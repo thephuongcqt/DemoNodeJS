@@ -41,7 +41,7 @@ module.exports = function (app, express) {
                 var appointment = appointments[i];
                 block = await blockDAO.getBlockNumber(appointment.clinicUsername, appointment.patient.phoneNumber);
                 delete appointment.clinicUsername;
-                delete appointment.patientID;
+                // delete appointment.patientID;
                 appointment.phoneNumber = appointment.patient.phoneNumber;
                 appointment.fullName = appointment.patient.fullName;
                 appointment.address = appointment.patient.address;
