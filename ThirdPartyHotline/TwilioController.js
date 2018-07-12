@@ -81,7 +81,17 @@ module.exports = function (app, express) {
     apiRouter.post("/Message", function (req, res) {
         res.set('Content-Type', 'text/xml');
         res.end();
-        makeAppointment(req.body.From, req.body.Body, req.body.To);
+        var clinicPhone = req.body.To;
+        var patientPhone = req.body.From;
+        var message = req.body.Body;
+
+        message = utils.toBeautifulName(message);
+        var isValid = utils.checkValidateMessage(message);
+        if(isValid){
+            makeAppointment(patientPhone, utils.getFullName(message), clinicPhone);
+        } else{
+            sendSMSToPatient(clinicPhone, patientPhone, Const.Error.WrongFormatMessage);
+        }        
     });
     return apiRouter;
 };
@@ -171,12 +181,12 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         return;
     }
 
-    if (patientName.length > 25) {
+    if (patientName.length > 50) {
         var message = "Tên quá dài, vui lòng thử lại";
         sendSMSToPatient(clinicPhone, patientPhone, message);
         return;
     }
-    patientName = utils.toUpperCaseForName(patientName);
+    patientName = utils.toBeautifulName(patientName);
     //get clinicUsername from phoneNumber    
 
     var userClinic = await clinicDao.findClinicByPhone(clinicPhone);

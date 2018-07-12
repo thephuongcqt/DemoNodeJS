@@ -35,7 +35,7 @@ var utils = {
         }
         return null;
     },
-    
+
     parseDate: function (date) {
         if (date) {
             return Moment(date).format("YYYY-MM-DDTHH:mm:ss.000Z");
@@ -57,12 +57,27 @@ var utils = {
         return null;
     },
 
-    toUpperCaseForName: function (name) {
+    toBeautifulName: function (name) {
         var splitStr = name.toLowerCase().split(' ');
         for (var i = 0; i < splitStr.length; i++) {
             splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
         }
-        return splitStr.join(' ');
+        return splitStr.join(' ').replace(/\s\s+/g, ' ');;
+    },
+
+    checkValidateMessage: function (message) {
+        var firstLetter = "[A-EGHIK-VXYÂĐỔÔÚỨ]".normalize("NFC"),
+            otherLetters = "[a-eghik-vxyàáâãèéêìíòóôõùúýỳỹỷỵựửữừứưụủũợởỡờớơộổỗồốọỏịỉĩệểễềếẹẻẽặẳẵằắăậẩẫầấạảđ₫]".normalize("NFC"),
+            regexString = "^Dh "
+                // + firstLetter + otherLetters + "+\\s"
+                + "(" + firstLetter + otherLetters + "+\\s)*";
+                // + firstLetter + otherLetters + "+$";
+        var regexPattern = RegExp(regexString);
+        return regexPattern.test(message);
+    },
+
+    getFullName: function(name){
+        return name.replace(new RegExp("^Dh "), "");
     },
 
     generatePasswordToken: function () {
@@ -70,11 +85,11 @@ var utils = {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
 
-    miliseconds: function(hours, minutes, seconds) {
+    miliseconds: function (hours, minutes, seconds) {
         return ((hours * 60 * 60 + minutes * 60 + seconds) * 1000);
     },
-    
-    getMiliseconds: function(mTime) {
+
+    getMiliseconds: function (mTime) {
         var times = this.miliseconds(mTime.hour(), mTime.minute(), mTime.second());
         return times;
     }

@@ -112,10 +112,14 @@ module.exports = function (app, express) {
                         "appointmentID": item.appointmentID,
                         "status": Const.appointmentStatus.CLINIC_CANCEL
                     }
-                    var patientPhone = item.patient.phoneNumber;
+                    // var patientPhone = item.patient.phoneNumber;
+                    //Get real phone number
+                    var patientPhone = item.bookedPhone;
                     var promise = baseDAO.update(db.Appointment, json, "appointmentID");
                     promises.push(promise);
-                    twilioUtils.sendSMS(clinicPhone, patientPhone, Const.AppointmentCancelMessage);
+                    if  (clinicPhone && patientPhone){
+                        twilioUtils.sendSMS(clinicPhone, patientPhone, Const.AppointmentCancelMessage);
+                    }                    
                     changed = true
                 }
             }
@@ -160,12 +164,16 @@ module.exports = function (app, express) {
                             "appointmentID": item.appointmentID,
                             "appointmentTime": mTime.toDate()
                         }
-
-                        var patientPhone = item.patient.phoneNumber;
-                        var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."
                         var promise = baseDAO.update(db.Appointment, json, "appointmentID");
                         promises.push(promise);
-                        twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                        
+                        // var patientPhone = item.patient.phoneNumber;
+                        //Get real phone number
+                        var patientPhone = item.bookedPhone;
+                        if(patientPhone && clinicPhone){
+                            var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."                        
+                            twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                        }                        
                         changed = true
                     }
                 }             
