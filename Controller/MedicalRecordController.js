@@ -28,19 +28,19 @@ module.exports = function (app, express) {
     apiRouter.post("/getMedicalRecord", async function (req, res) {
         try {
             var patientID = req.body.patientID;
-            var json = { patientID: patientID };            
+            var json = { patientID: patientID };
             var medicalRecords = []
-            var result = await baseDAO.findByPropertiesWithRelated(db.Appointment, json, "medicalRecord");            
+            var result = await baseDAO.findByPropertiesWithRelated(db.Appointment, json, "medicalRecord");
             for (var index in result) {
                 var appointment = result[index];
                 var recordJson = { appointmentID: appointment.appointmentID };
-                var items = await baseDAO.findByPropertiesWithManyRelated(db.MedicalRecord, recordJson, ["medicalDisease", "medicalMedicines"]);                                
+                var items = await baseDAO.findByPropertiesWithManyRelated(db.MedicalRecord, recordJson, ["medicalDisease", "medicalMedicines"]);
                 if (items && items.length > 0) {
                     var item = items[0];
                     var medicalMedicines = item.medicalMedicines;
                     var medicinesList = []
-                    for(var index in medicalMedicines){
-                        var tmp = medicalMedicines[index];                        
+                    for (var index in medicalMedicines) {
+                        var tmp = medicalMedicines[index];
                         var tmpResult = await baseDAO.findByID(db.Medicine, "medicineID", tmp.medicineID);
                         var tmpJson = {
                             medicineID: tmp.medicineID,
@@ -52,17 +52,17 @@ module.exports = function (app, express) {
                     }
                     var medicalDisease = item.medicalDisease;
                     var diseasesList = [];
-                    for(var index in medicalDisease){
+                    for (var index in medicalDisease) {
                         var tmp = medicalDisease[index];
-                        
+
                         var tmpResult = await baseDAO.findByID(db.DiseasesName, "diseasesID", tmp.diseasesID);
                         var tmpJson = {
                             diseasesID: tmp.diseasesID,
                             diseasesName: tmpResult.diseasesName
                         }
                         diseasesList.push(tmpJson);
-                    }                    
-                    
+                    }
+
                     var response = {
                         appointmentID: appointment.appointmentID,
                         appointmentTime: utils.parseDate(appointment.appointmentTime),
@@ -71,7 +71,7 @@ module.exports = function (app, express) {
                         reminding: appointment.medicalRecord.reminding,
                         description: appointment.description,
                         medicalMedicines: medicinesList,
-                        medicalDisease: diseasesList                      
+                        medicalDisease: diseasesList
                     }
                     medicalRecords.push(response);
                 }
@@ -90,6 +90,11 @@ module.exports = function (app, express) {
             var description = req.body.description;
             var listMedicine = req.body.medicines;
             var listDisease = req.body.diseases;
+            var checkCancel = await baseDAO.findByID(db.Appointment, "appointmentID", appointmentID);
+            if(checkCancel.status != Const.appointmentStatus.PRESENT){
+                res.json(utils.responseFailure("Không thể tạo bệnh án"));
+                return;
+            }
             var getAllRecords = await medicalRecordDao.getAllRecord();
             for (var i in getAllRecords) {
                 var checkRecord = getAllRecords[i].appointmentID;
@@ -99,7 +104,7 @@ module.exports = function (app, express) {
                 }
             }
             await medicalRecordDao.createMedicalRecord(appointmentID, reminding, description, listMedicine, listDisease);
-            res.json(utils.responseSuccess("Tạo bệnh án thành công thành công"));
+            res.json(utils.responseSuccess("Tạo bệnh án thành công"));
         } catch (err) {
             res.json(utils.responseFailure(err.message));
             logger.log(err);
