@@ -68,7 +68,7 @@ module.exports = function (app, express) {
                         appointmentTime: utils.parseDate(appointment.appointmentTime),
                         no: appointment.no,
                         status: appointment.status,
-                        reminding: appointment.reminding,
+                        reminding: appointment.medicalRecord.reminding,
                         description: appointment.description,
                         medicalMedicines: medicinesList,
                         medicalDisease: diseasesList                      

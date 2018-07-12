@@ -29,6 +29,7 @@ module.exports = {
     GetMedicineListFailure: "Đã có lỗi xảy ra khi lấy danh sách thuốc",
     GetDiseaseListFailure: "Đã có lỗi xảy ra khi lấy danh sách bệnh",
     MedicalRecordFailure: "Bệnh án đã tồn tại",
+    
     Error: {
         UpdateClinicError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin",
         ClinicChangeInformationError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin phòng khám",

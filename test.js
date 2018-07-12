@@ -59,7 +59,6 @@ var test = async function () {
         if(utils.checkValidateMessage(message)){
             console.log(message.replace(new RegExp("^Mp "), ""))
         }
-        
     }
 };
 test();
