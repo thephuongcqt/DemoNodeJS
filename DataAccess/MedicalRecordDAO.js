@@ -60,10 +60,22 @@ var medicalRecordDao = {
         }
     },
 
-    removeStuffMedialRecord: async function(appointmentID){
+    removeStuffMedialRecord: function(appointmentID){
         var json = {"appointmentID": appointmentID};
-        var promises = [dao.deleteByProperties(db.MedicalRecord, json), dao.deleteByProperties(db.MedicalMedicine, json), dao.deleteByProperties(db.MedicalDiseases, json)];
-        await Promise.all(promises);
+
+        dao.deleteByProperties(db.MedicalRecord, json)
+        .catch(err => {
+            logger.log(err);
+        })
+        dao.deleteByProperties(db.MedicalMedicine, json)
+        .catch(err => {
+            logger.log(err);
+        })
+        dao.deleteByProperties(db.MedicalDiseases, json)
+        .catch(err => {
+            logger.log(err);
+        })
+        
     }
 }
 module.exports = medicalRecordDao;

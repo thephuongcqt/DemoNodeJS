@@ -108,11 +108,7 @@ module.exports = function (app, express) {
         } catch (err) {
             res.json(utils.responseFailure(err.message));
             logger.log(err);
-            try {
-                await medicalRecordDao.removeStuffMedialRecord(appointmentID);
-            } catch (error) {
-                logger.log(error);
-            }
+            medicalRecordDao.removeStuffMedialRecord(appointmentID);
         }
     });
     return apiRouter;
