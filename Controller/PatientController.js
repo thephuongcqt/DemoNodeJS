@@ -2,6 +2,7 @@ var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var baseDAO = require("../DataAccess/BaseDAO");
+var Moment = require("moment");
 var logger = require("../Utils/Logger");
 var patientDao = require("../DataAccess/PatientDAO");
 
@@ -35,16 +36,37 @@ module.exports = function (app, express) {
         var fullName = req.body.fullName;
         var address = req.body.address;
         var yob = req.body.yob;
+        var parseYOB = undefined;
         var gender = req.body.gender;
         try {
+            if (yob != null) {
+                if (yob == "") {
+                    yob = undefined;
+                } else {
+                    parseYOB = utils.parseDateOnly(new Date(yob));
+                    var checkYOB = Moment(parseYOB, 'YYYY-MM-DD', true).isValid();
+                    if (checkYOB == false) {
+                        res.json(utils.responseFailure("Ngày sinh không hợp lệ"));
+                        return;
+                    }
+                }
+            }
+            if (gender != null) {
+                if (gender == "") {
+                    gender = undefined;
+                } else {
+                    if (isNaN(gender)) {
+                        res.json(utils.responseFailure("Giới tính không hợp lệ"));
+                        return;
+                    }
+                }
+            }
             var patientInfo = await patientDao.getPatientInfo(patientID);
             if (!patientInfo) {
-                res.json(utils.responseFailure("Patient is not exist"));
+                res.json(utils.responseFailure("Bệnh nhân không có trong hệ thống"));
+                return;
             } else {
-                if (isNaN(isActive)) {
-                    isActive = undefined;
-                }
-                var resultUpdate = await medicineDao.updateMedicine(req.body.medicineID, medicineName, unitName, isActive);
+                var resultUpdate = await patientDao.updatePatient(patientID, phoneNumber, fullName, address, parseYOB, gender);
                 res.json(utils.responseSuccess(resultUpdate));
             }
         }

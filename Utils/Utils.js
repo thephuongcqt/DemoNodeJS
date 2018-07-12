@@ -43,6 +43,13 @@ var utils = {
         return null;
     },
 
+    parseDateOnly: function (date) {
+        if (date) {
+            return Moment(date).format("YYYY-MM-DD");
+        }
+        return null;
+    },
+
     parseTime: function (time) {
         if (time) {
             return Moment(time, "h:mm:ss A").format("HH:mm:ss");

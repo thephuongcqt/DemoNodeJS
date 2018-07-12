@@ -91,6 +91,19 @@ var patientDao = {
                 });
         });
     },
+    updatePatient: function (patientID, phoneNumber, fullName, address, yob, gender) {
+        var json = { "patientID": patientID, "phoneNumber": phoneNumber, "fullName": fullName, "address": address, "yob": yob, "gender": gender };
+        return new Promise((resolve, reject) => {
+            dao.update(db.Patient, json, "patientID")
+                .then(collection => {
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Update patient fail");
+                });
+        });
+    }
 };
 
 module.exports = patientDao; 

@@ -2,7 +2,7 @@ module.exports = {
     ROLE_ADMIN: 0,
     ROLE_CLINIC: 1,
     ROLE_STAFF: 2,
-    
+
     ACTIVATION: 1,
     DEACTIVATION: 0,
 
@@ -20,9 +20,9 @@ module.exports = {
     NOTVISIT: 2,
     NOTBLOCK: 0,
     BLOCK: 1,
-    
+
     AppointmentCancelMessage: "Vì lý do bất khả kháng nên phòng khám hôm nay không thể làm viêc, phòng khám xin phép huỷ cuộc hẹn với bạn. Mong bạn thông cảm và quay lại vào hôm sau",
-    FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",        
+    FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",
     BookAppointmentFailure: "Đã có lỗi xảy ra khi đặt lịch hẹn, xin quý khách vui lòng thử lại sau",
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",
     BlockedError: "Bạn thông thể đặt hẹn, vui lòng liên hệ phòng khám để biết thêm chi tiết",
@@ -30,7 +30,7 @@ module.exports = {
     GetDiseaseListFailure: "Đã có lỗi xảy ra khi lấy danh sách bệnh",
     MedicalRecordFailure: "Bệnh án đã tồn tại",
     GetPatientListFailure: "Đã có lỗi xảy ra khi lấy danh sách bệnh nhân",
-    
+
     Error: {
         UpdateClinicError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin",
         ClinicChangeInformationError: "Đã có lỗi xảy ra khi chỉnh sửa thông tin phòng khám",
@@ -47,7 +47,7 @@ module.exports = {
     DefaultExaminationDuration: "00:30:00",
     DefaultStartWorking: "17:00:00",
     DefaultEndWorking: "20:00:00",
-    
+
     Day: {
         Sun: 0,
         Mon: 1,
@@ -58,15 +58,21 @@ module.exports = {
         Sat: 6
     },
 
+    Gender: {
+        Other: 0,
+        Male: 1,
+        Female: 2
+    },
+
     Appointment: {
         appointmentID: "appointmentID",
         clinicUsername: "clinicUsername",
-        patientID: "patientID", 
+        patientID: "patientID",
         appointmentTime: "appointmentTime",
         status: "status"
     },
     Bill: {
-        billID: "billID", 
+        billID: "billID",
         clinicUsername: "clinicUsername",
         licenseID: "licenseID",
         startDate: "startDate",
@@ -74,13 +80,13 @@ module.exports = {
     },
     Clinic: {
         username: "username",
-        address: "address", 
-        clinicName: "clinicName", 
+        address: "address",
+        clinicName: "clinicName",
         examinationDuration: "examinationDuration",
         expiredLicense: "expiredLicense"
     },
     License: {
-        licenseID: "licenseID", 
+        licenseID: "licenseID",
         price: "price",
         duration: "duration",
         name: "name",
