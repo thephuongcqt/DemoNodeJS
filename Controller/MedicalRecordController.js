@@ -92,7 +92,7 @@ module.exports = function (app, express) {
             var listDisease = req.body.diseases;
             var checkCancel = await baseDAO.findByID(db.Appointment, "appointmentID", appointmentID);
             if(checkCancel.status != Const.appointmentStatus.PRESENT){
-                res.json(utils.responseFailure("Không thể tạo bệnh án"));
+                res.json(utils.responseFailure("Bệnh nhân không đến khám, không thể tạo bệnh án"));
                 return;
             }
             var getAllRecords = await medicalRecordDao.getAllRecord();
