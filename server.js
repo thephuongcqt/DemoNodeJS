@@ -15,6 +15,7 @@ var reportController = require("./Controller/Report")(app, express);
 var medicineController = require("./Controller/MedicineController")(app, express);
 var diseaseController = require("./Controller/DiseaseController")(app, express);
 var medicalRecordController = require("./Controller/MedicalRecordController")(app, express);
+var patientController = require("./Controller/PatientController")(app, express);
 // Add headers
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -70,6 +71,8 @@ app.use("/medicine", medicineController);
 app.use("/disease", diseaseController);
 // route to medical record controller 
 app.use("/medicalRecord", medicalRecordController);
+// route to patient controller 
+app.use("/patient", patientController);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/", function(req, res){

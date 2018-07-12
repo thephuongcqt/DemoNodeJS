@@ -66,7 +66,31 @@ var patientDao = {
                     logger.log(err);
                 });
         });
-    }
+    },
+    getPatientInfo: function (patientID) {
+        return new Promise((resolve, reject) => {
+            dao.findByID(db.Patient, "patientID", patientID)
+                .then(collection => {
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Patient is not exist");
+                });
+        });
+    },
+    getAllPatient: function () {
+        return new Promise((resolve, reject) => {
+            dao.findAll(db.Patient)
+                .then(collection => {
+                    resolve(collection);
+                })
+                .catch(err => {
+                    logger.log(err);
+                    reject("Patient is not exist");
+                });
+        });
+    },
 };
 
 module.exports = patientDao; 
