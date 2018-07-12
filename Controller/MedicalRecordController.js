@@ -68,7 +68,7 @@ module.exports = function (app, express) {
                         appointmentTime: utils.parseDate(appointment.appointmentTime),
                         no: appointment.no,
                         status: appointment.status,
-                        reminding: appointment.reminding,
+                        reminding: appointment.medicalRecord.reminding,
                         description: appointment.description,
                         medicalMedicines: medicinesList,
                         medicalDisease: diseasesList
@@ -108,11 +108,7 @@ module.exports = function (app, express) {
         } catch (err) {
             res.json(utils.responseFailure(err.message));
             logger.log(err);
-            try {
-                await medicalRecordDao.removeStuffMedialRecord(appointmentID);
-            } catch (error) {
-                logger.log(error);
-            }
+            medicalRecordDao.removeStuffMedialRecord(appointmentID);
         }
     });
     return apiRouter;
