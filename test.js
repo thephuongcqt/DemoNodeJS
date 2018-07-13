@@ -38,28 +38,25 @@ var test = async function () {
     // } catch (error) {
     //     console.log(error);
     // }
-    var firstLetter = "[A-EGHIK-VXYÂĐỔÔÚỨ]".normalize("NFC"),
-        otherLetters = "[a-eghik-vxyàáâãèéêìíòóôõùúýỳỹỷỵựửữừứưụủũợởỡờớơộổỗồốọỏịỉĩệểễềếẹẻẽặẳẵằắăậẩẫầấạảđ₫]".normalize("NFC"),
-        regexString = "^Mp "
-            // + firstLetter + otherLetters + "+\\s"
-            + "(" + firstLetter + otherLetters + "+\\s)*";
-            // + firstLetter + otherLetters + "+$";
-    var regexPattern = RegExp(regexString);
-    // console.log(regexPattern.test("MP Nguyễn Thế Phương"));
-    // console.log(regexPattern.test("mp Thuan Phan"));
-    // console.log(regexPattern.test("Thuan. Phan"));
+    // var firstLetter = "[A-EGHIK-VXYÂĐỔÔÚỨ]".normalize("NFC"),
+    //     otherLetters = "[a-eghik-vxyàáâãèéêìíòóôõùúýỳỹỷỵựửữừứưụủũợởỡờớơộổỗồốọỏịỉĩệểễềếẹẻẽặẳẵằắăậẩẫầấạảđ₫]".normalize("NFC"),
+    //     regexString = "^Mp "
+    //         // + firstLetter + otherLetters + "+\\s"
+    //         + "(" + firstLetter + otherLetters + "+\\s)*";
+    //         // + firstLetter + otherLetters + "+$";
+    // var regexPattern = RegExp(regexString);
 
-    // var name = "MP nguyễn thẾ phương";
-    // console.log(utils.toBeautifulName(name));
-    var arr = ["mp nguyễn thế phương", "MP Thuan Phan", "than phan", "cao duy nguyễn", "mp tuấn kiệt", "pm tuan kiet", "mp tuan kiet", "mp duy", "mp"];
+    var arr = ["dh nguyễn thế phương", "dh Thuan Phan", "than phan", "cao duy nguyễn", "dh tuấn kiệt", "pm tuan kiet", "dh tuan kiet", "dh duy", "dh Phuon...a A@AS", "dh Acls A12", "dh A[]"];
     for (var index in arr){
         var item = arr[index];
-        var message = utils.toBeautifulName(item);
-        // console.log(utils.checkValidateMessage(message));
+        var message = utils.toBeautifulName(item);        
         if(utils.checkValidateMessage(message)){
-            console.log(message.replace(new RegExp("^Mp "), ""))
+            // console.log(message.replace(new RegExp("^Dh "), ""))
+            console.log(utils.getFullName(message));
+        } else{
+            // console.log("Error: " + message);
         }
-    }
+    }   
 };
 test();
 
