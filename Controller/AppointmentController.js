@@ -107,7 +107,7 @@ module.exports = function (app, express) {
             var changed = false;
             for (var index in appointmentsList) {
                 var item = appointmentsList[index];
-                if (item.appointmentTime > new Date()) {
+                if (item.appointmentTime > new Date() && item.status == Const.appointmentStatus.ABSENT) {
                     var json = {
                         "appointmentID": item.appointmentID,
                         "status": Const.appointmentStatus.CLINIC_CANCEL
@@ -155,7 +155,7 @@ module.exports = function (app, express) {
                 var promises = [];
                 for (var index in appointmentsList) {
                     var item = appointmentsList[index];
-                    if (item.appointmentTime > new Date()) {
+                    if (item.appointmentTime > new Date() && item.status == Const.appointmentStatus.ABSENT) {
                         var mTime = Moment(item.appointmentTime);
                         var miliseconds = utils.getMiliseconds(mDuration);
                         mTime.add(miliseconds, "milliseconds");
