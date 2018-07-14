@@ -73,6 +73,15 @@ var utils = {
     },
 
     checkValidateMessage: function (message) {
+        var patternMatchingWords = "[0-9~!@#$%^&*_+:<>?,.]{1,}";
+        if(RegExp(patternMatchingWords).test(message)){            
+            return false;
+        }
+        patternMatchingWords = "[\[\]]"
+        if(RegExp(patternMatchingWords).test(message)){            
+            return false;
+        }
+
         var firstLetter = "[A-EGHIK-VXYÂĐỔÔÚỨ]".normalize("NFC"),
             otherLetters = "[a-eghik-vxyàáâãèéêìíòóôõùúýỳỹỷỵựửữừứưụủũợởỡờớơộổỗồốọỏịỉĩệểễềếẹẻẽặẳẵằắăậẩẫầấạảđ₫]".normalize("NFC"),
             regexString = "^Dh "
