@@ -55,11 +55,11 @@ module.exports = function (app, express) {
             var checkPatient = await baseDAO.findByProperties(db.Patient, { "phoneNumber": phoneNumber, "fullName": fullName });
             if (checkPatient.length > 0) {
                 var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
-                if (appointmentOfPatients.length > 0) {
+                 if (appointmentOfPatients.length > 0) {
                     for (var i in appointmentOfPatients) {
                         var appointmentOfPatient = appointmentOfPatients[i];
                         if (appointmentOfPatient.patientID != checkPatient[0].patientID) {
-                            var updateAppointment = await baseDAO.update(db.Appointment, { "appointmentID": appointmentOfPatient.appointmentID, "patientID": checkPatient[0].patientID }, "appointmentID");
+                            await baseDAO.update(db.Appointment, { "appointmentID": appointmentOfPatient.appointmentID, "patientID": checkPatient[0].patientID }, "appointmentID");
                             await baseDAO.delete(db.Patient, "patientID", patientID);
                             patientID = checkPatient[0].patientID;
                         }
