@@ -57,7 +57,6 @@ module.exports = function (app, express) {
                 var appointmentOfPatient = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
                 if (appointmentOfPatient.length > 0) {
                     var updateAppointment = await baseDAO.update(db.Appointment, { "appointmentID": appointmentOfPatient[0].appointmentID, "patientID": checkPatient[0].patientID }, "appointmentID");
-                    console.log(updateAppointment);
                     await baseDAO.delete(db.Patient, "patientID", patientID);
                     patientID = checkPatient[0].patientID;
                 } else {
@@ -66,7 +65,7 @@ module.exports = function (app, express) {
                 }
             }
             if (yob != null) {
-                if (yob == "1970-01-01 00:00:00") {
+                if (yob == "1970-01-01T00:00:00.000Z") {
                     yob = undefined;
                 } else {
                     parseYOB = utils.parseDateOnly(new Date(yob));
