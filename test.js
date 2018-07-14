@@ -12,7 +12,7 @@ var scheduler = require("./Scheduler/Scheduler");
 var medicalDao = require("./DataAccess/MedicalRecordDAO");
 
 var test = async function () {
-    var patientID = 385;
+    // var patientID = 385;
     // var appointmentID = 524;
     // try {
     //     // var result = await medicalDao.removeStuffMedialRecord(appointmentID);
@@ -46,17 +46,60 @@ var test = async function () {
     //         // + firstLetter + otherLetters + "+$";
     // var regexPattern = RegExp(regexString);
 
-    var arr = ["dh nguyễn thế phương", "dh Thuan Phan", "than phan", "cao duy nguyễn", "dh tuấn kiệt", "pm tuan kiet", "dh tuan kiet", "dh duy", "dh Phuon...a A@AS", "dh Acls A12", "dh A[]"];
-    for (var index in arr){
-        var item = arr[index];
-        var message = utils.toBeautifulName(item);        
-        if(utils.checkValidateMessage(message)){
-            // console.log(message.replace(new RegExp("^Dh "), ""))
-            console.log(utils.getFullName(message));
-        } else{
-            // console.log("Error: " + message);
+    // var arr = ["dh nguyễn thế phương", "dh Thuan Phan", "than phan", "cao duy nguyễn", "dh tuấn kiệt", "pm tuan kiet", "dh tuan kiet", "dh duy", "dh Phuon...a A@AS", "dh Acls A12", "dh A[]"];
+    // for (var index in arr){
+    //     var item = arr[index];
+    //     var message = utils.toBeautifulName(item);        
+    //     if(utils.checkValidateMessage(message)){
+    //         // console.log(message.replace(new RegExp("^Dh "), ""))
+    //         console.log(utils.getFullName(message));
+    //     } else{
+    //         // console.log("Error: " + message);
+    //     }
+    // }   
+    var patientID = 614;
+    var checkPatient = await baseDAO.findByProperties(db.Patient, { "phoneNumber": "+84969345159", "fullName": "Nguyễn Thế Phương" });
+    if (checkPatient && checkPatient.length > 0) {
+        try {
+            var existedPatient = checkPatient[0];
+            var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
+            if (appointmentOfPatients && appointmentOfPatients.length > 0) {
+                var promises = [];
+                for (var index in appointmentOfPatients) {
+                    var appointment = appointmentOfPatients[index];
+                    var json = {
+                        appointmentID: appointment.appointmentID,
+                        patientID: existedPatient.patientID
+                    }
+                    promises.push(await baseDAO.update(db.Appointment, json, "appointmentID"));
+                }
+                Promise.all(promises);
+                await baseDAO.deleteByProperties(db.Patient, { "patientID": patientID });
+            } else {
+                console.log("alo");
+            }
+            // var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
+            // if (appointmentOfPatients.length > 0) {
+            //     for (var i in appointmentOfPatients) {
+            //         var appointmentOfPatient = appointmentOfPatients[i];
+            //         if (appointmentOfPatient.patientID != checkPatient[0].patientID) {
+            //             var updateAppointment = await baseDAO.update(db.Appointment, { "appointmentID": appointmentOfPatient.appointmentID, "patientID": checkPatient[0].patientID }, "appointmentID");
+            //             await baseDAO.delete(db.Patient, "patientID", patientID);
+            //             patientID = checkPatient[0].patientID;
+            //         }
+            //     }
+            // } else {
+            //     res.json(utils.responseFailure(Const.GetAppointmentListFailure));
+            //     return;
+            // }
+        } catch (error) {
+            logger.log(error);
+            console.log(error);
+            // res.json(utils.responseFailure(Const.GetAppointmentListFailure));
         }
-    }   
+    } else {
+        console.log("no thing");
+    }
 };
 test();
 
