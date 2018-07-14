@@ -69,6 +69,7 @@ module.exports = function (app, express) {
                         }
                         Promise.all(promises);
                         await baseDAO.deleteByProperties(db.Patient, { "patientID": patientID });
+                        patientID = existedPatient.patientID;
                     } else {
                         res.json(utils.responseFailure(Const.GetAppointmentListFailure));
                         return;
