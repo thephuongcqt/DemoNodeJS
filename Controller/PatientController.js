@@ -49,16 +49,21 @@ module.exports = function (app, express) {
             } else {
                 fullName = null;
             }
-            if(!phoneNumber){
+            if (!phoneNumber) {
                 phoneNumber = null;
             }
             var checkPatient = await baseDAO.findByProperties(db.Patient, { "phoneNumber": phoneNumber, "fullName": fullName });
             if (checkPatient.length > 0) {
-                var appointmentOfPatient = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
-                if (appointmentOfPatient.length > 0) {
-                    var updateAppointment = await baseDAO.update(db.Appointment, { "appointmentID": appointmentOfPatient[0].appointmentID, "patientID": checkPatient[0].patientID }, "appointmentID");
-                    await baseDAO.delete(db.Patient, "patientID", patientID);
-                    patientID = checkPatient[0].patientID;
+                var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
+                if (appointmentOfPatients.length > 0) {
+                    for (var i in appointmentOfPatients) {
+                        var appointmentOfPatient = appointmentOfPatients[i];
+                        if (appointmentOfPatient.patientID != checkPatient[0].patientID) {
+                            var updateAppointment = await baseDAO.update(db.Appointment, { "appointmentID": appointmentOfPatient.appointmentID, "patientID": checkPatient[0].patientID }, "appointmentID");
+                            await baseDAO.delete(db.Patient, "patientID", patientID);
+                            patientID = checkPatient[0].patientID;
+                        }
+                    }
                 } else {
                     res.json(utils.responseFailure(Const.GetAppointmentListFailure));
                     return;
