@@ -39,6 +39,31 @@ module.exports = function (app, express) {
         var parseYOB = undefined;
         var gender = req.body.gender;
         try {
+            var patientInfo = await patientDao.getPatientInfo(patientID);
+            if (!patientInfo) {
+                res.json(utils.responseFailure("Bệnh nhân không có trong hệ thống"));
+                return;
+            }
+            if (fullName) {
+                fullName = fullName.trim();
+            } else {
+                fullName = null;
+            }
+            if(!phoneNumber){
+                phoneNumber = null;
+            }
+            var checkPatient = await baseDAO.findByProperties(db.Patient, { "phoneNumber": phoneNumber, "fullName": fullName });
+            if (checkPatient.length > 0) {
+                var appointmentOfPatient = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
+                if (appointmentOfPatient.length > 0) {
+                    await baseDAO.update(db.Appointment, { "appointmentID": appointmentOfPatient[0].appointmentID, "patientID": checkPatient[0].patientID }, "appointmentID");
+                    await baseDAO.delete(db.Patient, "patientID", patientID);
+                    patientID = checkPatient[0].patientID;
+                } else {
+                    res.json(utils.responseFailure(Const.GetAppointmentListFailure));
+                    return;
+                }
+            }
             if (yob != null) {
                 if (yob == "") {
                     yob = undefined;
@@ -61,14 +86,14 @@ module.exports = function (app, express) {
                     }
                 }
             }
-            var patientInfo = await patientDao.getPatientInfo(patientID);
-            if (!patientInfo) {
-                res.json(utils.responseFailure("Bệnh nhân không có trong hệ thống"));
-                return;
-            } else {
-                var resultUpdate = await patientDao.updatePatient(patientID, phoneNumber, fullName, address, parseYOB, gender);
-                res.json(utils.responseSuccess(resultUpdate));
+            if (fullName == null) {
+                fullName = undefined;
             }
+            if (phoneNumber == null) {
+                phoneNumber = undefined;
+            }
+            var resultUpdate = await patientDao.updatePatient(patientID, phoneNumber, fullName, address, parseYOB, gender);
+            res.json(utils.responseSuccess(resultUpdate));
         }
         catch (err) {
             res.json(utils.responseFailure(err.message));
