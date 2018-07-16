@@ -213,7 +213,12 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         //Begin fake patient phone number
         var booked = await patientDao.checkPatientBooked(userClinic.username, fakePhone, patientName);
         if (booked) {
-            var message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi. Xin quý khách vui lòng quay lại vào hôm sau.";
+            var message = ""
+            if(patientName){
+                message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi. Xin quý khách vui lòng quay lại vào hôm sau.";
+            } else{
+                message = "Hôm nay quý khách đã đặt lịch khám rồi. Xin quý khách vui lòng quay lại vào hôm sau.";
+            }
             logger.log(new Error(message));
             sendSMSToPatient(clinicPhone, patientPhone, message);
         } else {
