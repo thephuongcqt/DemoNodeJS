@@ -56,26 +56,29 @@ module.exports = function (app, express) {
             if (checkPatient.length > 0) {
                 try {
                     var existedPatient = checkPatient[0];
-                    var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
-                    if (appointmentOfPatients && appointmentOfPatients.length > 0) {
-                        var promises = [];
-                        for (var index in appointmentOfPatients) {
-                            var appointment = appointmentOfPatients[index];
-                            var json = {
-                                appointmentID: appointment.appointmentID,
-                                patientID: existedPatient.patientID
+                    if (existedPatient.patientID != patientID) {
+                        var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
+                        if (appointmentOfPatients && appointmentOfPatients.length > 0) {
+                            var promises = [];
+                            for (var index in appointmentOfPatients) {
+                                var appointment = appointmentOfPatients[index];
+                                var json = {
+                                    appointmentID: appointment.appointmentID,
+                                    patientID: existedPatient.patientID
+                                }
+                                promises.push(await baseDAO.update(db.Appointment, json, "appointmentID"));
                             }
-                            promises.push(await baseDAO.update(db.Appointment, json, "appointmentID"));
+                            Promise.all(promises);
+                            await baseDAO.deleteByProperties(db.Patient, { "patientID": patientID });
+                            patientID = existedPatient.patientID;
+                            res.json(utils.responseSuccess("Thay đổi thông tin bệnh nhân thành công"));
+                            return;
+                        } else {
+                            res.json(utils.responseFailure(Const.GetAppointmentListFailure));
+                            return;
                         }
-                        Promise.all(promises);
-                        await baseDAO.deleteByProperties(db.Patient, { "patientID": patientID });
-                        patientID = existedPatient.patientID;
-                        res.json(utils.responseSuccess("Thay đổi thông tin bệnh nhân thành công"));
-                        return;
-                    } else {
-                        res.json(utils.responseFailure(Const.GetAppointmentListFailure));
-                        return;
                     }
+
                 } catch (error) {
                     logger.log(error);
                     res.json(utils.responseFailure(Const.GetAppointmentListFailure));
