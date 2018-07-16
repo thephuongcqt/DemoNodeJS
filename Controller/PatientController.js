@@ -70,6 +70,8 @@ module.exports = function (app, express) {
                         Promise.all(promises);
                         await baseDAO.deleteByProperties(db.Patient, { "patientID": patientID });
                         patientID = existedPatient.patientID;
+                        res.json(utils.responseSuccess("Thay đổi thông tin bệnh nhân thành công"));
+                        return;
                     } else {
                         res.json(utils.responseFailure(Const.GetAppointmentListFailure));
                         return;
@@ -79,20 +81,6 @@ module.exports = function (app, express) {
                     res.json(utils.responseFailure(Const.GetAppointmentListFailure));
                     return;
                 }
-                // var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
-                // if (appointmentOfPatients.length > 0) {
-                //     for (var i in appointmentOfPatients) {
-                //         var appointmentOfPatient = appointmentOfPatients[i];
-                //         if (appointmentOfPatient.patientID != checkPatient[0].patientID) {
-                //             var updateAppointment = await baseDAO.update(db.Appointment, { "appointmentID": appointmentOfPatient.appointmentID, "patientID": checkPatient[0].patientID }, "appointmentID");
-                //             await baseDAO.delete(db.Patient, "patientID", patientID);
-                //             patientID = checkPatient[0].patientID;
-                //         }
-                //     }
-                // } else {
-                //     res.json(utils.responseFailure(Const.GetAppointmentListFailure));
-                //     return;
-                // }
             }
             if (yob != null) {
                 if (yob == "1970-01-01T00:00:00.000Z") {

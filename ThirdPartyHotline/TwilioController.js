@@ -63,12 +63,13 @@ module.exports = function (app, express) {
                         })
                         .done();
                 })
-                .catch(err => {
+                .catch(err => {                    
                     logger.log(err);
                     client.calls(req.body.CallSid)
                         .fetch()
                         .then(call => {
-                            sendSMSToPatient(call.to, call.from, Const.BookAppointmentFailure);
+                            makeAppointment(call.from, "", call.to);
+                            // sendSMSToPatient(call.to, call.from, Const.BookAppointmentFailure);
                         })
                         .done();
                 });
@@ -174,12 +175,12 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         return;
     }
 
-    if (!patientName.trim()) {
-        //Patient name is empty
-        var message = "Vui lòng nhập tên để đăng ký khám bệnh";
-        sendSMSToPatient(clinicPhone, patientPhone, message);
-        return;
-    }
+    // if (!patientName.trim()) {
+    //     //Patient name is empty
+    //     var message = "Vui lòng nhập tên để đăng ký khám bệnh";
+    //     sendSMSToPatient(clinicPhone, patientPhone, message);
+    //     return;
+    // }
 
     if (patientName.length > 50) {
         var message = "Tên quá dài, vui lòng thử lại";
@@ -206,11 +207,14 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         var fakePhone = await fakePhoneNumber(userClinic.username, patientPhone);
         if (fakePhone) {
             patient.phoneNumber = fakePhone;
+        } else{
+            fakePhone = patientPhone;
         }
         //Begin fake patient phone number
-        var booked = await patientDao.checkPatientBooked(userClinic.username, patientPhone, patientName);
+        var booked = await patientDao.checkPatientBooked(userClinic.username, fakePhone, patientName);
         if (booked) {
             var message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi. Xin quý khách vui lòng quay lại vào hôm sau.";
+            logger.log(new Error(message));
             sendSMSToPatient(clinicPhone, patientPhone, message);
         } else {
             scheduleAppointment(userClinic, patient, patientPhone);

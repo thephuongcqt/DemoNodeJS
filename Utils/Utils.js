@@ -65,20 +65,23 @@ var utils = {
     },
 
     toBeautifulName: function (name) {
-        var splitStr = name.toLowerCase().split(' ');
-        for (var i = 0; i < splitStr.length; i++) {
-            splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+        if (name) {
+            var splitStr = name.toLowerCase().split(' ');
+            for (var i = 0; i < splitStr.length; i++) {
+                splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+            }
+            return splitStr.join(' ').replace(/\s\s+/g, ' ').trim();;
         }
-        return splitStr.join(' ').replace(/\s\s+/g, ' ').trim();;
+        return name;
     },
 
     checkValidateMessage: function (message) {
         var patternMatchingWords = "[0-9~!@#$%^&*_+:<>?,.]{1,}";
-        if(RegExp(patternMatchingWords).test(message)){            
+        if (RegExp(patternMatchingWords).test(message)) {
             return false;
         }
         patternMatchingWords = "[\[\]]"
-        if(RegExp(patternMatchingWords).test(message)){            
+        if (RegExp(patternMatchingWords).test(message)) {
             return false;
         }
 
@@ -87,12 +90,12 @@ var utils = {
             regexString = "^Dh "
                 // + firstLetter + otherLetters + "+\\s"
                 + "(" + firstLetter + otherLetters + "+\\s)*";
-                // + firstLetter + otherLetters + "+$";
+        // + firstLetter + otherLetters + "+$";
         var regexPattern = RegExp(regexString);
         return regexPattern.test(message);
     },
 
-    getFullName: function(name){
+    getFullName: function (name) {
         return name.replace(new RegExp("^Dh "), "");
     },
 
