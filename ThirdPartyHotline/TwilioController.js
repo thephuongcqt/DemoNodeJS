@@ -119,7 +119,7 @@ async function sendSMSToPatient(clinicPhone, patientPhone, messageBody) {
     }
 }
 
-async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, remindTime, patientPhone) {
+async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, patientPhone) {
     try {
         var newPatient = await patientDao.insertNotExistedPatient(patient);
         var newAppointment = {
@@ -128,8 +128,6 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
             "appointmentTime": bookedTime,
             "no": bookingNo,
             "status": Const.appointmentStatus.ABSENT,
-            "remindTime": remindTime,
-            "isReminded": 0,
             "bookedPhone": patientPhone
         };
         var appointment = await baseDao.create(db.Appointment, newAppointment);
@@ -157,7 +155,7 @@ async function scheduleAppointment(user, patient, patientPhone) {
         var clinic = user.clinic;
         var detailAppointment = await scheduler.getExpectationAppointment(clinic);
         if (detailAppointment) {
-            saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, detailAppointment.remindTime, patientPhone);
+            saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, patientPhone);
         } else {
             sendSMSToPatient(user.phoneNumber, patientPhone, Const.FullSlot);
             logger.log(new Error(user.phoneNumber + " " + patientPhone + " " + Const.FullSlot));
@@ -202,6 +200,7 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         var patient = {
             "phoneNumber": patientPhone,
             "fullName": patientName,
+            "clinicUsername": userClinic.username
         };
         //Begin fake patient phone number
         var fakePhone = await fakePhoneNumber(userClinic.username, patientPhone);

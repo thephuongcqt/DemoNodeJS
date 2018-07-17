@@ -69,31 +69,6 @@ var appointmentDao = {
         });
     },
 
-    getAppointmentsToRemind: function (time) {
-        var startDate = new Date(time);
-        startDate.setHours(0, 0, 0, 0);
-        var endDate = time;        
-        return new Promise((resolve, reject) => {
-            var json = {"isReminded": 0 }
-            var related = { withRelated: ["patient"] };
-            db.Appointment.where(json)
-                .query(function (appointment) {
-                    appointment.whereBetween('remindTime', [startDate, endDate]);
-                })
-                .fetchAll(related)
-                .then(model => {
-                    if(model){
-                        resolve(model.toJSON());
-                    } else{
-                        resolve(null);
-                    }
-                })
-                .catch(err => {
-                    resolve(err);
-                });
-        });
-    },
-
     getAppointmentsInCurrentDayWithProperties: function (json) {
         var startDate = new Date(), endDate = new Date();
         startDate.setHours(0, 0, 0, 0);

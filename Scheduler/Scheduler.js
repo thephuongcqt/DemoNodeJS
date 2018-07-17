@@ -68,8 +68,7 @@ module.exports = {
                 mTime.subtract(mDuration);
                 return {
                     bookedTime: bookedTime,
-                    no: appointments.length + 1,
-                    remindTime: mTime.toDate()
+                    no: appointments.length + 1,                    
                 };
             }
             return null;
