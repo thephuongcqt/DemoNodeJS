@@ -29,7 +29,7 @@ var medicalRecordDao = {
                 });
         });
     },
-    createMedicalRecord: async function (appointmentID, reminding, description, listMedicine, listDisease) {
+    createMedicalRecord: async function (appointmentID, reminding, description, listMedicine, listDisease, clinicalSymptom) {
         try {
             var recordJson = {
                 "appointmentID": appointmentID,
@@ -52,6 +52,14 @@ var medicalRecordDao = {
                     "appointmentID": appointmentID
                 };
                 promises.push(dao.create(db.MedicalDiseases, diseaseJson));
+            }
+            for (var index in clinicalSymptom){
+                var symptom = clinicalSymptom[index];
+                var symptomJson = {
+                    "appointmentID": appointmentID,
+                    "symptom": symptom
+                }
+                promises.push(dao.create(db.Symptom, symptomJson));
             }
             await Promise.all(promises);
         } catch (err) {

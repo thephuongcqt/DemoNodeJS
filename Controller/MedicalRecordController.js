@@ -90,6 +90,7 @@ module.exports = function (app, express) {
             var description = req.body.description;
             var listMedicine = req.body.medicines;
             var listDisease = req.body.diseases;
+            var clinicalSymptom = req.body.clinicalSymptom;
             var checkCancel = await baseDAO.findByID(db.Appointment, "appointmentID", appointmentID);
             if(checkCancel.status != Const.appointmentStatus.PRESENT){
                 res.json(utils.responseFailure("Bệnh nhân không đến khám, không thể tạo bệnh án"));
@@ -103,7 +104,7 @@ module.exports = function (app, express) {
                     return;
                 }
             }
-            await medicalRecordDao.createMedicalRecord(appointmentID, reminding, description, listMedicine, listDisease);
+            await medicalRecordDao.createMedicalRecord(appointmentID, reminding, description, listMedicine, listDisease, clinicalSymptom);
             res.json(utils.responseSuccess("Tạo bệnh án thành công"));
         } catch (err) {
             res.json(utils.responseFailure(err.message));

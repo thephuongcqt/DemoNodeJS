@@ -131,6 +131,10 @@ var db = {
 
   Disease: bookshelf.Model.extend({
     tableName: 'tbl_disease'
+  }),
+
+  Symptom: bookshelf.Model.extend({
+    tableName: 'tbl_clinical_symptom'
   })
 };
 module.exports = db;

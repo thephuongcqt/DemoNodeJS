@@ -13,7 +13,11 @@ var medicalDao = require("./DataAccess/MedicalRecordDAO");
 
 var test = async function () {
    try {
-       
+       var test = ["dm", "cl"];
+       console.log(test);   
+       var str = JSON.stringify(test);
+       console.log(str);
+       console.log(JSON.parse(str));
    } catch (error) {
        console.log(error);
    }
