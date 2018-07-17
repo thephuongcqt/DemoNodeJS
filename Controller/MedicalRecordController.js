@@ -62,6 +62,15 @@ module.exports = function (app, express) {
                         }
                         diseasesList.push(tmpJson);
                     }
+                    var symptomJson = {
+                        "appointmentID": appointment.appointmentID
+                    }                    
+                    var symptomList = await baseDAO.findByProperties(db.Symptom, symptomJson);
+                    var symptoms = []
+                    for (var index in symptomList){
+                        var tmp = symptomList[index];
+                        symptoms.push(tmp.symptom);
+                    }
 
                     var response = {
                         appointmentID: appointment.appointmentID,
@@ -71,7 +80,8 @@ module.exports = function (app, express) {
                         reminding: appointment.medicalRecord.reminding,
                         description: appointment.description,
                         medicalMedicines: medicinesList,
-                        medicalDisease: diseasesList
+                        medicalDisease: diseasesList,
+                        symptoms: symptoms
                     }
                     medicalRecords.push(response);
                 }
