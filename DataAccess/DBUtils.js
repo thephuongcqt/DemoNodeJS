@@ -129,8 +129,8 @@ var db = {
     tableName: 'tbl_medical_diseases'
   }),
 
-  DiseasesName: bookshelf.Model.extend({
-    tableName: 'tbl_diseases_name'
+  Disease: bookshelf.Model.extend({
+    tableName: 'tbl_disease'
   })
 };
 module.exports = db;

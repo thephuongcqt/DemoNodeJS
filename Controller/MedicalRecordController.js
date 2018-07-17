@@ -55,10 +55,10 @@ module.exports = function (app, express) {
                     for (var index in medicalDisease) {
                         var tmp = medicalDisease[index];
 
-                        var tmpResult = await baseDAO.findByID(db.DiseasesName, "diseasesID", tmp.diseasesID);
+                        var tmpResult = await baseDAO.findByID(db.Disease, "diseaseID", tmp.diseaseID);
                         var tmpJson = {
-                            diseasesID: tmp.diseasesID,
-                            diseasesName: tmpResult.diseasesName
+                            diseaseID: tmp.diseaseID,
+                            diseaseName: tmpResult.diseaseName
                         }
                         diseasesList.push(tmpJson);
                     }

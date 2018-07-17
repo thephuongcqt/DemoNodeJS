@@ -48,7 +48,7 @@ var medicalRecordDao = {
             }
             for (var i = 0; i < listDisease.length; i++) {
                 var diseaseJson = {
-                    "diseasesID": listDisease[i],
+                    "diseaseID": listDisease[i],
                     "appointmentID": appointmentID
                 };
                 promises.push(dao.create(db.MedicalDiseases, diseaseJson));

@@ -5,9 +5,9 @@ var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
 
 var diseaseDao = {
-    getDiseaseInfo: function (diseasesID) {
+    getDiseaseInfo: function (diseaseID) {
         return new Promise((resolve, reject) => {
-            dao.findByID(db.DiseasesName, "diseasesID", diseasesID)
+            dao.findByID(db.Disease, "diseaseID", diseaseID)
                 .then(collection => {
                     resolve(collection);
                 })
@@ -19,7 +19,7 @@ var diseaseDao = {
     },
     getAllDisease: function () {
         return new Promise((resolve, reject) => {
-            dao.findAll(db.DiseasesName)
+            dao.findAll(db.Disease)
                 .then(collection => {
                     resolve(collection);
                 })
@@ -29,10 +29,10 @@ var diseaseDao = {
                 });
         });
     },
-    updateDisease: function (diseasesID, diseasesName, isActive) {
-        var json = { "diseasesID": diseasesID, "diseasesName": diseasesName, "isActive": isActive };
+    updateDisease: function (diseaseID, diseaseName, isActive) {
+        var json = { "diseaseID": diseaseID, "diseaseName": diseaseName, "isActive": isActive };
         return new Promise((resolve, reject) => {
-            dao.update(db.DiseasesName, json, "diseasesID")
+            dao.update(db.Disease, json, "diseaseID")
                 .then(collection => {
                     resolve(collection);
                 })
@@ -42,10 +42,10 @@ var diseaseDao = {
                 });
         });
     },
-    createDisease: function (diseasesName) {
-        var json = { "diseasesName": diseasesName, "isActive": Const.ACTIVATION };
+    createDisease: function (diseaseName) {
+        var json = { "diseaseName": diseaseName, "isActive": Const.ACTIVATION };
         return new Promise((resolve, reject) => {
-            dao.create(db.DiseasesName, json)
+            dao.create(db.Disease, json)
                 .then(collection => {
                     resolve(collection);
                 })
@@ -55,9 +55,9 @@ var diseaseDao = {
                 });
         });
     },
-    deleteDisease: function (diseasesID) {
+    deleteDisease: function (diseaseID) {
         return new Promise((resolve, reject) => {
-            dao.delete(db.DiseasesName, "diseasesID", diseasesID)
+            dao.delete(db.Disease, "diseaseID", diseaseID)
                 .then(collection => {
                     resolve("Delete disease successfully");
                 })
