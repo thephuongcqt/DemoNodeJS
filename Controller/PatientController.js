@@ -57,7 +57,7 @@ module.exports = function (app, express) {
                 "phoneNumber": patientInfo.phoneNumber,
                 "fullName": fullName
             }
-            var existedPatient = patientDao.checkExistedPatient(json);
+            var existedPatient = await patientDao.checkExistedPatient(json);
             if (existedPatient && existedPatient.patientID != patientID) {
                 try {
                     var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
