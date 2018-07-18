@@ -52,31 +52,33 @@ module.exports = function (app, express) {
             if (!phoneNumber) {
                 phoneNumber = null;
             }
-            var checkPatient = await baseDAO.findByProperties(db.Patient, { "phoneNumber": phoneNumber, "fullName": fullName });
-            if (checkPatient.length > 0) {
+            var json = {
+                "clinicUsername": patientInfo.clinicUsername,
+                "phoneNumber": patientInfo.phoneNumber,
+                "fullName": fullName
+            }
+            var existedPatient = patientDao.checkExistedPatient(json);
+            if (existedPatient && existedPatient.patientID != patientID) {
                 try {
-                    var existedPatient = checkPatient[0];
-                    if (existedPatient.patientID != patientID) {
-                        var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
-                        if (appointmentOfPatients && appointmentOfPatients.length > 0) {
-                            var promises = [];
-                            for (var index in appointmentOfPatients) {
-                                var appointment = appointmentOfPatients[index];
-                                var json = {
-                                    appointmentID: appointment.appointmentID,
-                                    patientID: existedPatient.patientID
-                                }
-                                promises.push(await baseDAO.update(db.Appointment, json, "appointmentID"));
+                    var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
+                    if (appointmentOfPatients && appointmentOfPatients.length > 0) {
+                        var promises = [];
+                        for (var index in appointmentOfPatients) {
+                            var appointment = appointmentOfPatients[index];
+                            var json = {
+                                appointmentID: appointment.appointmentID,
+                                patientID: existedPatient.patientID
                             }
-                            Promise.all(promises);
-                            await baseDAO.deleteByProperties(db.Patient, { "patientID": patientID });
-                            patientID = existedPatient.patientID;
-                            res.json(utils.responseSuccess("Thay đổi thông tin bệnh nhân thành công"));
-                            return;
-                        } else {
-                            res.json(utils.responseFailure(Const.GetAppointmentListFailure));
-                            return;
+                            promises.push(await baseDAO.update(db.Appointment, json, "appointmentID"));
                         }
+                        Promise.all(promises);
+                        await baseDAO.deleteByProperties(db.Patient, { "patientID": patientID });
+                        patientID = existedPatient.patientID;
+                        res.json(utils.responseSuccess("Thay đổi thông tin bệnh nhân thành công"));
+                        return;
+                    } else {
+                        res.json(utils.responseFailure(Const.GetAppointmentListFailure));
+                        return;
                     }
 
                 } catch (error) {

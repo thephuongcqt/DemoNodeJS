@@ -28,13 +28,20 @@ var patientDao = {
             dao.findByProperties(db.Patient, json)
                 .then(collection => {
                     if (collection.length > 0) {
-                        resolve(collection[0]);
+                        for(var index in collection){
+                            var tmp = collection[index];
+                            if (tmp.fullName.toUpperCase() == patient.fullName.toUpperCase()){
+                                resolve(tmp);
+                                return;
+                            }
+                        }
+                        resolve(null);
                     }
                     resolve(null);
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject(null);
+                    reject(err);
                 });
         });
     },
