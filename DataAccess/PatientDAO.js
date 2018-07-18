@@ -7,7 +7,7 @@ var patientDao = {
     insertNotExistedPatient: function(patient){        
         return new Promise(async (resolve, reject) => {
             try {
-                var receivedPatient = await this.checkExistedPatient(patient.phoneNumber, patient.fullName);
+                var receivedPatient = await this.checkExistedPatient(patient);
                 if(receivedPatient){
                     resolve(receivedPatient);                    
                 } else{
@@ -22,8 +22,8 @@ var patientDao = {
         });
     },
 
-    checkExistedPatient: function (phoneNumber, fullName) {
-        var json = { "phoneNumber": phoneNumber, "fullName": fullName };
+    checkExistedPatient: function (patient) {
+        var json = { "phoneNumber": patient.phoneNumber, "fullName": patient.fullName, "clinicUsername": patient.clinicUsername};
         return new Promise((resolve, reject) => {
             dao.findByProperties(db.Patient, json)
                 .then(collection => {
