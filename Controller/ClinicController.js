@@ -11,7 +11,31 @@ var authenUtils = require("../Utils/AuthenUtils");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
+    apiRouter.post("/subscribeTopic", async function (req, res) {
+        try {
+            var token = req.body.token;
+            var topic = req.body.topic;
+            firebase.subscribeTopic(token, topic);
+            res.json(utils.responseSuccess("success"));
+        } catch (error) {
+            logg.erlog(error);
+            res.json(utils.responseFailure(error.message));
+        }
 
+    });
+
+    apiRouter.post("/unsubscribeTopic", async function (req, res) {
+        try {
+            var token = req.body.token;
+            var topic = req.body.topic;
+            firebase.unsubscribeTopic(token, topic);
+            res.json(utils.responseSuccess("success"));
+        } catch (error) {
+            logg.erlog(error);
+            res.json(utils.responseFailure(error.message));
+        }
+
+    });
     // apiRouter.post("/removeTwilioAccount", async function (req, res) {
     //     var username = req.body.username;
 
