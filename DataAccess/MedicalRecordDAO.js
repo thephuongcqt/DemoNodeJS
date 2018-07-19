@@ -3,6 +3,7 @@ var logger = require("../Utils/Logger");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
 var dao = require("./BaseDAO");
+var symptomDAO = require("./SymptomDAO");
 
 var medicalRecordDao = {
     getAllRecord: function () {
@@ -29,7 +30,7 @@ var medicalRecordDao = {
                 });
         });
     },
-    createMedicalRecord: async function (appointmentID, reminding, description, listMedicine, listDisease, clinicalSymptom) {
+    createMedicalRecord: async function (appointmentID, reminding, description, listMedicine, listDisease, listSymptom) {
         try {
             var recordJson = {
                 "appointmentID": appointmentID,
@@ -53,14 +54,7 @@ var medicalRecordDao = {
                 };
                 promises.push(dao.create(db.MedicalDiseases, diseaseJson));
             }
-            for (var index in clinicalSymptom){
-                var symptom = clinicalSymptom[index];
-                var symptomJson = {
-                    "appointmentID": appointmentID,
-                    "symptom": symptom
-                }
-                promises.push(dao.create(db.Symptom, symptomJson));
-            }
+            promises.push(symptomDAO.insertSymptoms(appointmentID, listSymptom));
             await Promise.all(promises);
         } catch (err) {
             logger.log(err);
@@ -74,16 +68,22 @@ var medicalRecordDao = {
         dao.deleteByProperties(db.MedicalRecord, json)
         .catch(err => {
             logger.log(err);
-        })
+        });
+
         dao.deleteByProperties(db.MedicalMedicine, json)
         .catch(err => {
             logger.log(err);
-        })
+        });
+
         dao.deleteByProperties(db.MedicalDiseases, json)
         .catch(err => {
             logger.log(err);
-        })
-        
+        });
+
+        dao.deleteByProperties(db.MedicalSymptom, json)
+        .catch(err => {
+            logger.log(err);
+        });
     }
 }
 module.exports = medicalRecordDao;

@@ -135,6 +135,13 @@ var db = {
 
   Symptom: bookshelf.Model.extend({
     tableName: 'tbl_clinical_symptom'
+  }),
+
+  MedicalSymptom: bookshelf.Model.extend({
+    tableName: "tbl_medical_symptom",
+    clinicalSymptom: function(){
+      return this.hasOne(db.Symptom, "symptomID", "symptomID");
+    }
   })
 };
 module.exports = db;

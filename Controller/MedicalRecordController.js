@@ -65,11 +65,11 @@ module.exports = function (app, express) {
                     var symptomJson = {
                         "appointmentID": appointment.appointmentID
                     }                    
-                    var symptomList = await baseDAO.findByProperties(db.Symptom, symptomJson);
+                    var symptomList = await baseDAO.findByPropertiesWithRelated(db.Symptom, symptomJson, "clinicalSymptom");
                     var symptoms = []
                     for (var index in symptomList){
                         var tmp = symptomList[index];
-                        symptoms.push(tmp.symptom);
+                        symptoms.push(tmp.clinicalSymptom.symptom);
                     }
 
                     var response = {
