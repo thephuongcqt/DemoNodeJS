@@ -65,7 +65,8 @@ module.exports = function (app, express) {
                     var symptomJson = {
                         "appointmentID": appointment.appointmentID
                     }                    
-                    var symptomList = await baseDAO.findByPropertiesWithRelated(db.Symptom, symptomJson, "clinicalSymptom");
+                    var symptomList = await baseDAO.findByPropertiesWithRelated(db.MedicalSymptom, symptomJson, "clinicalSymptom");
+                    // console.log(symptomList);
                     var symptoms = []
                     for (var index in symptomList){
                         var tmp = symptomList[index];
