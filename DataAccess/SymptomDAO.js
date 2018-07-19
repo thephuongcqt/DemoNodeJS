@@ -20,7 +20,7 @@ var symptomDao = {
     },
 
     insertNotExistedSymptom: async function (symptom) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
                 var json = {"symptom": symptom};
                 var existedSymptom = await this.checkExistedSymptom(json);
@@ -38,7 +38,7 @@ var symptomDao = {
     },
 
     checkExistedSymptom: async function (json) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {                
                 var list = await baseDAO.findByProperties(db.Symptom, json);
                 if(list){
