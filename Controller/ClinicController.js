@@ -11,6 +11,19 @@ var authenUtils = require("../Utils/AuthenUtils");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
+    
+    apiRouter.get("/testNotify", async function (req, res) {
+        try {
+            var username = req.query.username;
+            var message = req.query.message;
+            firebase.testNotify(username, message);
+            res.json(utils.responseSuccess(username + " | " + message));
+        } catch (error) {
+            logg.erlog(error);
+            res.json(utils.responseFailure(error.message));
+        }
+    });
+
     apiRouter.post("/subscribeTopic", async function (req, res) {
         try {
             var token = req.body.token;
@@ -21,7 +34,6 @@ module.exports = function (app, express) {
             logg.erlog(error);
             res.json(utils.responseFailure(error.message));
         }
-
     });
 
     apiRouter.post("/unsubscribeTopic", async function (req, res) {
