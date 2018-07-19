@@ -40,7 +40,7 @@ var symptomDao = {
     checkExistedSymptom: async function (json) {
         return new Promise((resolve, reject) => {
             try {                
-                var list = baseDAO.findByProperties(db.Symptom, json);
+                var list = await baseDAO.findByProperties(db.Symptom, json);
                 if(list){
                     for(var index in list){
                         var item = list[index];
