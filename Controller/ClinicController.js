@@ -19,7 +19,7 @@ module.exports = function (app, express) {
             firebase.testNotify(username, message);
             res.json(utils.responseSuccess(username + " | " + message));
         } catch (error) {
-            logg.erlog(error);
+            logger.log(error);
             res.json(utils.responseFailure(error.message));
         }
     });
@@ -31,7 +31,7 @@ module.exports = function (app, express) {
             firebase.subscribeTopic(token, topic);
             res.json(utils.responseSuccess("success"));
         } catch (error) {
-            logg.erlog(error);
+            logger.log(error);
             res.json(utils.responseFailure(error.message));
         }
     });
@@ -43,7 +43,7 @@ module.exports = function (app, express) {
             firebase.unsubscribeTopic(token, topic);
             res.json(utils.responseSuccess("success"));
         } catch (error) {
-            logg.erlog(error);
+            logger.log(error);
             res.json(utils.responseFailure(error.message));
         }
 
