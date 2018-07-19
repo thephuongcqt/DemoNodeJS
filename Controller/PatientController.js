@@ -58,8 +58,12 @@ module.exports = function (app, express) {
                 "fullName": fullName
             }
             var existedPatient = await patientDao.checkExistedPatient(json);
-            if (existedPatient && existedPatient.patientID != patientID) {
+            if (existedPatient && existedPatient.patientID != patientID ){
                 try {
+                    if (existedPatient.fullName && existedPatient.fullName.trim() != ''){
+                        res.json(utils.responseFailure("Tên bệnh nhân trùng lặp, vui lòng kiểm tra lại"));
+                        return;
+                    }
                     var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
                     if (appointmentOfPatients && appointmentOfPatients.length > 0) {
                         var promises = [];

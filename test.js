@@ -15,7 +15,28 @@ var symptomDao = require("./DataAccess/SymptomDAO");
 
 var test = async function () {
     try {
-        var result = await symptomDao.insertSymptoms("232", []);
+        // var result = await symptomDao.insertSymptoms("232", []);
+        var json = {
+            "clinicUsername": "patientInfo.clinicUsername",
+            "phoneNumber": "patientInfo.phoneNumber",
+            "fullName": "a"
+        }
+        var json2 = {
+            "clinicUsername": "patientInfo.clinicUsername",
+            "phoneNumber": "patientInfo.phoneNumber",            
+        }
+
+        if (json.fullName && json.fullName.trim() != ''){
+            console.log('ok - ' + json);
+        } else{
+            console.log("bug");
+        }
+        console.log(json.fullName.trim() == "");
+        if (json2.fullName && json2.fullName.trim() != ''){
+            console.log('ok - ' + json2);
+        } else{
+            console.log("bug2");
+        }
         // var json = {
         //        phoneNumber: "+18327795475",
         //         fullName: "nguyen the phuonng",
