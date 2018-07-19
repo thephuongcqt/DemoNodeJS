@@ -11,20 +11,22 @@ var appointmentDao = require("./DataAccess/AppointmentDAO");
 var scheduler = require("./Scheduler/Scheduler");
 var medicalDao = require("./DataAccess/MedicalRecordDAO");
 var patientDao = require("./DataAccess/PatientDAO");
+var symptomDao = require("./DataAccess/SymptomDAO");
 
 var test = async function () {
     try {
-        var json = {
-               phoneNumber: "+18327795475",
-                fullName: "nguyen the phuonng",
-                clinicUsername: "hoanghoa"
-        }
-        var result = await patientDao.checkExistedPatient(json);
-        if(result){
-            console.log(result);
-        } else {
-            console.log("null");
-        }
+        var result = await symptomDao.insertSymptoms("232", []);
+        // var json = {
+        //        phoneNumber: "+18327795475",
+        //         fullName: "nguyen the phuonng",
+        //         clinicUsername: "hoanghoa"
+        // }
+        // var result = await patientDao.checkExistedPatient(json);
+        // if(result){
+        //     console.log(result);
+        // } else {
+        //     console.log("null");
+        // }
         // for (index in result) {
         //     var patient = result[index];
         //     if (patient.fullName.toUpperCase() == "nguyen the phuong".toLocaleUpperCase()) {

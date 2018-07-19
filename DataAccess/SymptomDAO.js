@@ -16,7 +16,7 @@ var symptomDao = {
             }
             promises.push(baseDAO.create(db.MedicalSymptom, json));
         }
-        await Promise.all(promises);
+        return await Promise.all(promises);
     },
 
     insertNotExistedSymptom: async function (symptom) {
@@ -58,4 +58,4 @@ var symptomDao = {
     }
 }
 
-module.export = symptomDao;
+module.exports = symptomDao;
