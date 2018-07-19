@@ -75,7 +75,7 @@ var firebaseAdmin = {
     },
 
     unsubscribeTopic: function(token, topic){        
-        admin.messaging().unsubscribeFromTopic(token, topic)
+        admin.messaging().unsubscribeFromTopic([token], topic)
         .then(response =>{
             logger.log(new Error(response));
         })
