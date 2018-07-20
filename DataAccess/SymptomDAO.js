@@ -45,7 +45,7 @@ var symptomDao = {
                     for(var index in list){
                         var item = list[index];
                         if(item.symptom.toUpperCase() == json.symptom.toUpperCase()){
-                            resovle(item);
+                            resolve(item);
                             return;
                         }
                     }
