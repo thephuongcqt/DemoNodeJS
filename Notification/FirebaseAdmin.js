@@ -69,7 +69,7 @@ var firebaseAdmin = {
                         'serverTimestamp': admin.firestore.FieldValue.serverTimestamp()
                     })
                         .then(ref => {
-                            console.log(ref);
+                            
                         })
                         .catch(error => {
                             logger.log(error);
