@@ -63,8 +63,10 @@ var firebaseAdmin = {
                     }
                     var notiRef = firestore.collection("callcenter").doc(clinicUsername).collection("notifications");
                     notiRef.add({
-                        title: notifyTitle,
-                        message: notifyMessage
+                        'title': notifyTitle,
+                        'message': notifyMessage,
+                        'dateTimestamp': new Date(),
+                        'serverTimestamp': admin.firestore.FieldValue.serverTimestamp()
                     })
                         .then(ref => {
                             console.log(ref);
