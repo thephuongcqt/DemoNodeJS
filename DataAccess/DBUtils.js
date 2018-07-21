@@ -142,6 +142,17 @@ var db = {
     clinicalSymptom: function(){
       return this.hasOne(db.Symptom, "symptomID", "symptomID");
     }
+  }),
+
+  Regimen: bookshelf.Model.extend({
+    tableName: "tbl_regimen"
+  }),
+
+  RegimenMedicine: bookshelf.Model.extend({
+    tableName: "tbl_regimen_medicine",
+    medicine: function(){
+      return this.hasOne(db.Medicine, "medicineID", "medicineID");
+    }
   })
 };
 module.exports = db;

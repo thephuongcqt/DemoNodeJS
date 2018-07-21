@@ -16,7 +16,31 @@ var firebase = require("./Notification/FirebaseAdmin");
 
 var test = async function () {
     try {
-        firebase.addNotificationToFirestore("phuongtest1", "title Phuong", "cho thuan");
+        var json = {
+            clinicUsername: "hoanghoa",
+            diseaseID: 1
+        }
+        var regimens = await baseDAO.findByProperties(db.Regimen, json);        
+        if(regimens && regimens.length > 0){
+            var reminding = regimens[0].reminding;
+            console.log(reminding);
+            var regimenMedicine = await baseDAO.findByPropertiesWithRelated(db.RegimenMedicine, json, "medicine");
+            var medicines = [];
+            for(var index in regimenMedicine){
+                var item = regimenMedicine[index];
+                var medicine = {
+                    "medicineID": item.medicineID,
+                    "quantity": item.quantity,
+                    "description": item.description,
+                    "unitName": item.medicine.unitName
+                }
+                medicines.push(medicine);
+            }
+            console.log(medicines);
+        } else{
+            console.log("something wrong");
+        }
+        
     } catch (error) {
         console.log(error);
     }
