@@ -25,7 +25,7 @@ module.exports = {
     FullSlot: "Hôm nay phòng khám đã nhận đủ lịch khám, xin quý khách quay lại vào hôm sau",
     BookAppointmentFailure: "Đã có lỗi xảy ra khi đặt lịch hẹn, xin quý khách vui lòng thử lại sau",
     GetAppointmentListFailure: "Đã có lỗi xảy ra khi lấy danh sách lịch hẹn",
-    BlockedError: "Bạn thông thể đặt hẹn, vui lòng liên hệ phòng khám để biết thêm chi tiết",
+    BlockedError: "Bạn không thể đặt hẹn, vui lòng liên hệ phòng khám để biết thêm chi tiết",
     GetMedicineListFailure: "Đã có lỗi xảy ra khi lấy danh sách thuốc",
     GetDiseaseListFailure: "Đã có lỗi xảy ra khi lấy danh sách bệnh",
     MedicalRecordFailure: "Bệnh án đã tồn tại",
@@ -75,7 +75,7 @@ module.exports = {
         billID: "billID",
         clinicUsername: "clinicUsername",
         licenseID: "licenseID",
-        startDate: "startDate",
+        saleDate: "saleDate",
         salePrice: "salePrice"
     },
     Clinic: {
