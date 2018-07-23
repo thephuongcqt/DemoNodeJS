@@ -7,57 +7,14 @@ var logger = require("../Utils/Logger");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
-    // getRegimen
-    // apiRouter.post("/getRegimen", async function (req, res) {
-    //     try {
-    //         var username = req.body.username;
-    //         var diseaseIDs = req.body.diseaseIDs;
-    //         if (username && diseaseIDs) {
-    //             var list = [];
-    //             for (var i in diseaseIDs) {
-    //                 var diseaseID = diseaseIDs[i];
-    //                 var json = {
-    //                     clinicUsername: username,
-    //                     diseaseID: diseaseID
-    //                 }
-    //                 var regimens = await baseDAO.findByProperties(db.Regimen, json);
-    //                 if (regimens && regimens.length > 0) {
-    //                     var reminding = regimens[0].reminding;
-    //                     var regimenMedicine = await baseDAO.findByPropertiesWithRelated(db.RegimenMedicine, json, "medicine");
-    //                     var medicines = [];
-    //                     for (var index in regimenMedicine) {
-    //                         var item = regimenMedicine[index];
-    //                         var medicine = {
-    //                             "medicineID": item.medicineID,
-    //                             "quantity": item.quantity,
-    //                             "description": item.description,
-    //                             "unitName": item.medicine.unitName
-    //                         }
-    //                         medicines.push(medicine);
-    //                     }
-    //                     var jsonResponse = {
-    //                         reminding: reminding,
-    //                         medicines: medicines
-    //                     }
-    //                     list.push(jsonResponse);
-    //                 }
-    //             }
-    //             res.json(utils.responseSuccess(list));
-    //         } else {
-    //             res.json(utils.responseFailure("Đã có lỗi xảy ra khi lấy phác đồ điều trị"))
-    //         }
-    //     } catch (error) {
-    //         logger.log(error);
-    //         res.json(utils.responseFailure("Đã có lỗi xảy ra khi lấy phác đồ điều trị"))
-    //     }
-    // });
     apiRouter.post("/getRegimen", async function (req, res) {
         try {
             var username = req.body.username;
             var diseaseIDs = req.body.diseaseIDs;
             if (username && diseaseIDs) {
-                var remindingList = [];
-                var regimenList = [];
+                var remindingList = [];                
+                var medicinesList = [];
+                var medicineMap = {};
                 for (var i in diseaseIDs) {
                     var diseaseID = diseaseIDs[i];
                     var json = {
@@ -67,8 +24,7 @@ module.exports = function (app, express) {
                     var regimens = await baseDAO.findByProperties(db.Regimen, json);
                     if (regimens && regimens.length > 0) {
                         var reminding = regimens[0].reminding;
-                        var regimenMedicine = await baseDAO.findByPropertiesWithRelated(db.RegimenMedicine, json, "medicine");
-                        // var medicines = [];
+                        var regimenMedicine = await baseDAO.findByPropertiesWithRelated(db.RegimenMedicine, json, "medicine");                        
                         for (var index in regimenMedicine) {
                             var item = regimenMedicine[index];
                             var medicine = {
@@ -76,25 +32,22 @@ module.exports = function (app, express) {
                                 "quantity": item.quantity,
                                 "description": item.description,
                                 "unitName": item.medicine.unitName
-                            }
-                            
+                            }                            
                             if(medicine){
-                                regimenList.push(medicine);
+                                addMedicine(medicineMap, medicine);
                             }
                         }
                         if (reminding){
-                            remindingList.push(reminding);
+                            addReminding(remindingList, reminding);
                         }
-                        // var jsonResponse = {
-                        //     reminding: reminding,
-                        //     medicines: medicines
-                        // }
-                        // list.push(jsonResponse);
                     }
                 }
+                for(var key in medicineMap){
+                    medicinesList.push(medicineMap[key]);
+                }
                 var jsonResponse = {
-                    remindings: remindingList,
-                    regimens: regimenList
+                    remindings: remindingList,                    
+                    regimens: medicinesList
                 }
                 res.json(utils.responseSuccess(jsonResponse));
             } else {
@@ -105,6 +58,30 @@ module.exports = function (app, express) {
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi lấy phác đồ điều trị"))
         }
     });
-
     return apiRouter;
+}
+
+function addMedicine(medicineMap, medicine){    
+    var existedMedicine = medicineMap[medicine.medicineID];
+    if(existedMedicine){
+        existedMedicine.quantity += medicine.quantity;
+    } else{
+        medicineMap[medicine.medicineID] = medicine
+    }
+}
+
+function addReminding(remindingList, reminding){
+    for(var index in remindingList){
+        var item = remindingList[index];
+        var oldReminding = item.toUpperCase().trim();
+        var newReminding = reminding.toUpperCase().trim();
+        if(oldReminding == newReminding || oldReminding.includes(newReminding)){ 
+            return;
+        }
+        if(newReminding.includes(oldReminding)){
+            remindingList[index] = reminding.trim();
+            return;
+        }
+    }
+    remindingList.push(reminding);
 }
