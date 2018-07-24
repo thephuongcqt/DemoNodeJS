@@ -75,47 +75,46 @@ module.exports = function (app, express) {
         }
     });
     //change password
-    apiRouter.post("/changePassword", function (req, res) {
+    apiRouter.post("/changePassword", async function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
         var newPassword = req.body.newPassword;
-        userDAO.getUserInfo(username)
-            .then(function (result) {
-                if (password == null) {
-                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
-                } else {
-                    hash.comparePassword(password, result.password)
-                        .then(function (result) {
-                            if (result == true) {
-                                if (newPassword == null) {
-                                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
-                                } else {
-                                    hash.hashPassword(newPassword)
-                                        .then(function (result) {
-                                            userDAO.updateUser(username, result)
-                                                .then(function (result) {
-                                                    res.json(utils.responseSuccess("Thay đổi mật khẩu thành công"));
-                                                })
-                                                .catch(function (err) {
-                                                    res.json(utils.responseFailure(err));
-                                                });
-                                        })
-                                        .catch(function (err) {
-                                            res.json(utils.responseFailure(err));
-                                        });
-                                }
-                            } else {
-                                res.json(utils.responseFailure("Mật khẩu không đúng"));
-                            }
-                        })
-                        .catch(function (err) {
-                            res.json(utils.responseFailure(err));
-                        });
+        try {
+            if (!username) {
+                res.json(utils.responseFailure("Xin vui lòng nhập tên đăng nhập"));
+                return;
+            }
+            if (!password) {
+                res.json(utils.responseFailure("Xin vui lòng nhập mật khẩu"));
+                return;
+            }
+            if (!newPassword) {
+                res.json(utils.responseFailure("Xin vui lòng nhập mật khẩu mới"));
+                return;
+            }
+            var user = await userDAO.getUserInfo(username);
+            if (user) {
+                var compare = await hash.comparePassword(password, user.password);
+                if (compare == false) {
+                    res.json(utils.responseFailure("Mật khẩu không đúng"));
+                    return;
                 }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-            });
+                var hashPassword = await hash.hashPassword(newPassword);
+                var userUpdate = await userDAO.updateUser(username, hashPassword);
+                var checkPass = await hash.comparePassword(newPassword, userUpdate.password);
+                if (checkPass == false) {
+                    res.json(utils.responseFailure("Đặt lại mật khẩu thất bại"));
+                    return;
+                }
+                res.json(utils.responseSuccess("Đặt lại mật khẩu thành công"));
+                return;
+            }
+            res.json(utils.responseFailure("Tài khoản không tồn tại"));
+        }
+        catch (err) {
+            res.json(utils.responseFailure(err.message));
+            logger.log(err);
+        }
     });
     // update information
     apiRouter.post("/update", async function (req, res) {
@@ -273,30 +272,30 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err));
             });
     });
-    //reset password
-    apiRouter.post("/resetPassword", async function (req, res) {
-        var username = req.body.username;
-        var password = req.body.password;
-        var user = await userDAO.getUserInfo(username);
-        try {
-            if(!password){
-                res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
-                return;
-            }
-            if (user) {
-                var newPassword = await hash.hashPassword(password);
-                var json = { "username": username, "password": password };
-                await baseDao.update(db.User, json, "username");
-                res.json(utils.responseFailure("Đặt lại mật khẩu thành công"));
-                return;
-            }
-        }
-        catch (err) {
-            res.json(utils.responseFailure(err.message));
-            logger.log(err);
-        }
-        res.json(utils.responseFailure("Không tìm thấy tài khoản"));
-    });
+    // //reset password
+    // apiRouter.post("/resetPassword", async function (req, res) {
+    //     var username = req.body.username;
+    //     var password = req.body.password;
+    //     var user = await userDAO.getUserInfo(username);
+    //     try {
+    //         if (!password) {
+    //             res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
+    //             return;
+    //         }
+    //         if (user) {
+    //             var newPassword = await hash.hashPassword(password);
+    //             var json = { "username": username, "password": password };
+    //             await baseDao.update(db.User, json, "username");
+    //             res.json(utils.responseFailure("Đặt lại mật khẩu thành công"));
+    //             return;
+    //         }
+    //     }
+    //     catch (err) {
+    //         res.json(utils.responseFailure(err.message));
+    //         logger.log(err);
+    //     }
+    //     res.json(utils.responseFailure("Không tìm thấy tài khoản"));
+    // });
     // delete account
     apiRouter.get("/delete", async function (req, res) {
         try {
