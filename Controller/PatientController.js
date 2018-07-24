@@ -60,10 +60,10 @@ module.exports = function (app, express) {
             var existedPatient = await patientDao.checkExistedPatient(json);
             if (existedPatient && existedPatient.patientID != patientID ){
                 try {
-                    if ((patientInfo.fullName && patientInfo.fullName.trim() != '') || patientInfo.fullName == undefined){
-                        res.json(utils.responseFailure("Tên bệnh nhân trùng lặp, vui lòng kiểm tra lại"));
-                        return;
-                    }
+                    // if ((patientInfo.fullName && patientInfo.fullName.trim() != '') || patientInfo.fullName == undefined){
+                    //     res.json(utils.responseFailure("Tên bệnh nhân trùng lặp, vui lòng kiểm tra lại"));
+                    //     return;
+                    // }
                     var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
                     if (appointmentOfPatients && appointmentOfPatients.length > 0) {
                         var promises = [];
