@@ -49,12 +49,26 @@ module.exports = function (app, express) {
     apiRouter.get("/requestSendingEmailConfirm", async function (req, res) {
         var username = req.query.username;
         try {
-            var user = await baseDao.findByID(db.User, "username", username);
-            if (user && user.isActive == Const.DEACTIVATION) {
-                var host = req.protocol + '://' + req.get('host');
-                await authenUtils.sendConfirmRegister(host, username, user.email);
-                res.json(utils.responseSuccess("Gửi email thành công"));
+            if (!username) {
+                res.json(utils.responseFailure("Vui lòng nhập tên đăng nhập"));
                 return;
+            }
+            var user = await baseDao.findByID(db.User, "username", username);
+            if (!user) {
+                res.json(utils.responseFailure("Tài khoản không tồn tại"));
+                return;
+            }
+            if (user) {
+                if(user.isActive == Const.ACTIVATION){
+                    res.json(utils.responseFailure("Tài khoản đã kích hoạt thành công"));
+                    return;
+                }
+                if(user.isActive == Const.DEACTIVATION){
+                    var host = req.protocol + '://' + req.get('host');
+                    await authenUtils.sendConfirmRegister(host, username, user.email);
+                    res.json(utils.responseSuccess("Gửi email thành công"));
+                    return;
+                }
             }
         } catch (error) {
             logger.log(error);
@@ -81,18 +95,23 @@ module.exports = function (app, express) {
                     for (var i in isToken) {
                         dbToken = isToken[i];
                         if (dbToken.expiredDate >= new Date()) {
-                            await baseDao.delete(db.Token, "ID", dbToken.ID);
+                            var expired = utils.expiredDate();
+                            await baseDao.update(db.Token, { "ID": dbToken.ID, "expiredDate": expired }, "ID");
+                            await emailUtils.sendCodeForResetPassword(user.email, dbToken.token, user.username);
                         } else {
                             logger.log(new Error("Expired Token: " + token + " Username: " + username));
                         }
                     }
+                } else {
+                    var token = utils.generatePasswordToken();
+                    await tokenDao.createToken(token, user.username);
+                    await emailUtils.sendCodeForResetPassword(user.email, token, user.username);
                 }
-                var token = utils.generatePasswordToken();
-                await tokenDao.createToken(token, user.username);
-                await emailUtils.sendCodeForResetPassword(user.email, token, user.username);
                 res.json(utils.responseSuccess("Bạn vui lòng nhập mã đã được gửi tới email để xác nhận đặt lại mật khẩu"));
                 return;
             }
+            res.json(utils.responseFailure("Tài khoản không tồn tại"));
+            return;
         } catch (error) {
             logger.log(error);
         }
@@ -115,7 +134,7 @@ module.exports = function (app, express) {
                             var json = { "username": username, "password": newPassword };
                             var user = await baseDao.update(db.User, json, "username");
                             var checkPass = await hash.comparePassword(password, user.password);
-                            if(checkPass == false){
+                            if (checkPass == false) {
                                 res.json(utils.responseFailure("Đặt lại mật khẩu thất bại"));
                                 return;
                             }

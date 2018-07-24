@@ -111,6 +111,12 @@ var utils = {
     getMiliseconds: function (mTime) {
         var times = this.miliseconds(mTime.hour(), mTime.minute(), mTime.second());
         return times;
+    },
+
+    expiredDate: function () {
+        var expiredDate = new Date();
+        expiredDate.setDate(expiredDate.getDate() + 1);
+        return expiredDate;
     }
 }
 module.exports = utils;
