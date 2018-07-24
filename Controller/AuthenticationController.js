@@ -65,6 +65,10 @@ module.exports = function (app, express) {
     apiRouter.post("/requestResetPassword", async function (req, res) {
         var username = req.body.username;
         try {
+            if(!username){
+                res.json(utils.responseFailure("Vui lòng nhập tên đăng nhập"));
+                return;
+            }
             var user = await baseDao.findByID(db.User, "username", username);
             if (user) {
                 var token = utils.generatePasswordToken();
@@ -102,6 +106,13 @@ module.exports = function (app, express) {
                         }
                     }
                 }
+            } 
+            if(!token){
+                res.json(utils.responseFailure("Vui lòng nhập mã xác nhận"));
+                return;
+            } if(!password){
+                res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
+                return;
             }
         } catch (error) {
             logger.log(error);
