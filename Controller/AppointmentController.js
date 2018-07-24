@@ -56,7 +56,11 @@ module.exports = function (app, express) {
                 delete appointment.medicalRecord;
                 delete appointment.clinicUsername;  
             }
-            res.json(utils.responseSuccess(appointments));
+            var json = {
+                currentTime: utils.parseDate(new Date()),
+                appointments: appointments
+            }
+            res.json(utils.responseSuccess(json));
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
