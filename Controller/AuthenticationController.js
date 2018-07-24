@@ -5,6 +5,7 @@ var logger = require("../Utils/Logger");
 var baseDao = require("../DataAccess/BaseDAO");
 var tokenDao = require("../DataAccess/TokenDAO");
 var path = require("path");
+var hash = require("../Utils/Bcrypt");
 var authenUtils = require("../Utils/AuthenUtils");
 var emailUtils = require("../Utils/Email");
 
@@ -56,14 +57,18 @@ module.exports = function (app, express) {
                 return;
             }
         } catch (error) {
-            logger.log(error);            
+            logger.log(error);
         }
         res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình gửi mail, bạn vui lòng thử lại sau"));
     });
 
-    apiRouter.post("/requestResetPassword", async function(req, res){
+    apiRouter.post("/requestResetPassword", async function (req, res) {
         var username = req.body.username;
         try {
+            if(!username){
+                res.json(utils.responseFailure("Vui lòng nhập tên đăng nhập"));
+                return;
+            }
             var user = await baseDao.findByID(db.User, "username", username);
             if (user) {
                 var token = utils.generatePasswordToken();
@@ -73,35 +78,47 @@ module.exports = function (app, express) {
                 return;
             }
         } catch (error) {
-            logger.log(error);            
+            logger.log(error);
         }
-        res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình gửi mail, bạn vui lòng thử lại sau")); 
+        res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình gửi mail, bạn vui lòng thử lại sau"));
     });
 
-    apiRouter.get("/authenPassword", async function (req, res) {
-        var username = req.query.username;
-        var token = req.query.token;
+    apiRouter.post("/authenPassword", async function (req, res) {
+        var username = req.body.username;
+        var token = req.body.token;
+        var password = req.body.password;
         try {
-            if (username && token) {
+            if (username && token && password) {
                 var json = { "token": token, "username": username };
                 var tokens = await baseDao.findByPropertiesWithRelated(db.Token, json, "user");
                 if (tokens && tokens.length > 0) {
                     for (var i in tokens) {
                         dbToken = tokens[i];
                         if (dbToken.expiredDate >= new Date()) {
-                            res.json(utils.responseSuccess("success"));
+                            var newPassword = await hash.hashPassword(password);
+                            var json = { "username": username, "password": newPassword };
+                            await baseDao.update(db.User, json, "username");
                             baseDao.delete(db.Token, "ID", dbToken.ID);
+                            res.json(utils.responseFailure("Đặt lại mật khẩu thành công"));
                             return;
                         } else {
                             logger.log(new Error("Expired Token: " + token + " Username: " + username));
                         }
                     }
                 }
+            } 
+            if(!token){
+                res.json(utils.responseFailure("Vui lòng nhập mã xác nhận"));
+                return;
+            } if(!password){
+                res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
+                return;
             }
         } catch (error) {
             logger.log(error);
         }
         res.json(utils.responseFailure("Đã có lỗi xảy khi xác nhận"));
     });
+
     return apiRouter;
 }
