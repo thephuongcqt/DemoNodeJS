@@ -65,16 +65,32 @@ module.exports = function (app, express) {
     apiRouter.post("/requestResetPassword", async function (req, res) {
         var username = req.body.username;
         try {
-            if(!username){
+            if (!username) {
                 res.json(utils.responseFailure("Vui lòng nhập tên đăng nhập"));
                 return;
             }
             var user = await baseDao.findByID(db.User, "username", username);
             if (user) {
+                var json = { "username": user.username };
+                var isToken = await baseDao.findByPropertiesWithManyRelated(db.Token, json, "user");
+                if (isToken && isToken.length > 0) {
+                    if (user.isActive == Const.DEACTIVATION) {
+                        res.json(utils.responseSuccess("Vui lòng xác nhận email trước khi đặt lại mật khẩu"));
+                        return;
+                    }
+                    for (var i in isToken) {
+                        dbToken = isToken[i];
+                        if (dbToken.expiredDate >= new Date()) {
+                            await baseDao.delete(db.Token, "ID", dbToken.ID);
+                        } else {
+                            logger.log(new Error("Expired Token: " + token + " Username: " + username));
+                        }
+                    }
+                }
                 var token = utils.generatePasswordToken();
                 await tokenDao.createToken(token, user.username);
                 await emailUtils.sendCodeForResetPassword(user.email, token, user.username);
-                res.json(utils.responseSuccess("Bạn vui lòng nhập mã đã được gửi tới email để xác nhận đổi mật khẩu"));
+                res.json(utils.responseSuccess("Bạn vui lòng nhập mã đã được gửi tới email để xác nhận đặt lại mật khẩu"));
                 return;
             }
         } catch (error) {
@@ -98,7 +114,7 @@ module.exports = function (app, express) {
                             var newPassword = await hash.hashPassword(password);
                             var json = { "username": username, "password": newPassword };
                             await baseDao.update(db.User, json, "username");
-                            baseDao.delete(db.Token, "ID", dbToken.ID);
+                            await baseDao.delete(db.Token, "ID", dbToken.ID);
                             res.json(utils.responseFailure("Đặt lại mật khẩu thành công"));
                             return;
                         } else {
@@ -106,11 +122,11 @@ module.exports = function (app, express) {
                         }
                     }
                 }
-            } 
-            if(!token){
+            }
+            if (!token) {
                 res.json(utils.responseFailure("Vui lòng nhập mã xác nhận"));
                 return;
-            } if(!password){
+            } if (!password) {
                 res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
                 return;
             }
