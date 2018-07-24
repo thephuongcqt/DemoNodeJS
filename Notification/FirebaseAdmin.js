@@ -35,7 +35,7 @@ var firebaseAdmin = {
                 //send success
             })
             .catch((error) => {
-                logger.log(err);
+                logger.log(error);
             });
     },
 
@@ -65,7 +65,7 @@ var firebaseAdmin = {
                     notiRef.add({
                         'title': notifyTitle,
                         'message': notifyMessage,
-                        'dateTimestamp': new Date(),
+                        // 'dateTimestamp': new Date(),
                         'serverTimestamp': admin.firestore.FieldValue.serverTimestamp()
                     })
                         .then(ref => {
@@ -107,7 +107,7 @@ var firebaseAdmin = {
                 //send success
             })
             .catch((error) => {
-                logger.log(err);
+                logger.log(error);
             });
     },
 
