@@ -91,7 +91,8 @@ module.exports = function (app, express) {
         var isValid = utils.checkValidateMessage(message);
         if(isValid){
             var patientName = utils.getFullName(message);
-            if(patientName.toUpperCase() == "TESTBLANKNAME"){
+            console.log(patientName.toUpperCase().trim() == "TESTBLANKNAME");
+            if(patientName.toUpperCase().trim() == "TESTBLANKNAME"){
                 patientName = "";
             }
             makeAppointment(patientPhone, patientName, clinicPhone);
