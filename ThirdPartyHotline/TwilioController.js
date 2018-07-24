@@ -91,7 +91,6 @@ module.exports = function (app, express) {
         var isValid = utils.checkValidateMessage(message);
         if(isValid){
             var patientName = utils.getFullName(message);
-            console.log(patientName.toUpperCase().trim() == "TESTBLANKNAME");
             if(patientName.toUpperCase().trim() == "TESTBLANKNAME"){
                 patientName = "";
             }
