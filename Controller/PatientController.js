@@ -60,7 +60,7 @@ module.exports = function (app, express) {
             var existedPatient = await patientDao.checkExistedPatient(json);
             if (existedPatient && existedPatient.patientID != patientID ){
                 try {
-                    if (existedPatient.fullName && existedPatient.fullName.trim() != ''){
+                    if ((patientInfo.fullName && patientInfo.fullName.trim() != '') || patientInfo.fullName == undefined){
                         res.json(utils.responseFailure("Tên bệnh nhân trùng lặp, vui lòng kiểm tra lại"));
                         return;
                     }
