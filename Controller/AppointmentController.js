@@ -24,38 +24,37 @@ module.exports = function (app, express) {
         }
     });
 
-    apiRouter.get("/getAppointmentsListByDateWithBlock", async function (req, res) {
+    apiRouter.get("/getAppointmentsListByDateForWeb", async function (req, res) {
         var clinicUsername = req.query.clinicUsername;
         var searchDate = req.query.date;
         var json = { "clinicUsername": clinicUsername };
-
         try {
             var appointments;
-            var block;
+            var blocks = await baseDAO.findByProperties(db.Block, {"clinicUsername": clinicUsername, "isBlock": 1});            
+            var blockedNumbers = [];
+            for(var index in blocks){
+                var item = blocks[index];
+                blockedNumbers.push(item.phoneNumber);
+            }
             if (searchDate) {
-                appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, "patient");
+                appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, ["patient", "medicalRecord"]);
             } else {
-                appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, "patient");
+                appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient", "medicalRecord"]);
             }
             for (var i in appointments) {
-                var appointment = appointments[i];
-                block = await blockDAO.getBlockNumber(appointment.clinicUsername, appointment.patient.phoneNumber);
-                delete appointment.clinicUsername;
-                // delete appointment.patientID;
+                var appointment = appointments[i];                                              
                 appointment.phoneNumber = appointment.patient.phoneNumber;
                 appointment.fullName = appointment.patient.fullName;
                 appointment.address = appointment.patient.address;
                 appointment.yob = appointment.patient.yob;
                 appointment.gender = appointment.patient.gender;
-
-                delete appointment.patient;
+                appointment.isBlock = utils.checkNumberInArray(appointment.patient.phoneNumber, blockedNumbers);                
                 appointment.currentTime = utils.parseDate(new Date());
-                appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
-                if (block.length == 0) {
-                    appointment.isBlock = null;
-                } else {
-                    appointment.isBlock = block[0].isBlock;
-                }
+                appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);                
+                appointment.createdRecord = appointment.medicalRecord.length > 0;
+                delete appointment.patient;
+                delete appointment.medicalRecord;
+                delete appointment.clinicUsername;  
             }
             res.json(utils.responseSuccess(appointments));
         } catch (error) {
@@ -78,7 +77,7 @@ module.exports = function (app, express) {
                 }
                 await baseDAO.update(db.Appointment, json, "appointmentID");
                 var json = { "clinicUsername": clinicUsername };
-                var resultUpdate = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, "patient");
+                var resultUpdate = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient"]);
                 for (var i in resultUpdate) {
                     var appointment = resultUpdate[i];
                     delete appointment.clinicUsername;
@@ -102,7 +101,7 @@ module.exports = function (app, express) {
         try {
             var users = await baseDAO.findByProperties(db.User, { "username": username });
             var clinicPhone = users[0].phoneNumber;
-            var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, "patient");
+            var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, ["patient"]);
             var promises = [];
             var changed = false;
             for (var index in appointmentsList) {
@@ -151,7 +150,7 @@ module.exports = function (app, express) {
             try {
                 var users = await baseDAO.findByProperties(db.User, { "username": username });
                 var clinicPhone = users[0].phoneNumber;
-                var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, "patient");
+                var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, ["patient"]);
                 var promises = [];
                 for (var index in appointmentsList) {
                     var item = appointmentsList[index];
@@ -165,10 +164,7 @@ module.exports = function (app, express) {
                             "appointmentTime": mTime.toDate()
                         }
                         var promise = baseDAO.update(db.Appointment, json, "appointmentID");
-                        promises.push(promise);
-                        
-                        // var patientPhone = item.patient.phoneNumber;
-                        //Get real phone number
+                        promises.push(promise);                        
                         var patientPhone = item.bookedPhone;
                         if(patientPhone && clinicPhone){
                             var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."                        
@@ -198,9 +194,9 @@ async function getAppointmentList(username, searchDate) {
     var json = { "clinicUsername": username };
     var appointments;
     if (searchDate) {
-        appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, "patient");
+        appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, ["patient"]);
     } else {
-        appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, "patient");
+        appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient"]);
     }
     for (var i in appointments) {
         var appointment = appointments[i];

@@ -46,7 +46,11 @@ var db = {
     },
 
     medicalRecord: function(){
-      return this.hasOne(db.MedicalRecord, 'appointmentID', 'appointmentID')
+      return this.hasOne(db.MedicalRecord, 'appointmentID', 'appointmentID');
+    },
+
+    block: function(){
+      return this.hasMany(db.Block, 'clinicUsername', 'clinicUsername');
     }
   }),
 

@@ -89,7 +89,7 @@ var appointmentDao = {
     },
 
     getAppointmentsInCurrentDayWithRelated: function (json, related) {
-        var relatedJson = { withRelated: [related] };
+        var relatedJson = { withRelated: related };
         var startDate = new Date(), endDate = new Date();
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(23, 59, 59, 999);
@@ -128,7 +128,7 @@ var appointmentDao = {
     },
 
     getAppointmentsForSpecifyDayWithRelated: function (json, dateString, related) {
-        var relatedJson = { withRelated: [related] };
+        var relatedJson = { withRelated: related };
         var startDate = new Date(dateString), endDate = new Date(dateString);
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(23, 59, 59, 999);
