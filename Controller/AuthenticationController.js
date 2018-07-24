@@ -113,9 +113,14 @@ module.exports = function (app, express) {
                         if (dbToken.expiredDate >= new Date()) {
                             var newPassword = await hash.hashPassword(password);
                             var json = { "username": username, "password": newPassword };
-                            await baseDao.update(db.User, json, "username");
+                            var user = await baseDao.update(db.User, json, "username");
+                            var checkPass = await hash.comparePassword(password, user.password);
+                            if(checkPass == false){
+                                res.json(utils.responseFailure("Đặt lại mật khẩu thất bại"));
+                                return;
+                            }
                             await baseDao.delete(db.Token, "ID", dbToken.ID);
-                            res.json(utils.responseFailure("Đặt lại mật khẩu thành công"));
+                            res.json(utils.responseSuccess("Đặt lại mật khẩu thành công"));
                             return;
                         } else {
                             logger.log(new Error("Expired Token: " + token + " Username: " + username));
