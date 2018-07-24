@@ -50,8 +50,8 @@ module.exports = function (app, express) {
                 appointment.gender = appointment.patient.gender;
                 appointment.isBlock = utils.checkNumberInArray(appointment.patient.phoneNumber, blockedNumbers);                
                 appointment.currentTime = utils.parseDate(new Date());
-                appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);                
-                appointment.createdRecord = appointment.medicalRecord.length > 0;
+                appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);                                
+                appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;
                 delete appointment.patient;
                 delete appointment.medicalRecord;
                 delete appointment.clinicUsername;  
