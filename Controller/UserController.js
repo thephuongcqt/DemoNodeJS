@@ -196,7 +196,7 @@ module.exports = function (app, express) {
                             logger.log(err);
                         });
                 } else {
-                    res.json(utils.responseFailure("Không thể tạo tài khoản này"));
+                    res.json(utils.responseFailure("Tài khoản này đã tồn tại"));
                 }
             })
             .catch(function (err) {
@@ -274,46 +274,28 @@ module.exports = function (app, express) {
             });
     });
     //reset password
-    apiRouter.post("/resetPassword", function (req, res) {
+    apiRouter.post("/resetPassword", async function (req, res) {
         var username = req.body.username;
-        var email = req.body.email;
-        userDAO.getUserInfo(username)
-            .then(function (results) {
-                if (results.isActive == Const.DEACTIVATION) {
-                    res.json(utils.responseFailure("Tài khoản này không hoạt động"));
-                } else {
-                    if (email == null) {
-                        res.json(utils.responseFailure("Vui lòng nhập email"));
-                    } else {
-                        if (email == results.email) {
-                            var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-                            // Generate random number, eg: 0.123456
-                            // Convert  to base-36 : "0.4fzyo82mvyr"
-                            // Cut off last 8 characters : "yo82mvyr"
-                            var randomstring = Math.random().toString(36).slice(-8);
-                            hash.hashPassword(randomstring)
-                                .then(function (password) {
-                                    userDAO.updateUser(username, password)
-                                        .then(function (result) {
-                                            res.json(utils.responseSuccess("Đặt lại mật khẩu thành công"));
-                                        })
-                                        .catch(function (err) {
-                                            res.json(utils.responseFailure(err));
-                                        });
-                                    nodeMailer.sendEmailToPatient(username, randomstring, results.fullName, email);
-                                })
-                                .catch(function (err) {
-                                    res.json(utils.responseFailure(err));
-                                });
-                        } else {
-                            res.json(utils.responseFailure("Email này không tồn tại"));
-                        }
-                    }
-                }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-            });
+        var password = req.body.password;
+        var user = await userDAO.getUserInfo(username);
+        try {
+            if(!password){
+                res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
+                return;
+            }
+            if (user) {
+                var newPassword = await hash.hashPassword(password);
+                var json = { "username": username, "password": password };
+                await baseDao.update(db.User, json, "username");
+                res.json(utils.responseFailure("Đặt lại mật khẩu thành công"));
+                return;
+            }
+        }
+        catch (err) {
+            res.json(utils.responseFailure(err.message));
+            logger.log(err);
+        }
+        res.json(utils.responseFailure("Không tìm thấy tài khoản"));
     });
     // delete account
     apiRouter.get("/delete", async function (req, res) {
