@@ -42,6 +42,7 @@ module.exports = function (app, express) {
         twiml.record({
             recordingStatusCallback: recordURL,
             method: 'POST',
+            maxLength: 20
         });
         res.end(twiml.toString());
     });
@@ -89,7 +90,11 @@ module.exports = function (app, express) {
         message = utils.toBeautifulName(message);
         var isValid = utils.checkValidateMessage(message);
         if(isValid){
-            makeAppointment(patientPhone, utils.getFullName(message), clinicPhone);
+            var patientName = utils.getFullName(message);
+            if(patientName.toUpperCase() == "TESTBLANKNAME"){
+                patientName = "";
+            }
+            makeAppointment(patientPhone, patientName, clinicPhone);
         } else{
             sendSMSToPatient(clinicPhone, patientPhone, Const.Error.WrongFormatMessage);
         }        
