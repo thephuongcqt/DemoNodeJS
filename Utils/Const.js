@@ -45,6 +45,7 @@ module.exports = {
 
     DefaultGreetingURL: "https://firebasestorage.googleapis.com/v0/b/chatfirebase-1e377.appspot.com/o/Welcome.mp3?alt=media&token=6914df70-85d3-4ea4-9ce0-edf4516ea353",
     DefaultExaminationDuration: "00:30:00",
+    DefaultDelayDuration: "00:30:00",
     DefaultStartWorking: "17:00:00",
     DefaultEndWorking: "20:00:00",
 
@@ -83,7 +84,10 @@ module.exports = {
         address: "address",
         clinicName: "clinicName",
         examinationDuration: "examinationDuration",
-        expiredLicense: "expiredLicense"
+        expiredLicense: "expiredLicense",
+        delayDuration: "delayDuration",
+        imageURL: "imageURL",
+        greetingURL: "greetingURL"
     },
     License: {
         licenseID: "licenseID",

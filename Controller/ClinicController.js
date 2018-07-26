@@ -76,6 +76,7 @@ module.exports = function (app, express) {
                 user.greetingURL = user.clinic.greetingURL;
                 user.accountSid = user.clinic.accountSid;
                 user.authToken = user.clinic.authToken;
+                user.delayDuration = user.clinic.delayDuration;
                 delete user.clinic;
             }
             res.json(utils.responseSuccess(clinics));
@@ -144,9 +145,9 @@ module.exports = function (app, express) {
         var password = req.body.password;
         var address = req.body.address;
         var clinicName = req.body.clinicName;
-        var examinationDuration = req.body.examinationDuration;
+        var examinationDuration = utils.parseTime(req.body.examinationDuration);
         var email = req.body.email;
-
+        var delayDuration = utils.parseTime(req.body.delayDuration);
         try {
             var user = await baseDAO.findByIDWithRelated(db.User, "username", username, "clinic");
             if (!user || !user.clinic) {
@@ -157,7 +158,7 @@ module.exports = function (app, express) {
                 throw new Error(Const.Error.IncorrectUsernameOrPassword);
             }
             var json = { "username": username };
-            if (address || clinicName || examinationDuration) {
+            if (address || clinicName || examinationDuration || delayDuration) {
                 // update clinic table
                 if (address) {
                     json.address = address;
@@ -175,6 +176,18 @@ module.exports = function (app, express) {
                         json.examinationDuration = examinationDuration;
                     } else {
                         json.examinationDuration = undefined;
+                    }
+                }
+                if (delayDuration) {
+                    if (delayDuration == "00:00:00") {
+                        res.json(utils.responseFailure("Thời gian trễ không chính xác"));
+                        return;
+                    }
+                    var checkDelay = utils.getMomentTime(delayDuration).isValid();
+                    if (checkDelay == true) {
+                        json.delayDuration = delayDuration;
+                    } else {
+                        json.delayDuration = undefined;
                     }
                 }
                 await baseDAO.update(db.Clinic, json, "username");
@@ -206,6 +219,7 @@ module.exports = function (app, express) {
         var imageURL = req.body.imageURL;
         var dur = req.body.examinationDuration;
         var examinationDuration = utils.parseTime(req.body.examinationDuration);
+        var delayDuration = utils.parseTime(req.body.delayDuration);
         var json = { "username": username };
         if (greetingURL) {
             json.greetingURL = greetingURL;
@@ -223,6 +237,18 @@ module.exports = function (app, express) {
                 json.examinationDuration = examinationDuration;
             } else {
                 json.examinationDuration = undefined;
+            }
+        }
+        if (delayDuration) {
+            if (delayDuration == "00:00:00") {
+                res.json(utils.responseFailure("Thời gian trễ không chính xác"));
+                return;
+            }
+            var checkDelay = utils.getMomentTime(delayDuration).isValid();
+            if (checkDelay == true) {
+                json.delayDuration = delayDuration;
+            } else {
+                json.delayDuration = undefined;
             }
         }
         try {
@@ -328,6 +354,7 @@ function getAllClinic() {
                     user.expiredLicense = user.clinic.expiredLicense;
                     user.imageURL = user.clinic.imageURL;
                     user.greetingURL = user.clinic.greetingURL;
+                    user.delayDuration = user.clinic.delayDuration;                    
                     delete user.clinic;
                     userList.push(user);
                 }
