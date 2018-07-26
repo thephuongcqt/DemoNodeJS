@@ -130,7 +130,12 @@ module.exports = function (app, express) {
                         }
                         await Promise.all(promises);                     
                     }
-                    await baseDAO.deleteByProperties(db.Patient, { "patientID": oldPatientID });
+                    try {
+                        await baseDAO.deleteByProperties(db.Patient, { "patientID": oldPatientID });    
+                    } catch (error) {
+                        logger.log(error);
+                    }
+                    
                     res.json(utils.responseSuccess("Thay đổi thông tin thành công"));
                 } else{
                     res.json(utils.responseFailure("Không tìm thấy bệnh nhân, xin vui lòng kiểm tra lại"));
