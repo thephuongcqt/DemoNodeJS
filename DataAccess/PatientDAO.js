@@ -11,7 +11,7 @@ var patientDao = {
                 + " WHERE (UPPER(fullName) LIKE UPPER('%" + searchValue + "%')"
                 + " OR UPPER(phoneNumber) LIKE UPPER('%" + searchValue + "%'))"
                 + " AND (clinicUsername LIKE '" + username + "')"
-                + " LIMIT 20";
+                + " LIMIT 30";
             db.knex.raw(sql)
                 .then(result => {
                     if (result && result.length > 0) {

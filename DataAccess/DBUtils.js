@@ -90,7 +90,10 @@ var db = {
   }),
 
   Patient: bookshelf.Model.extend({
-    tableName: 'tbl_patient'
+    tableName: 'tbl_patient',
+    appointments: function(){
+      return this.hasMany(db.Appointment, "patientID", "patientID")
+    }
   }),
 
   Token: bookshelf.Model.extend({

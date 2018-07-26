@@ -17,8 +17,8 @@ var firebase = require("./Notification/FirebaseAdmin");
 var test = async function () {
     try {
         var searchValue = "thế";
-        var result = await patientDao.searchPatient(searchValue);
-        console.log(resutl);
+        var result = await baseDAO.findByPK(db.Patient, {patientID: 609}, ["appointments"]);
+        console.log(result);
         // var sql = "SELECT DISTINCT *"
         // + " FROM tbl_patient"
         // + " WHERE UPPER(fullName) LIKE UPPER('%" + searchValue + "%')"
