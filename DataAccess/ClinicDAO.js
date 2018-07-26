@@ -7,7 +7,7 @@ var configUtils = require("../Utils/ConfigUtils");
 var hash = require("../Utils/Bcrypt");
 var blockDAO = require("../DataAccess/BlockDAO");
 
-var clinicDao = {
+var clinicDao = {    
     getTwilioAccountByID: async function (accountSid) {
         try {
             var json = { accountSid: accountSid };
@@ -122,7 +122,7 @@ var clinicDao = {
         try {
             if (!phoneNumber) {
                 throw new Error("Undefined phone number");
-            }            
+            }
             var json = { "phoneNumber": phoneNumber };
             var clinics = await dao.findByPropertiesWithRelated(db.User, json, "clinic");
             if (!clinics || clinics.length == 0) {

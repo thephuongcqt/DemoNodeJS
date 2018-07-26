@@ -52,45 +52,6 @@ module.exports = function (app, express) {
             if (!phoneNumber) {
                 phoneNumber = null;
             }
-            var json = {
-                "clinicUsername": patientInfo.clinicUsername,
-                "phoneNumber": patientInfo.phoneNumber,
-                "fullName": fullName
-            }
-            var existedPatient = await patientDao.checkExistedPatient(json);
-            if (existedPatient && existedPatient.patientID != patientID ){
-                try {
-                    // if ((patientInfo.fullName && patientInfo.fullName.trim() != '') || patientInfo.fullName == undefined){
-                    //     res.json(utils.responseFailure("Tên bệnh nhân trùng lặp, vui lòng kiểm tra lại"));
-                    //     return;
-                    // }
-                    var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": patientID });
-                    if (appointmentOfPatients && appointmentOfPatients.length > 0) {
-                        var promises = [];
-                        for (var index in appointmentOfPatients) {
-                            var appointment = appointmentOfPatients[index];
-                            var json = {
-                                appointmentID: appointment.appointmentID,
-                                patientID: existedPatient.patientID
-                            }
-                            promises.push(await baseDAO.update(db.Appointment, json, "appointmentID"));
-                        }
-                        Promise.all(promises);
-                        await baseDAO.deleteByProperties(db.Patient, { "patientID": patientID });
-                        patientID = existedPatient.patientID;
-                        res.json(utils.responseSuccess("Thay đổi thông tin bệnh nhân thành công"));
-                        return;
-                    } else {
-                        res.json(utils.responseFailure(Const.GetAppointmentListFailure));
-                        return;
-                    }
-
-                } catch (error) {
-                    logger.log(error);
-                    res.json(utils.responseFailure(Const.GetAppointmentListFailure));
-                    return;
-                }
-            }
             if (yob != null) {
                 if (yob == "1970-01-01T00:00:00.000Z") {
                     yob = undefined;
@@ -125,6 +86,59 @@ module.exports = function (app, express) {
         catch (err) {
             res.json(utils.responseFailure(err.message));
             logger.log(err);
+        }
+    });
+
+    apiRouter.post("/search", async function(req, res){
+        try {
+            var searchValue = req.body.searchValue;
+            var username = req.body.username;
+            var patientsList = [];
+            if(username && searchValue){
+                patientsList = await  patientDao.searchPatient(searchValue, username);
+            }
+            res.json(utils.responseSuccess(patientsList));
+        } catch (error) {            
+            logger.log(error);
+            res.json(utils.responseFailure("Đã có lỗi xảy ra khi tìm kiếm bệnh nhân"));
+        }        
+    });
+
+    apiRouter.post("/merge", async function(req, res){
+        try {
+            var oldPatientID = req.body.oldPatientID;
+            var newPatientID = req.body.newPatientID;
+            if(oldPatientID && newPatientID){
+                var oldJson = {
+                    "patientID": oldPatientID
+                }
+                var newJson = {
+                    "patientID": newPatientID
+                }
+                var result = await Promise.all([baseDAO.findByPK(db.Patient, newJson), baseDAO.findByPK(db.Patient, oldJson)]);
+                if(result && result.length == 2){          
+                    var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": oldPatientID });
+                    if (appointmentOfPatients && appointmentOfPatients.length > 0) {
+                        var promises = [];
+                        for (var index in appointmentOfPatients) {
+                            var appointment = appointmentOfPatients[index];
+                            var json = {
+                                appointmentID: appointment.appointmentID,
+                                patientID: newPatientID
+                            }
+                            promises.push(baseDAO.update(db.Appointment, json, "appointmentID"));
+                        }
+                        await Promise.all(promises);                     
+                    }
+                    await baseDAO.deleteByProperties(db.Patient, { "patientID": oldPatientID });
+                    res.json(utils.responseSuccess("Thay đổi thông tin thành công"));
+                } else{
+                    res.json(utils.responseFailure("Không tìm thấy bệnh nhân, xin vui lòng kiểm tra lại"));
+                }
+            }
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure("Đã có lỗi xảy ra khi merge"));
         }
     });
     return apiRouter;
