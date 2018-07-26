@@ -16,22 +16,15 @@ var firebase = require("./Notification/FirebaseAdmin");
 
 var test = async function () {
     try {
-        var searchValue = "thế";
-        var result = await baseDAO.findByPK(db.Patient, {patientID: 609}, ["appointments"]);
-        console.log(result);
-        // var sql = "SELECT DISTINCT *"
-        // + " FROM tbl_patient"
-        // + " WHERE UPPER(fullName) LIKE UPPER('%" + searchValue + "%')"
-        // + " LIMIT 20";
-        // db.knex.raw(sql)
-        // .then(result => {   
-            
-        //     var json = JSON.parse(JSON.stringify(result[0]));
-        //     console.log(json);
-        // })
-        // .catch(error => {
-        //     console.log(error);
-        // });
+        var mCurrent = Moment(new Date);
+        var minute = mCurrent.minute();
+        minute = 5 * Math.ceil( minute / 5 );        
+        mCurrent.set({
+            minute: minute,
+            second: 0,
+            millisecond: 0
+        })
+        console.log(mCurrent);
     } catch (error) {
         console.log(error);
     }

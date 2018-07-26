@@ -17,10 +17,10 @@ function getTotalDuration(count, duration) {
 
 module.exports = {
     getExpectationTime: function (startWorking, endWorking, count, duration, delayDuration, lastAppointment) {
-        if ((startWorking == undefined) || (endWorking == undefined) || (count == undefined) || (duration == undefined)) {            
+        if ((startWorking == undefined) || (endWorking == undefined) || (count == undefined) || (duration == undefined)) {
             throw new Error("Null pointer Exception at getExpectationTime");
         }
-        if(!delayDuration){
+        if (!delayDuration) {
             delayDuration = "00:00:00";
         }
         var mCurrentTime = utils.getMomentTime(new Date());
@@ -37,18 +37,21 @@ module.exports = {
         var mExpectation = null;
         if (lastAppointment) {
             mExpectation = utils.getMomentTime(lastAppointment.appointmentTime);
-            mExpectation.add(aExaminationDuration, "milliseconds");
         } else {
-            mExpectation = utils.getMomentTime(startWorking);
-            var miliseconds = getTotalDuration(count, mDuration);
-            mExpectation.add(miliseconds, "milliseconds");
+            mExpectation = mStart;
         }
+        mExpectation.add(aExaminationDuration, "milliseconds");
 
-        // Begin WhileExpectation time is early than current time        
-        // while (mExpectation <= mCurrentTime) {
-        //     mExpectation.add(aExaminationDuration, "milliseconds");
-        // }
-        if(mExpectation <= mCurrentTime){
+        // Begin WhileExpectation time is early than current time                
+        if (mExpectation <= mCurrentTime) {
+            var minute = mCurrentTime.minute();
+            minute = 5 * Math.ceil(minute / 5);
+            mCurrentTime.set({
+                minute: minute,
+                second: 0,
+                millisecond: 0
+            });
+            //celi time to 5 minutes
             mExpectation = mCurrentTime;
             mExpectation.add(aExaminationDuration, "milliseconds");
         }
@@ -70,13 +73,13 @@ module.exports = {
         if (configs != null && configs.length > 0) {
             var config = configs[0];
             var appointments = await appointmentDao.getAppointmentsInCurrentDayWithProperties({ "clinicUsername": clinicUsername });
-            var lastAppointment = appointments.length > 0 ? appointments[appointments.length - 1] : null;            
+            var lastAppointment = appointments.length > 0 ? appointments[appointments.length - 1] : null;
             var mTime = this.getExpectationTime(config.startWorking, config.endWorking, appointments.length, clinic.examinationDuration, clinic.delayDuration, lastAppointment);
             if (mTime) {
-                var bookedTime = mTime.toDate();                
+                var bookedTime = mTime.toDate();
                 return {
                     bookedTime: bookedTime,
-                    no: appointments.length + 1,                    
+                    no: appointments.length + 1,
                 };
             }
             return null;
