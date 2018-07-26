@@ -70,6 +70,7 @@ var userDao = {
                         user.address = user.clinic.address;
                         user.clinicName = user.clinic.clinicName;
                         user.examinationDuration = user.clinic.examinationDuration;
+                        user.delayDuration = user.clinic.delayDuration;
                         user.expiredLicense = user.clinic.expiredLicense;
                         user.imageURL = user.clinic.imageURL;
                         user.greetingURL = user.clinic.greetingURL;

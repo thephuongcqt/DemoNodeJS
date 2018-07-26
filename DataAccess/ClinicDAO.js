@@ -208,7 +208,8 @@ var clinicDao = {
                 "username": username,
                 "address": address,
                 "clinicName": clinicName,
-                "examinationDuration": undefined
+                "examinationDuration": undefined,
+                "delayDuration": undefined
             };
             var promises = [dao.create(db.User, userJson), dao.create(db.Clinic, clinicJson)];
             var dayOfWeek = [0, 1, 2, 3, 4, 5, 6];
@@ -293,6 +294,7 @@ var clinicDao = {
             clinic.address = clinic.address;
             clinic.clinicName = clinic.clinicName;
             clinic.examinationDuration = clinic.examinationDuration;
+            clinic.delayDuration = clinic.delayDuration;
             clinic.expiredLicense = utils.parseDate(clinic.expiredLicense);
             clinic.currentTime = utils.parseDate(new Date());
             clinic.imageURL = clinic.imageURL;
