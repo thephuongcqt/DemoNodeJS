@@ -116,7 +116,7 @@ module.exports = function (app, express) {
                     "patientID": newPatientID
                 }
                 var result = await Promise.all([baseDAO.findByPK(db.Patient, newJson), baseDAO.findByPK(db.Patient, oldJson)]);
-                if(result && result.length == 2){          
+                if(result && result.length == 2 && result[0] && result[1]){
                     var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": oldPatientID });
                     if (appointmentOfPatients && appointmentOfPatients.length > 0) {
                         var promises = [];
