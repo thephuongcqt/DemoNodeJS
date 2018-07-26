@@ -127,5 +127,18 @@ module.exports = function (app, express) {
             logger.log(err);
         }
     });
+
+    apiRouter.post("/search", async function(req, res){
+        try {
+            var searchValue = req.body.searchValue;
+            var username = req.body.username;
+            var patientsList = await  patientDao.searchPatient(searchValue, username);
+            res.json(utils.responseSuccess(patientsList));
+        } catch (error) {            
+            logger.log(error);
+            res.json(utils.responseFailure("Đã có lỗi xảy ra khi tìm kiếm bệnh nhân"));
+        }        
+    });
+
     return apiRouter;
 };

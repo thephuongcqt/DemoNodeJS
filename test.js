@@ -16,13 +16,22 @@ var firebase = require("./Notification/FirebaseAdmin");
 
 var test = async function () {
     try {
-        var json = {
-            clinicUsername: "phuongtest1",            
-            // diseaseID: 1
-        }
-        // var appointments = await baseDAO.findByPropertiesWithManyRelated(db.Appointment, json, ["patient", "block", "medicalRecord"]);
-        var appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient", "medicalRecord"]);
-        console.log(appointments);
+        var searchValue = "thế";
+        var result = await patientDao.searchPatient(searchValue);
+        console.log(resutl);
+        // var sql = "SELECT DISTINCT *"
+        // + " FROM tbl_patient"
+        // + " WHERE UPPER(fullName) LIKE UPPER('%" + searchValue + "%')"
+        // + " LIMIT 20";
+        // db.knex.raw(sql)
+        // .then(result => {   
+            
+        //     var json = JSON.parse(JSON.stringify(result[0]));
+        //     console.log(json);
+        // })
+        // .catch(error => {
+        //     console.log(error);
+        // });
     } catch (error) {
         console.log(error);
     }
