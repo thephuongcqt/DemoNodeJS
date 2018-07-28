@@ -53,6 +53,7 @@ module.exports = function (app, express) {
                 appointment.address = appointment.patient.address;
                 appointment.yob = appointment.patient.yob;
                 appointment.gender = appointment.patient.gender;
+                appointment.secondPhoneNumber = appointment.patient.secondPhoneNumber;
                 appointment.isBlock = utils.checkNumberInArray(appointment.patient.phoneNumber, blockedNumbers);
                 appointment.currentTime = utils.parseDate(new Date());
                 appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);

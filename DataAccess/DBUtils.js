@@ -160,6 +160,10 @@ var db = {
     medicine: function(){
       return this.hasOne(db.Medicine, "medicineID", "medicineID");
     }
+  }),
+
+  Role: bookshelf.Model.extend({
+    tableName: "tbl_role"
   })
 };
 module.exports = db;

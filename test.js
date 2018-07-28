@@ -16,15 +16,13 @@ var firebase = require("./Notification/FirebaseAdmin");
 
 var test = async function () {
     try {
-        var mCurrent = Moment(new Date("2018-07-26T15:01:00.000"));
-        var minute = mCurrent.minute();
-        minute = 5 * Math.ceil( minute / 5 );        
-        mCurrent.set({
-            minute: minute,
-            second: 0,
-            millisecond: 0
-        })
-        console.log(mCurrent);
+        var json = {
+            clinicUsername: "phuongtest1",
+            fullName: "Dao Tuan Hung",
+            phoneNumber: "+849693456781"
+        }
+        result = await patientDao.getPatientForMakeAppointment(json);
+        console.log(result);
     } catch (error) {
         console.log(error);
     }

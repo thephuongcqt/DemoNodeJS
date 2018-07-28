@@ -1,4 +1,21 @@
+var db = require("./DBUtils");
 var dao = {
+    rawQuery(sql, params){
+        return new Promise((resolve, reject) => {
+            db.knex.raw(sql, params)
+                .then(result => {
+                    if (result && result.length > 0) {
+                        var json = JSON.parse(JSON.stringify(result[0]));
+                        resolve(json);
+                    }
+                    resolve(null);
+                })
+                .catch(error => {
+                    reject(error);
+                });
+        })        
+    },
+
     create: function (table, json) {
         return new Promise((resolve, reject) => {
             table.forge(json)
