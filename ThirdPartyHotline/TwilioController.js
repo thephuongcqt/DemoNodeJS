@@ -34,6 +34,21 @@ module.exports = function (app, express) {
             twilioUtils.sendSMS(clinicPhone, patientPhone, Const.BlockedError);
             return;
         }
+        var isDayOff = await checkIsDayOff(userClinic.username);        
+        if(isDayOff){
+            var json = {
+                phoneNumber: clinicPhone
+            }
+            var results = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");        
+            var clinic = results[0].clinic;
+            var username = clinic.username;
+            var message = await appointmentDao.getMessageForOffDay(username);
+
+            twiml.reject();
+            res.end(twiml.toString());
+            twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+            return;
+        }
         var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
 
         var greetingURL = await clinicDao.getGreetingURL(clinicPhone);

@@ -14,20 +14,73 @@ var patientDao = require("./DataAccess/PatientDAO");
 var symptomDao = require("./DataAccess/SymptomDAO");
 var firebase = require("./Notification/FirebaseAdmin");
 
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
+
 var test = async function () {
     try {
         var json = {
-            clinicUsername: "phuongtest1",
-            fullName: "Dao Tuan Hung",
-            phoneNumber: "+849693456781"
+            phoneNumber: "+18882713991"
         }
-        result = await patientDao.getPatientForMakeAppointment(json);
-        console.log(result);
+        var results = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");        
+        var clinic = results[0].clinic;
+        console.log(clinic.username);
     } catch (error) {
         console.log(error);
     }
 };
 test();
+
+function findStartDayOff(today, wks){
+    var root = today;    
+    var count = 0;
+    while(wks[today] == 1){
+        today = getNextDay(today, false);
+        if(wks[today] != 1){
+            return count;
+        }
+        if(today == root){
+            return count;
+        }
+        count++;
+    }
+    return count;
+}
+
+function findEndDayOff(today, wks){   
+    var root = today; 
+    var count = 0;
+    while(wks[today] == 1){
+        today = getNextDay(today, true);
+        if(wks[today] != 1){
+            return count;
+        }
+        if(today == root){
+            return count;
+        }
+        count++;
+    }
+    return count;
+}
+
+function getNextDay(today, ascending){
+    if(ascending == true){
+        if(today == 6){
+            return 0;
+        } else{
+            return today + 1;
+        }
+    } else{
+        if(today == 0){
+            return 6;
+        } else{
+            return today - 1;
+        }
+    }
+}
 
 function getTotalDuration(count, duration) {
     var times = miliseconds(duration.hour(), duration.minute(), duration.second());

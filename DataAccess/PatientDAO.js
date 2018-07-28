@@ -23,7 +23,6 @@ var patientDao = {
         })
     },
 
-
     insertNotExistedPatient: function (patient) {
         return new Promise(async (resolve, reject) => {
             try {
