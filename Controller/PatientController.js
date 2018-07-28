@@ -75,13 +75,13 @@ module.exports = function (app, express) {
                     if(existedPatient && existedPatient.patientID != patientID){
                         res.json(utils.responseFailure("Bệnh nhân đã bị trùng lặp, vui lòng kiểm tra lại tên hoặc số điện thoại"));
                         return;
-                    }
-                    if(secondPhoneNumber == ""){
-                        secondPhoneNumber = null;
-                    }
-                } else{
-                    secondPhoneNumber = undefined;
+                    }                    
                 }
+            }
+            if(secondPhoneNumber == ""){
+                secondPhoneNumber = null;
+            } else{
+                secondPhoneNumber = undefined;
             }
             if (yob != null) {
                 if (yob == "1970-01-01T00:00:00.000Z") {
