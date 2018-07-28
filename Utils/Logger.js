@@ -17,7 +17,7 @@ var logger = {
                 logMessage += "\r\n\t" + error.stack;
             } else{
                 logMessage += "\r\n\t" + error;
-            }        
+            }
             var filePath = getFilePath();
             fs.appendFileSync(filePath, logMessage);    
         } catch (error) {

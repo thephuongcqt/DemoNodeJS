@@ -2,9 +2,10 @@ var db = require("./DBUtils");
 var logger = require("../Utils/Logger");
 var dao = require("./BaseDAO");
 var appointmentDao = require("./AppointmentDAO");
+var baseDAO = require("./BaseDAO");
 
 var patientDao = {
-    searchPatient: async function (searchValue, username) {
+    searchPatient: async function (searchValue, username) {        
         return new Promise(async (resolve, reject) => {
             var sql = "SELECT DISTINCT *"
                 + " FROM tbl_patient"
@@ -12,17 +13,13 @@ var patientDao = {
                 + " OR UPPER(phoneNumber) LIKE UPPER('%" + searchValue + "%'))"
                 + " AND (clinicUsername LIKE '" + username + "')"
                 + " LIMIT 30";
-            db.knex.raw(sql)
-                .then(result => {
-                    if (result && result.length > 0) {
-                        var json = JSON.parse(JSON.stringify(result[0]));
-                        resolve(json);
-                    }
-                    resolve([]);
-                })
-                .catch(error => {
-                    reject(error);
-                });
+            db.rawQuery(sql)
+            .then(result => {
+                resolve(result);
+            })
+            .catch(error => {
+                reject(error);
+            })
         })
     },
 
@@ -122,8 +119,16 @@ var patientDao = {
                 });
         });
     },
-    updatePatient: function (patientID, phoneNumber, fullName, address, yob, gender) {
-        var json = { "patientID": patientID, "phoneNumber": phoneNumber, "fullName": fullName, "address": address, "yob": yob, "gender": gender };
+    updatePatient: function (patientID, phoneNumber, fullName, address, yob, gender, secondPhoneNumber) {
+        var json = {
+            "patientID": patientID,
+            "phoneNumber": phoneNumber,
+            "fullName": fullName,
+            "address": address,
+            "yob": yob,
+            "gender": gender, 
+            "secondPhoneNumber": secondPhoneNumber
+        };
         return new Promise((resolve, reject) => {
             dao.update(db.Patient, json, "patientID")
                 .then(collection => {

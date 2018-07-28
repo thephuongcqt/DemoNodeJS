@@ -16,15 +16,12 @@ var firebase = require("./Notification/FirebaseAdmin");
 
 var test = async function () {
     try {
-        var mCurrent = Moment(new Date("2018-07-26T15:01:00.000"));
-        var minute = mCurrent.minute();
-        minute = 5 * Math.ceil( minute / 5 );        
-        mCurrent.set({
-            minute: minute,
-            second: 0,
-            millisecond: 0
-        })
-        console.log(mCurrent);
+        var searchValue = "phuong";
+        var username = "hoanghoa";
+        var phoneNumber = "+84969248184";
+        var patientID = "566";
+        var result = await patientDao.checkExistedPhoneNumber(phoneNumber, patientID);
+        console.log(result);
     } catch (error) {
         console.log(error);
     }

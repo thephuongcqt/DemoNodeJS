@@ -38,20 +38,48 @@ module.exports = function (app, express) {
         var yob = req.body.yob;
         var parseYOB = undefined;
         var gender = req.body.gender;
+        var secondPhoneNumber = req.body.secondPhoneNumber;
         try {
-            var patientInfo = await patientDao.getPatientInfo(patientID);
-            if (!patientInfo) {
-                res.json(utils.responseFailure("Bệnh nhân không có trong hệ thống"));
-                return;
-            }
             if (fullName) {
                 fullName = utils.toBeautifulName(fullName);
             } else {
                 fullName = null;
             }
-            if (!phoneNumber) {
-                phoneNumber = null;
+            var patientInfo = await patientDao.getPatientInfo(patientID);
+            if (!patientInfo) {
+                res.json(utils.responseFailure("Bệnh nhân không có trong hệ thống"));
+                return;
             }
+
+            if(!phoneNumber && !secondPhoneNumber){
+                res.json(utils.responseFailure("Bệnh nhân phải có ít nhất một số điện thoại"));                
+                return;
+            } else{
+                if(!phoneNumber){
+                    res.json(utils.responseFailure("Số điện thoại chính không được để rỗng"));
+                    return;
+                }
+                if(secondPhoneNumber){
+                    secondPhoneNumber = secondPhoneNumber.trim();
+                    phoneNumber = phoneNumber.trim();
+                    if(secondPhoneNumber == phoneNumber){
+                        res.json(utils.responseFailure("Số ĐT chính và phụ không được trùng nhau"));
+                        return;
+                    }
+                    var json = {
+                        phoneNumber: phoneNumber,
+                        fullName: fullName,
+                        clinicUsername: patientInfo.clinicUsername
+                    }
+                    var existedPatient = await patientDao.checkExistedPatient(json);
+                    if(existedPatient){
+                        res.json(utils.responseFailure("Bệnh nhân đã bị trùng lặp, vui lòng kiểm tra lại tên hoặc số điện thoại"));
+                        return;
+                    }
+                } else{
+                    secondPhoneNumber = undefined;
+                }
+            }                        
             if (yob != null) {
                 if (yob == "1970-01-01T00:00:00.000Z") {
                     yob = undefined;
@@ -76,11 +104,8 @@ module.exports = function (app, express) {
             }
             if (fullName == null) {
                 fullName = undefined;
-            }
-            if (phoneNumber == null) {
-                phoneNumber = undefined;
-            }
-            var resultUpdate = await patientDao.updatePatient(patientID, phoneNumber, fullName, address, parseYOB, gender);
+            }            
+            var resultUpdate = await patientDao.updatePatient(patientID, phoneNumber, fullName, address, parseYOB, gender, secondPhoneNumber);
             res.json(utils.responseSuccess(resultUpdate));
         }
         catch (err) {
