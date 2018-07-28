@@ -69,8 +69,7 @@ module.exports = function (app, express) {
                     client.calls(req.body.CallSid)
                         .fetch()
                         .then(call => {
-                            makeAppointment(call.from, "", call.to);
-                            // sendSMSToPatient(call.to, call.from, Const.BookAppointmentFailure);
+                            makeAppointment(call.from, "", call.to);                            
                         })
                         .done();
                 });

@@ -75,7 +75,7 @@ module.exports = function (app, express) {
                     if(existedPatient && existedPatient.patientID != patientID){
                         res.json(utils.responseFailure("Bệnh nhân đã bị trùng lặp, vui lòng kiểm tra lại tên hoặc số điện thoại"));
                         return;
-                    }                    
+                    }
                 } else{
                     if(secondPhoneNumber == ""){
                         secondPhoneNumber = null;
@@ -83,7 +83,7 @@ module.exports = function (app, express) {
                         secondPhoneNumber = undefined;
                     }
                 }
-            }            
+            }
             if (yob != null) {
                 if (yob == "1970-01-01T00:00:00.000Z") {
                     yob = undefined;
@@ -109,7 +109,16 @@ module.exports = function (app, express) {
             if (fullName == null) {
                 fullName = undefined;
             }            
-            var resultUpdate = await patientDao.updatePatient(patientID, phoneNumber, fullName, address, parseYOB, gender, secondPhoneNumber);
+            var json = {
+                "patientID": patientID,
+                "phoneNumber": phoneNumber,
+                "fullName": fullName,
+                "address": address,
+                "yob": yob,
+                "gender": gender, 
+                "secondPhoneNumber": secondPhoneNumber
+            };
+            var resultUpdate = await patientDao.updatePatient(json);
             res.json(utils.responseSuccess(resultUpdate));
         }
         catch (err) {
@@ -146,6 +155,8 @@ module.exports = function (app, express) {
                 }
                 var result = await Promise.all([baseDAO.findByPK(db.Patient, newJson), baseDAO.findByPK(db.Patient, oldJson)]);
                 if(result && result.length == 2 && result[0] && result[1]){
+                    var oldPatient = result[0];
+                    var newPatient = result[1];
                     var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": oldPatientID });
                     if (appointmentOfPatients && appointmentOfPatients.length > 0) {
                         var promises = [];
@@ -164,7 +175,11 @@ module.exports = function (app, express) {
                     } catch (error) {
                         logger.log(error);
                     }
-                    
+                    var json = {
+                        "patientID": patientID,
+                        "secondPhoneNumber": oldPatient.phoneNumber
+                    };
+                    await patientDao.updatePatient(json);
                     res.json(utils.responseSuccess("Thay đổi thông tin thành công"));
                 } else{
                     res.json(utils.responseFailure("Không tìm thấy bệnh nhân, xin vui lòng kiểm tra lại"));

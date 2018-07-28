@@ -119,16 +119,7 @@ var patientDao = {
                 });
         });
     },
-    updatePatient: function (patientID, phoneNumber, fullName, address, yob, gender, secondPhoneNumber) {
-        var json = {
-            "patientID": patientID,
-            "phoneNumber": phoneNumber,
-            "fullName": fullName,
-            "address": address,
-            "yob": yob,
-            "gender": gender, 
-            "secondPhoneNumber": secondPhoneNumber
-        };
+    updatePatient: function (json) {        
         return new Promise((resolve, reject) => {
             dao.update(db.Patient, json, "patientID")
                 .then(collection => {

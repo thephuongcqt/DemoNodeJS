@@ -25,4 +25,5 @@ var logger = {
         }        
     }
 };
+
 module.exports = logger;
