@@ -16,7 +16,7 @@ var firebase = require("./Notification/FirebaseAdmin");
 
 var test = async function () {
     try {
-        var mCurrent = Moment(new Date);
+        var mCurrent = Moment(new Date("2018-07-26T15:01:00.000"));
         var minute = mCurrent.minute();
         minute = 5 * Math.ceil( minute / 5 );        
         mCurrent.set({

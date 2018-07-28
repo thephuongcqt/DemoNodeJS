@@ -17,7 +17,11 @@ module.exports = function (app, express) {
         var searchDate = req.query.date;
         try {
             var appointments = await getAppointmentList(clinicUsername, searchDate);
-            res.json(utils.responseSuccess(appointments));
+            var json = {
+                currentTime: utils.parseDate(new Date()),
+                appointments: appointments
+            }
+            res.json(utils.responseSuccess(json));
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
@@ -30,9 +34,9 @@ module.exports = function (app, express) {
         var json = { "clinicUsername": clinicUsername };
         try {
             var appointments;
-            var blocks = await baseDAO.findByProperties(db.Block, {"clinicUsername": clinicUsername, "isBlock": 1});            
+            var blocks = await baseDAO.findByProperties(db.Block, { "clinicUsername": clinicUsername, "isBlock": 1 });
             var blockedNumbers = [];
-            for(var index in blocks){
+            for (var index in blocks) {
                 var item = blocks[index];
                 blockedNumbers.push(item.phoneNumber);
             }
@@ -42,19 +46,19 @@ module.exports = function (app, express) {
                 appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient", "medicalRecord"]);
             }
             for (var i in appointments) {
-                var appointment = appointments[i];                                              
+                var appointment = appointments[i];
                 appointment.phoneNumber = appointment.patient.phoneNumber;
                 appointment.fullName = appointment.patient.fullName;
                 appointment.address = appointment.patient.address;
                 appointment.yob = appointment.patient.yob;
                 appointment.gender = appointment.patient.gender;
-                appointment.isBlock = utils.checkNumberInArray(appointment.patient.phoneNumber, blockedNumbers);                
+                appointment.isBlock = utils.checkNumberInArray(appointment.patient.phoneNumber, blockedNumbers);
                 appointment.currentTime = utils.parseDate(new Date());
-                appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);                                
+                appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
                 appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;
                 delete appointment.patient;
                 delete appointment.medicalRecord;
-                delete appointment.clinicUsername;  
+                delete appointment.clinicUsername;
             }
             var json = {
                 currentTime: utils.parseDate(new Date()),
@@ -120,20 +124,24 @@ module.exports = function (app, express) {
                     var patientPhone = item.bookedPhone;
                     var promise = baseDAO.update(db.Appointment, json, "appointmentID");
                     promises.push(promise);
-                    if  (clinicPhone && patientPhone){
+                    if (clinicPhone && patientPhone) {
                         twilioUtils.sendSMS(clinicPhone, patientPhone, Const.AppointmentCancelMessage);
-                    }                    
+                    }
                     changed = true
                 }
             }
-            await Promise.all(promises)        
-            if (changed){                    
-                var result = await getAppointmentList(username);
-                res.json(utils.responseSuccess(result));
-            } else{
+            await Promise.all(promises)
+            if (changed) {
+                var appointments = await getAppointmentList(username);
+                var json = {
+                    currentTime: utils.parseDate(new Date()),
+                    appointments: appointments
+                }
+                res.json(utils.responseSuccess(json));
+            } else {
                 res.json(utils.responseFailure("Không có cuộc hẹn nào được huỷ thành công"));
             }
-            
+
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
@@ -168,20 +176,24 @@ module.exports = function (app, express) {
                             "appointmentTime": mTime.toDate()
                         }
                         var promise = baseDAO.update(db.Appointment, json, "appointmentID");
-                        promises.push(promise);                        
+                        promises.push(promise);
                         var patientPhone = item.bookedPhone;
-                        if(patientPhone && clinicPhone){
-                            var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."                        
+                        if (patientPhone && clinicPhone) {
+                            var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."
                             twilioUtils.sendSMS(clinicPhone, patientPhone, message);
-                        }                        
+                        }
                         changed = true
                     }
-                }             
-                await Promise.all(promises)   
-                if (changed) {                    
-                    var result = await getAppointmentList(username);
-                    res.json(utils.responseSuccess(result));
-                } else{
+                }
+                await Promise.all(promises)
+                if (changed) {
+                    var appointments = await getAppointmentList(username);
+                    var json = {
+                        currentTime: utils.parseDate(new Date()),
+                        appointments: appointments
+                    }
+                    res.json(utils.responseSuccess(json));
+                } else {
                     res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
                 }
             } catch (error) {
