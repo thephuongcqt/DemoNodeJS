@@ -21,6 +21,7 @@ module.exports = function (app, express) {
                 }
             }
             res.json(utils.responseSuccess(listDisease));
+            logger.successLog("getAllDiseases");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetDiseaseListFailure));
@@ -40,6 +41,7 @@ module.exports = function (app, express) {
                 }
                 var resultUpdate = await diseaseDao.updateDisease(req.body.diseaseID, diseaseName, isActive);
                 res.json(utils.responseSuccess(resultUpdate));
+                logger.successLog("updateDisease");
             }
         }
         catch (err) {
@@ -69,6 +71,7 @@ module.exports = function (app, express) {
             }
             await diseaseDao.createDisease(diseaseName);
             res.json(utils.responseSuccess("Tạo mới bệnh thành công"));
+            logger.successLog("createDisease");
         } catch (err) {
             res.json(utils.responseFailure(err.message));
             logger.log(err);

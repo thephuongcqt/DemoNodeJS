@@ -50,6 +50,7 @@ module.exports = function (app, express) {
                     regimens: medicinesList
                 }
                 res.json(utils.responseSuccess(jsonResponse));
+                logger.successLog("getRegimen");
             } else {
                 res.json(utils.responseFailure("Đã có lỗi xảy ra khi lấy phác đồ điều trị"))
             }

@@ -19,6 +19,7 @@ module.exports = function (app, express) {
                 listMedicalRecord.push(medicalRecords);
             }
             res.json(utils.responseSuccess(listMedicalRecord));
+            logger.successLog("getAllMedicalRecord");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetMedicineListFailure));
@@ -88,6 +89,7 @@ module.exports = function (app, express) {
                 }
             }
             res.json(utils.responseSuccess(medicalRecords));
+            logger.successLog("getMedicalRecord");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetMedicineListFailure));
@@ -117,6 +119,7 @@ module.exports = function (app, express) {
             }
             await medicalRecordDao.createMedicalRecord(appointmentID, reminding, description, listMedicine, listDisease, clinicalSymptom);
             res.json(utils.responseSuccess("Tạo bệnh án thành công"));
+            logger.successLog("createMedicalRecord");
         } catch (err) {
             res.json(utils.responseFailure(err.message));
             logger.log(err);

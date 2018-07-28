@@ -13,6 +13,7 @@ module.exports = function (app, express) {
         try {
             var patients = await patientDao.getAllPatient();
             res.json(utils.responseSuccess(patients));
+            logger.successLog("getAllPatients");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetPatientListFailure));
@@ -24,6 +25,7 @@ module.exports = function (app, express) {
         try {
             var patientInfo = await patientDao.getPatientInfo(patientID);
             res.json(utils.responseSuccess(patientInfo));
+            logger.successLog("getPatientInfo");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetPatientListFailure));
@@ -82,6 +84,7 @@ module.exports = function (app, express) {
             }
             var resultUpdate = await patientDao.updatePatient(patientID, phoneNumber, fullName, address, parseYOB, gender);
             res.json(utils.responseSuccess(resultUpdate));
+            logger.successLog("updatePatient");
         }
         catch (err) {
             res.json(utils.responseFailure(err.message));
@@ -98,6 +101,7 @@ module.exports = function (app, express) {
                 patientsList = await  patientDao.searchPatient(searchValue, username);
             }
             res.json(utils.responseSuccess(patientsList));
+            logger.successLog("searchPatient");
         } catch (error) {            
             logger.log(error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi tìm kiếm bệnh nhân"));
@@ -137,6 +141,7 @@ module.exports = function (app, express) {
                     }
                     
                     res.json(utils.responseSuccess("Thay đổi thông tin thành công"));
+                    logger.successLog("mergePatient");
                 } else{
                     res.json(utils.responseFailure("Không tìm thấy bệnh nhân, xin vui lòng kiểm tra lại"));
                 }

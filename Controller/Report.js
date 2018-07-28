@@ -27,6 +27,7 @@ module.exports = function (app, express) {
                     result.push(tmp);
                 }
                 res.json(utils.responseSuccess(result));
+                logger.successLog("dateReport");
             } catch (error) {
                 logger.log(error); 
                 res.json(utils.responseFailure(error.message));
@@ -46,6 +47,7 @@ module.exports = function (app, express) {
                 var endDate = new Date(endString);
                 var list = await appointmentDao.reportByMonth(username, startDate, endDate);
                 res.json(utils.responseSuccess(list));
+                logger.successLog("monthReport");
             } catch (error) {
                 logger.log(error); 
                 res.json(utils.responseFailure(error.message));
@@ -65,6 +67,7 @@ module.exports = function (app, express) {
                 var endDate = new Date(endString);
                 var list = await appointmentDao.reportByYear(username, startDate, endDate);
                 res.json(utils.responseSuccess(list));
+                logger.successLog("yearReport");
             } catch (error) {
                 logger.log(error); 
                 res.json(utils.responseFailure(error.message));

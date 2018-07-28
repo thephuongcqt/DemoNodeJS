@@ -32,6 +32,7 @@ module.exports = function (app, express) {
                     } else if (user.role == Const.ROLE_CLINIC) {
                         var clinic = await clinicDAO.getClinicResponse(username);
                         res.json(utils.responseSuccess(clinic));
+                        logger.successLog("Login");
                     } else {
                         res.json(utils.responseFailure("Tài khoản không tồn tại"));
                     }
@@ -52,6 +53,7 @@ module.exports = function (app, express) {
             userDAO.getAllUser(role)
                 .then(function (result) {
                     res.json(utils.responseSuccess(result));
+                    logger.successLog("getAllUser");
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
@@ -60,6 +62,7 @@ module.exports = function (app, express) {
             userDAO.getAllClinic()
                 .then(function (result) {
                     res.json(utils.responseSuccess(result));
+                    logger.successLog("getAllUser");
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
@@ -68,6 +71,7 @@ module.exports = function (app, express) {
             userDAO.getAll()
                 .then(function (result) {
                     res.json(utils.responseSuccess(result));
+                    logger.successLog("getAllUser");
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
@@ -107,6 +111,7 @@ module.exports = function (app, express) {
                     return;
                 }
                 res.json(utils.responseSuccess("Đặt lại mật khẩu thành công"));
+                logger.successLog("changePassword");
                 return;
             }
             res.json(utils.responseFailure("Tài khoản không tồn tại"));
@@ -138,13 +143,16 @@ module.exports = function (app, express) {
                     resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
                     var results = Object.assign(resultUser, resultClinic);
                     res.json(utils.responseSuccess(results));
+                    logger.successLog("updateUser");
                 } else {
                     res.json(utils.responseSuccess(resultUser));
+                    logger.successLog("updateUser");
                 }
             } else {
                 if (users.role == Const.ROLE_CLINIC) {
                     resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
                     res.json(utils.responseSuccess(resultClinic));
+                    logger.successLog("updateUser");
                 } else {
                     res.json(utils.responseFailure("Không có thông tin cập nhật"));
                 }
@@ -180,6 +188,7 @@ module.exports = function (app, express) {
                                 userDAO.createUser(username, password, phoneNumber, fullName, email, role)
                                     .then(function (result) {
                                         res.json(utils.responseSuccess(result));
+                                        logger.successLog("createUser");
                                     })
                                     .catch(function (err) {
                                         res.json(utils.responseFailure(err));
@@ -240,6 +249,7 @@ module.exports = function (app, express) {
                 }
                 if (checkDuplicate == true) {
                     res.json(utils.responseSuccess("Tài khoản khả dụng"));
+                    logger.successLog("checkDuplicate");
                 }
             })
             .catch(function (err) {
@@ -259,6 +269,7 @@ module.exports = function (app, express) {
                         .then(function (result) {
                             if (result == true) {
                                 res.json(utils.responseSuccess("Mật khẩu chính xác"));
+                                logger.successLog("checkPassword");
                             } else {
                                 res.json(utils.responseFailure("Mật khẩu không đúng"));
                             }
@@ -326,6 +337,7 @@ module.exports = function (app, express) {
                     }
                     await userDAO.deleteUser(req.query.username);
                     res.json(utils.responseSuccess("Delete account successfully"));
+                    logger.successLog("deleteUser");
                 }
             }
         }
@@ -349,6 +361,7 @@ module.exports = function (app, express) {
                                 userDAO.updateUser(username, newpass)
                                     .then(function (result) {
                                         res.json(utils.responseSuccess(result));
+                                        logger.successLog("hash");
                                     });
                             });
                     }
@@ -367,6 +380,7 @@ module.exports = function (app, express) {
         baseDao.findAll(db.User)
             .then(collection => {
                 res.json(utils.responseSuccess(collection));
+                logger.successLog("dev/getAllUser");
             })
             .catch(err => {
                 logger.log(err);
@@ -383,6 +397,7 @@ module.exports = function (app, express) {
             var json = { "username": username, "password": newPassword };
             var result = await baseDao.update(db.User, json, "username");
             res.json(utils.responseSuccess(result));
+            logger.successLog("dev/changePassword");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));

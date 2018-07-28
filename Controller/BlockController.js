@@ -12,6 +12,7 @@ module.exports = function (app, express) {
         try {
             var results = await getBlock(req.query.clinicUsername)
             res.json(utils.responseSuccess(results));
+            logger.successLog("getBlock");
         }
         catch (err) {
             res.json(utils.responseFailure(err));
@@ -35,6 +36,7 @@ module.exports = function (app, express) {
                     blockNumber = await blockDAO.updateBlock(clinicUsername, phoneNumber, isBlock);
                 }
                 res.json(utils.responseSuccess(blockNumber));
+                logger.successLog("blockNumber");
             }
         }
         catch (err) {

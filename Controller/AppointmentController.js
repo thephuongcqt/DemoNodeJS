@@ -22,6 +22,7 @@ module.exports = function (app, express) {
                 appointments: appointments
             }
             res.json(utils.responseSuccess(json));
+            logger.successLog("getAppointmentsListByDate");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
@@ -65,6 +66,7 @@ module.exports = function (app, express) {
                 appointments: appointments
             }
             res.json(utils.responseSuccess(json));
+            logger.successLog("getAppointmentsListByDateForWeb");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
@@ -94,6 +96,7 @@ module.exports = function (app, express) {
                     appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
                 }
                 res.json(utils.responseSuccess(resultUpdate));
+                logger.successLog("checkVisit");
             } else {
                 res.json(utils.responseFailure("An error occurred!"));
             }
@@ -138,6 +141,7 @@ module.exports = function (app, express) {
                     appointments: appointments
                 }
                 res.json(utils.responseSuccess(json));
+                logger.successLog("cancelWorking");
             } else {
                 res.json(utils.responseFailure("Không có cuộc hẹn nào được huỷ thành công"));
             }
@@ -193,6 +197,7 @@ module.exports = function (app, express) {
                         appointments: appointments
                     }
                     res.json(utils.responseSuccess(json));
+                    logger.successLog("adjustAppointment");
                 } else {
                     res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
                 }

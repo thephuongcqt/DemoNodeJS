@@ -14,6 +14,7 @@ module.exports = function (app, express) {
         getWorkingHours(req.query.username)
             .then(function (results) {
                 res.json(utils.responseSuccess(results));
+                logger.successLog("getWorkingHours");
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
@@ -50,6 +51,7 @@ module.exports = function (app, express) {
                 }
                 var resultUpdate = await getWorkingHours(username);
                 res.json(utils.responseSuccess(resultUpdate));
+                logger.successLog("updateWorkingHours");
             }
         }
         catch (err) {
@@ -142,6 +144,7 @@ module.exports = function (app, express) {
                 }
                 resultUpdate = await getWorkingHours(username);
                 res.json(utils.responseSuccess(resultUpdate));
+                logger.successLog("updateAllWorkingHours");
             }
         }
         catch (err) {
