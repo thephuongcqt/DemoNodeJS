@@ -28,6 +28,7 @@ module.exports = function (app, express) {
                         }
                         baseDao.update(db.User, userJson, "username");
                         baseDao.delete(db.Token, "ID", dbToken.ID);
+                        logger.successLog("authenToken");
                         res.sendFile(path.resolve('html/success.html'));
                         return;
                     } else {
@@ -67,6 +68,7 @@ module.exports = function (app, express) {
                     var host = req.protocol + '://' + req.get('host');
                     await authenUtils.sendConfirmRegister(host, username, user.email);
                     res.json(utils.responseSuccess("Gửi email thành công"));
+                    logger.successLog("requestSendingEmailConfirm");
                     return;
                 }
             }
@@ -108,6 +110,7 @@ module.exports = function (app, express) {
                     await emailUtils.sendCodeForResetPassword(user.email, token, user.username);
                 }
                 res.json(utils.responseSuccess("Bạn vui lòng nhập mã đã được gửi tới email để xác nhận đặt lại mật khẩu"));
+                logger.successLog("requestResetPassword");
                 return;
             }
             res.json(utils.responseFailure("Tài khoản không tồn tại"));
@@ -140,6 +143,7 @@ module.exports = function (app, express) {
                             }
                             await baseDao.delete(db.Token, "ID", dbToken.ID);
                             res.json(utils.responseSuccess("Đặt lại mật khẩu thành công"));
+                            logger.successLog("authenPassword");
                             return;
                         } else {
                             logger.log(new Error("Expired Token: " + token + " Username: " + username));

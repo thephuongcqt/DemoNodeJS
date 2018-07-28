@@ -18,6 +18,7 @@ module.exports = function (app, express) {
             var message = req.query.message;
             firebase.testNotify(username, message);
             res.json(utils.responseSuccess(username + " | " + message));
+            logger.successLog("testNotify");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
@@ -30,6 +31,7 @@ module.exports = function (app, express) {
             var topic = req.body.topic;
             firebase.subscribeTopic(token, topic);
             res.json(utils.responseSuccess("success"));
+            logger.successLog("subscribeTopic");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
@@ -42,6 +44,7 @@ module.exports = function (app, express) {
             var topic = req.body.topic;
             firebase.unsubscribeTopic(token, topic);
             res.json(utils.responseSuccess("success"));
+            logger.successLog("unsubscribeTopic");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
@@ -80,6 +83,7 @@ module.exports = function (app, express) {
                 delete user.clinic;
             }
             res.json(utils.responseSuccess(clinics));
+            logger.successLog("getClinicsForStaff");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
@@ -203,6 +207,7 @@ module.exports = function (app, express) {
 
             json = await clinicDAO.getClinicResponse(username);
             res.json(utils.responseSuccess(json));
+            logger.successLog("changeInformation");
         } catch (error) {
             logger.log(error);
             if (error.message == Const.Error.IncorrectUsernameOrPassword) {
@@ -254,6 +259,7 @@ module.exports = function (app, express) {
         try {
             await baseDAO.update(db.Clinic, json, "username");
             res.json(utils.responseSuccess(json));
+            logger.successLog("changeClinicProfile");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.Error.UpdateClinicError));
@@ -264,6 +270,7 @@ module.exports = function (app, express) {
         getAllClinic()
             .then(function (results) {
                 res.json(utils.responseSuccess(results));
+                logger.successLog("getAllClinic");
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
@@ -287,6 +294,7 @@ module.exports = function (app, express) {
                     if (isCorrectPassword) {
                         var result = await clinicDAO.getClinicResponse(username);
                         res.json(utils.responseSuccess(result));
+                        logger.successLog("Login");
                         return;
                     }
                 }
@@ -318,6 +326,7 @@ module.exports = function (app, express) {
             var host = req.protocol + '://' + req.get('host');
             await authenUtils.sendConfirmRegister(host, username, email);
             res.json(utils.responseSuccess("Đăng ký tài khoản thành công"));
+            logger.successLog("register");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
@@ -329,6 +338,7 @@ module.exports = function (app, express) {
         try {
             var result = await clinicDAO.getClinicResponse(username);
             res.json(utils.responseSuccess(result));
+            logger.successLog("getClinicInformation");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));

@@ -20,7 +20,7 @@ var medicalRecordDao = {
     },
     getAllMedicalRecord: function (appointmentID) {
         return new Promise((resolve, reject) => {
-            dao.findByPropertiesWithManyRelated(db.MedicalRecord, { "appointmentID": appointmentID }, ["meidicalDisease", "medicalMedicines"])
+            dao.findByPropertiesWithManyRelated(db.MedicalRecord, { "appointmentID": appointmentID }, ["medicalDisease", "medicalMedicines"])
                 .then(collection => {
                     resolve(collection);
                 })

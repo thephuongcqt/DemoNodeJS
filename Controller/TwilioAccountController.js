@@ -23,6 +23,7 @@ module.exports = function (app, express) {
             try {
                 var result = await baseDAO.create(db.Twilio, json);
                 res.json(utils.responseSuccess("success"));
+                logger.successLog("createNewTwilio");
                 return;
             } catch (error) {
                 logger.log(error);
@@ -37,6 +38,7 @@ module.exports = function (app, express) {
         try {
             var list = await baseDAO.findAll(db.Twilio);    
             res.json(utils.responseSuccess(list));
+            logger.successLog("getTwilios");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));

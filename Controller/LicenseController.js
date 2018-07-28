@@ -11,6 +11,7 @@ module.exports = function (app, express) {
         licenseDAO.getAllLicense()
             .then(function (results) {
                 res.json(utils.responseSuccess(results));
+                logger.successLog("getAllLicense");
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
@@ -23,6 +24,7 @@ module.exports = function (app, express) {
         licenseDAO.getLicenseInfo(licenseID)
             .then(function (results) {
                 res.json(utils.responseSuccess(results));
+                logger.successLog("getLicenseInfo");
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
@@ -42,6 +44,7 @@ module.exports = function (app, express) {
         licenseDAO.createLicense(price, duration, req.body.name, req.body.description)
             .then(function (results) {
                 res.json(utils.responseSuccess(results));
+                logger.successLog("create");
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
@@ -69,6 +72,7 @@ module.exports = function (app, express) {
                 }
                 var resultUpdate = await licenseDAO.updateLicense(req.body.licenseID, price, duration, req.body.name, req.body.description, isActive);
                 res.json(utils.responseSuccess(resultUpdate));
+                logger.successLog("updateLicense");
             }
         }
         catch (err) {
@@ -88,6 +92,7 @@ module.exports = function (app, express) {
                 } else {
                     var resultDelete = await licenseDAO.deleteLicense(req.query.licenseID);
                     res.json(utils.responseFailure(resultDelete));
+                    logger.successLog("deleteLicense");
                 }
             }
         }

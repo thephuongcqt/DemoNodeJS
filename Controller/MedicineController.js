@@ -21,6 +21,7 @@ module.exports = function (app, express) {
                 }
             }
             res.json(utils.responseSuccess(listMedicine));
+            logger.successLog("getAllMedicines");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.GetMedicineListFailure));
@@ -41,6 +42,7 @@ module.exports = function (app, express) {
                 }
                 var resultUpdate = await medicineDao.updateMedicine(req.body.medicineID, medicineName, unitName, isActive);
                 res.json(utils.responseSuccess(resultUpdate));
+                logger.successLog("updateMedicine");
             }
         }
         catch (err) {
@@ -68,6 +70,7 @@ module.exports = function (app, express) {
                     var changeActive = Const.ACTIVATION;
                     await medicineDao.updateMedicine(resultInfo[0].medicineID, undefined, undefined, changeActive);
                     res.json(utils.responseSuccess("Tạo mới thuốc thành công"));
+                    logger.successLog("createMedicine");
                     return;
                 }
                 res.json(utils.responseFailure("Thuốc đã tồn tại trong hệ thống"));
@@ -75,6 +78,7 @@ module.exports = function (app, express) {
             }
             await medicineDao.createMedicine(medicineName, unitName);
             res.json(utils.responseSuccess("Tạo mới thuốc thành công"));
+            logger.successLog("createMedicine");
         } catch (err) {
             res.json(utils.responseFailure(err.message));
             logger.log(err);
