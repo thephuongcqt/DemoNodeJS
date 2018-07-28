@@ -72,7 +72,7 @@ module.exports = function (app, express) {
                         clinicUsername: patientInfo.clinicUsername
                     }
                     var existedPatient = await patientDao.checkExistedPatient(json);
-                    if(existedPatient){
+                    if(existedPatient && existedPatient.patientID != patientID){
                         res.json(utils.responseFailure("Bệnh nhân đã bị trùng lặp, vui lòng kiểm tra lại tên hoặc số điện thoại"));
                         return;
                     }
