@@ -27,7 +27,7 @@ var patientDao = {
     insertNotExistedPatient: function (patient) {
         return new Promise(async (resolve, reject) => {
             try {
-                var receivedPatient = await this.checkExistedPatient(patient);
+                var receivedPatient = await this.getPatientForMakeAppointment(patient);
                 if (receivedPatient) {
                     resolve(receivedPatient);
                 } else {
@@ -39,6 +39,36 @@ var patientDao = {
             } catch (error) {
                 reject(error);
             }
+        });
+    },
+
+    getPatientForMakeAppointment: function(patient){
+        var json = {"fullName": patient.fullName, "clinicUsername": patient.clinicUsername };
+        return new Promise((resolve, reject) => {
+            db.Patient.where(json)
+            .query({where: {phoneNumber: patient.phoneNumber}, orWhere: {secondPhoneNumber: patient.phoneNumber}})
+            .fetchAll()
+            .then(model => {
+                if(model){
+                    var collection = model.toJSON();
+                    if (collection.length > 0) {
+                        for (var index in collection) {
+                            var tmp = collection[index];
+                            if (tmp.fullName.toUpperCase() == patient.fullName.toUpperCase()) {
+                                resolve(tmp);
+                                return;
+                            }
+                        }
+                        resolve(null);
+                    }
+                    resolve(null);
+                } else{
+                    resolve(null);
+                }
+            })
+            .catch(error => {
+                reject(error);
+            })
         });
     },
 

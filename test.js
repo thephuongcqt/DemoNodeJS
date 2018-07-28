@@ -16,11 +16,12 @@ var firebase = require("./Notification/FirebaseAdmin");
 
 var test = async function () {
     try {
-        var searchValue = "phuong";
-        var username = "hoanghoa";
-        var phoneNumber = "+84969248184";
-        var patientID = "566";
-        var result = await patientDao.checkExistedPhoneNumber(phoneNumber, patientID);
+        var json = {
+            clinicUsername: "phuongtest1",
+            fullName: "Dao Tuan Hung",
+            phoneNumber: "+849693456781"
+        }
+        result = await patientDao.getPatientForMakeAppointment(json);
         console.log(result);
     } catch (error) {
         console.log(error);
