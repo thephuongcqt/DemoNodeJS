@@ -65,17 +65,7 @@ module.exports = function (app, express) {
                     if(secondPhoneNumber == phoneNumber){
                         res.json(utils.responseFailure("Số ĐT chính và phụ không được trùng nhau"));
                         return;
-                    }
-                    var json = {
-                        phoneNumber: phoneNumber,
-                        fullName: fullName,
-                        clinicUsername: patientInfo.clinicUsername
-                    }
-                    var existedPatient = await patientDao.checkExistedPatient(json);
-                    if(existedPatient && existedPatient.patientID != patientID){
-                        res.json(utils.responseFailure("Bệnh nhân đã bị trùng lặp, vui lòng kiểm tra lại tên hoặc số điện thoại"));
-                        return;
-                    }
+                    }                    
                 } else{
                     if(secondPhoneNumber == ""){
                         secondPhoneNumber = null;
@@ -84,6 +74,18 @@ module.exports = function (app, express) {
                     }
                 }
             }
+
+            var json = {
+                phoneNumber: phoneNumber,
+                fullName: fullName,
+                clinicUsername: patientInfo.clinicUsername
+            }
+            var existedPatient = await patientDao.checkExistedPatient(json);
+            if(existedPatient && existedPatient.patientID != patientID){
+                res.json(utils.responseFailure("Bệnh nhân đã bị trùng lặp, vui lòng kiểm tra lại tên hoặc số điện thoại"));
+                return;
+            }
+
             if (yob != null) {
                 if (yob == "1970-01-01T00:00:00.000Z") {
                     yob = undefined;
