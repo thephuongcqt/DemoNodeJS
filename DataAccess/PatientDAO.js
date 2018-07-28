@@ -13,7 +13,7 @@ var patientDao = {
                 + " OR UPPER(phoneNumber) LIKE UPPER('%" + searchValue + "%'))"
                 + " AND (clinicUsername LIKE '" + username + "')"
                 + " LIMIT 30";
-            db.rawQuery(sql)
+            baseDAO.rawQuery(sql)
             .then(result => {
                 resolve(result);
             })
