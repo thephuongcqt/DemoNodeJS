@@ -178,7 +178,7 @@ module.exports = function (app, express) {
                         logger.log(error);
                     }
                     var json = {
-                        "patientID": patientID,
+                        "patientID": newPatientID,
                         "secondPhoneNumber": oldPatient.phoneNumber
                     };
                     await patientDao.updatePatient(json);
