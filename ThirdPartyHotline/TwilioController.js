@@ -34,32 +34,33 @@ module.exports = function (app, express) {
             twilioUtils.sendSMS(clinicPhone, patientPhone, Const.BlockedError);
             return;
         }
-        var isDayOff = await checkIsDayOff(userClinic.username);        
-        if(isDayOff){
-            var json = {
-                phoneNumber: clinicPhone
+        //get clinic        
+        var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
+        if (userClinic) {
+            var username = userClinic.username;
+            var isDayOff = await checkIsDayOff(username);
+            if (isDayOff) {
+                var message = await appointmentDao.getMessageForOffDay(username);
+                twiml.reject();
+                res.end(twiml.toString());
+                twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                return;
             }
-            var results = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");        
-            var clinic = results[0].clinic;
-            var username = clinic.username;
-            var message = await appointmentDao.getMessageForOffDay(username);
+            var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
 
+            var greetingURL = await clinicDao.getGreetingURL(clinicPhone);
+
+            twiml.play(greetingURL);
+            twiml.record({
+                recordingStatusCallback: recordURL,
+                method: 'POST',
+                maxLength: 20
+            });
+            res.end(twiml.toString());
+        } else{
             twiml.reject();
             res.end(twiml.toString());
-            twilioUtils.sendSMS(clinicPhone, patientPhone, message);
-            return;
-        }
-        var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
-
-        var greetingURL = await clinicDao.getGreetingURL(clinicPhone);
-
-        twiml.play(greetingURL);
-        twiml.record({
-            recordingStatusCallback: recordURL,
-            method: 'POST',
-            maxLength: 20
-        });
-        res.end(twiml.toString());
+        }        
     });
 
     // Receive record and make appointment with google speech to text
@@ -79,12 +80,12 @@ module.exports = function (app, express) {
                         })
                         .done();
                 })
-                .catch(err => {                    
+                .catch(err => {
                     logger.log(err);
                     client.calls(req.body.CallSid)
                         .fetch()
                         .then(call => {
-                            makeAppointment(call.from, "", call.to);                            
+                            makeAppointment(call.from, "", call.to);
                         })
                         .done();
                 });
@@ -103,15 +104,15 @@ module.exports = function (app, express) {
 
         message = utils.toBeautifulName(message);
         var isValid = utils.checkValidateMessage(message);
-        if(isValid){
+        if (isValid) {
             var patientName = utils.getFullName(message);
-            if(patientName.toUpperCase().trim() == "TESTBLANKNAME"){
+            if (patientName.toUpperCase().trim() == "TESTBLANKNAME") {
                 patientName = "";
             }
             makeAppointment(patientPhone, patientName, clinicPhone);
-        } else{
+        } else {
             sendSMSToPatient(clinicPhone, patientPhone, Const.Error.WrongFormatMessage);
-        }        
+        }
     });
     return apiRouter;
 };
@@ -209,11 +210,11 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
 
     var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
     if (userClinic) {
-        var isDayOff = await checkIsDayOff(userClinic.username);        
-        if(isDayOff){
+        var isDayOff = await checkIsDayOff(userClinic.username);
+        if (isDayOff) {
             var message = "Hôm nay phòng khám không hoạt động. Xin quý khách vui lòng quay lại vào hôm sau.";
-            sendSMSToPatient(clinicPhone, patientPhone, message);                        
-            return 
+            sendSMSToPatient(clinicPhone, patientPhone, message);
+            return
         }
 
         var patient = {
@@ -225,16 +226,16 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         var fakePhone = await fakePhoneNumber(userClinic.username, patientPhone);
         if (fakePhone) {
             patient.phoneNumber = fakePhone;
-        } else{
+        } else {
             fakePhone = patientPhone;
         }
         //Begin fake patient phone number
         var booked = await patientDao.checkPatientBooked(userClinic.username, fakePhone, patientName);
         if (booked) {
             var message = "";
-            if(patientName){
+            if (patientName) {
                 message = "Hôm nay quý khách đã đặt lịch khám cho bệnh nhân " + patientName + " rồi. Xin quý khách vui lòng quay lại vào hôm sau.";
-            } else{
+            } else {
                 message = "Hôm nay quý khách đã đặt lịch khám rồi. Xin quý khách vui lòng quay lại vào hôm sau.";
             }
             logger.log(new Error(message));
