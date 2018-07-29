@@ -154,59 +154,70 @@ module.exports = function (app, express) {
     });
 
     apiRouter.post("/adjustAppointment", async function (req, res) {
-        var username = req.body.username;
-        var duration = utils.parseTime(req.body.duration);
-        var checkDuration = utils.getMomentTime(duration).isValid();
-        if (checkDuration == true) {
-            if (duration == "00:00:00") {
-                res.json(utils.responseFailure("Thời lượng khám không chính xác"));
-                return;
-            }
-            var mDuration = utils.getMomentTime(duration);
-            var changed = false;
-            try {
-                var users = await baseDAO.findByProperties(db.User, { "username": username });
-                var clinicPhone = users[0].phoneNumber;
-                var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, ["patient"]);
-                var promises = [];
-                for (var index in appointmentsList) {
-                    var item = appointmentsList[index];
-                    if (item.appointmentTime > new Date() && item.status == Const.appointmentStatus.ABSENT) {
-                        var mTime = Moment(item.appointmentTime);
-                        var miliseconds = utils.getMiliseconds(mDuration);
-                        mTime.add(miliseconds, "milliseconds");
+        try {
+            var username = req.body.username;
+            var paramDuration = req.body.duration;
+            if (username && paramDuration) {
+                var duration = utils.parseTime(paramDuration);
+                var checkDuration = utils.getMomentTime(duration).isValid();
+                if (checkDuration == true) {
+                    if (duration == "00:00:00") {
+                        res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                        return;
+                    }
+                    var mDuration = utils.getMomentTime(duration);
+                    var changed = false;
+                    try {
+                        var users = await baseDAO.findByProperties(db.User, { "username": username });
+                        var clinicPhone = users[0].phoneNumber;
+                        var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, ["patient"]);
+                        var promises = [];
+                        for (var index in appointmentsList) {
+                            var item = appointmentsList[index];
+                            if (item.appointmentTime > new Date() && item.status == Const.appointmentStatus.ABSENT) {
+                                var mTime = Moment(item.appointmentTime);
+                                var miliseconds = utils.getMiliseconds(mDuration);
+                                mTime.add(miliseconds, "milliseconds");
 
-                        var json = {
-                            "appointmentID": item.appointmentID,
-                            "appointmentTime": mTime.toDate()
+                                var json = {
+                                    "appointmentID": item.appointmentID,
+                                    "appointmentTime": mTime.toDate()
+                                }
+                                var promise = baseDAO.update(db.Appointment, json, "appointmentID");
+                                promises.push(promise);
+                                var patientPhone = item.bookedPhone;
+                                if (patientPhone && clinicPhone) {
+                                    var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."
+                                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                                }
+                                changed = true
+                            }
                         }
-                        var promise = baseDAO.update(db.Appointment, json, "appointmentID");
-                        promises.push(promise);
-                        var patientPhone = item.bookedPhone;
-                        if (patientPhone && clinicPhone) {
-                            var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."
-                            twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                        await Promise.all(promises)
+                        if (changed) {
+                            var appointments = await getAppointmentList(username);
+                            var json = {
+                                currentTime: utils.parseDate(new Date()),
+                                appointments: appointments
+                            }
+                            res.json(utils.responseSuccess(json));
+                            logger.successLog("adjustAppointment");
+                        } else {
+                            res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
                         }
-                        changed = true
+                    } catch (error) {
+                        logger.log(error);
+                        res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
                     }
                 }
-                await Promise.all(promises)
-                if (changed) {
-                    var appointments = await getAppointmentList(username);
-                    var json = {
-                        currentTime: utils.parseDate(new Date()),
-                        appointments: appointments
-                    }
-                    res.json(utils.responseSuccess(json));
-                    logger.successLog("adjustAppointment");
-                } else {
-                    res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
-                }
-            } catch (error) {
-                logger.log(error);
-                res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
+            } else{
+                res.json(utils.responseFailure("Missing parameters"));
             }
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
         }
+
     });
 
     return apiRouter;
