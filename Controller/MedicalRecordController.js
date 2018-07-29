@@ -47,7 +47,8 @@ module.exports = function (app, express) {
                             medicineID: tmp.medicineID,
                             quantity: tmp.quantity,
                             description: tmp.description,
-                            medicineName: tmpResult.medicineName
+                            medicineName: tmpResult.medicineName,
+                            unitName: tmpResult.unitName
                         }
                         medicinesList.push(tmpJson);
                     }
