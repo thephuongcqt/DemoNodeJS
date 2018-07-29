@@ -180,11 +180,13 @@ module.exports = function (app, express) {
                     } catch (error) {
                         logger.log(error);
                     }
-                    var json = {
-                        "patientID": newPatientID,
-                        "secondPhoneNumber": oldPatient.phoneNumber
-                    };
-                    await patientDao.updatePatient(json);
+                    if(oldPatient.phoneNumber != newPatient.phoneNumber){
+                        var json = {
+                            "patientID": newPatientID,
+                            "secondPhoneNumber": oldPatient.phoneNumber
+                        };
+                        await patientDao.updatePatient(json);    
+                    }                    
                     res.json(utils.responseSuccess("Thay đổi thông tin thành công"));
                     logger.successLog("mergePatient");
                 } else{

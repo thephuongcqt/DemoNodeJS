@@ -5,40 +5,6 @@ var Moment = require('moment');
 var utils = require("../Utils/Utils");
 
 var appointmentDao = {
-
-    getMessageForOffDay: async function (username) {
-        return new Promise(async (resolve, reject) => {
-            var results = await dao.findByProperties(db.WorkingHours, { clinicUsername: username });
-            var wks = [];
-            for (var index in results) {
-                var item = results[index];
-                wks[item.applyDate] = item.isDayOff;
-            }            
-            var today = new Date().getDay();
-            if(wks[today] == 0){
-                reject(new Error("Hom nay phong kham van lam viec binh thuong"));
-            }            
-            var countToStart = findStartDayOff(today, wks);
-            var countToEnd = findEndDayOff(today, wks);
-            console.log(countToStart);            
-            console.log(countToEnd);
-            if (countToStart == 6) {
-                // off all days of week
-                var mStart = new Date().addDays(1 -today);
-                var mEnd = new Date().addDays(6 + 1 - today);
-                var message = "Phòng khám tạm nghỉ từ ngày " + utils.parseDateOnly(mStart) +   " đến ngày " + utils.parseDateOnly(mEnd) + ", xin lỗi vì sự bất tiện này";
-                resolve(message);
-            } else if (countToEnd == 0 && countToStart == 0) {
-                resolve("Hôm nay phòng khám không làm việc, vui lòng quay lại vào hôm sau");
-            } else {
-                var mStart = new Date().addDays(-countToStart);
-                var mEnd = new Date().addDays(countToEnd);
-                var message = "Phòng khám tạm nghỉ từ ngày " + utils.parseDateOnly(mStart) +   " đến ngày " + utils.parseDateOnly(mEnd) + ", xin lỗi vì sự bất tiện này";
-                resolve(message);
-            }
-        });
-    },
-
     reportByDate: async function (username, startDate, endDate) {
         var sql = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, DATE(appointmentTime) as date "
             + "FROM tbl_appointment "
