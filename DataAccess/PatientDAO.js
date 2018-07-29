@@ -53,12 +53,18 @@ var patientDao = {
                     if (collection.length > 0) {
                         for (var index in collection) {
                             var tmp = collection[index];
-                            if (tmp.fullName.toUpperCase() == patient.fullName.toUpperCase()) {
+                            if (tmp.fullName.toUpperCase() == patient.fullName.toUpperCase() && tmp.phoneNumber == patient.phoneNumber) {
                                 resolve(tmp);
                                 return;
                             }
                         }
-                        resolve(null);
+                        for (var index in collection) {
+                            var tmp = collection[index];
+                            if (tmp.fullName.toUpperCase() == patient.fullName.toUpperCase() && tmp.secondPhoneNumber == patient.phoneNumber) {
+                                resolve(tmp);
+                                return;
+                            }
+                        }                        
                     }
                     resolve(null);
                 } else{

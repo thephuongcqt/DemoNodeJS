@@ -37,10 +37,10 @@ module.exports = {
         var mExpectation = null;
         if (lastAppointment) {
             mExpectation = utils.getMomentTime(lastAppointment.appointmentTime);
+            mExpectation.add(aExaminationDuration, "milliseconds");
         } else {
             mExpectation = mStart;
-        }
-        mExpectation.add(aExaminationDuration, "milliseconds");
+        }        
 
         // Begin WhileExpectation time is early than current time                
         if (mExpectation <= mCurrentTime) {
@@ -58,7 +58,7 @@ module.exports = {
         // End WhileExpectation time is early than current time
         var delayMiliseconds = getTotalDuration(1, mDelay);
         mEnd.add(delayMiliseconds, "milliseconds"); //add epsilon time
-        if (mExpectation < mEnd) {
+        if (mExpectation <= mEnd) {
             return mExpectation;
         } else {
             return null;
