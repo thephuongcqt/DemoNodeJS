@@ -27,12 +27,22 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var startWorking = req.body.startWorking;
         var endWorking = req.body.endWorking;
-        var parseStartWorking = utils.parseTime(req.body.startWorking);
-        var parseEndWorking = utils.parseTime(req.body.endWorking);
+        if (startWorking) {
+            var parseStartWorking = utils.parseTime(req.body.startWorking);
+            var checkStartWorking = utils.getMomentTime(parseStartWorking).isValid();
+        } else{
+            res.json(utils.responseFailure("Vui lòng nhập giờ bắt đầu"));
+            return;
+        }
+        if (endWorking) {
+            var parseEndWorking = utils.parseTime(req.body.endWorking);
+            var checkEndWorking = utils.getMomentTime(parseEndWorking).isValid();
+        }else{
+            res.json(utils.responseFailure("Vui lòng nhập giờ kết thúc"));
+            return;
+        }
         var applyDates = req.body.applyDate;
         var isDayOff = req.body.isDayOff;
-        var checkStartWorking = utils.getMomentTime(parseStartWorking).isValid();
-        var checkEndWorking = utils.getMomentTime(parseEndWorking).isValid();
         if (checkStartWorking == false) {
             parseStartWorking = undefined;
         }

@@ -149,9 +149,9 @@ module.exports = function (app, express) {
         var password = req.body.password;
         var address = req.body.address;
         var clinicName = req.body.clinicName;
-        var examinationDuration = utils.parseTime(req.body.examinationDuration);
+        var examinationDuration = req.body.examinationDuration;
         var email = req.body.email;
-        var delayDuration = utils.parseTime(req.body.delayDuration);
+        var delayDuration = req.body.delayDuration;
         try {
             var user = await baseDAO.findByIDWithRelated(db.User, "username", username, "clinic");
             if (!user || !user.clinic) {
@@ -171,6 +171,7 @@ module.exports = function (app, express) {
                     json.clinicName = clinicName;
                 }
                 if (examinationDuration) {
+                    examinationDuration = utils.parseTime(examinationDuration);
                     if (examinationDuration == "00:00:00") {
                         res.json(utils.responseFailure("Thời lượng khám không chính xác"));
                         return;
@@ -183,6 +184,7 @@ module.exports = function (app, express) {
                     }
                 }
                 if (delayDuration) {
+                    delayDuration = utils.parseTime(delayDuration);
                     if (delayDuration == "00:00:00") {
                         res.json(utils.responseFailure("Thời gian trễ không chính xác"));
                         return;
@@ -223,8 +225,8 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var imageURL = req.body.imageURL;
         var dur = req.body.examinationDuration;
-        var examinationDuration = utils.parseTime(req.body.examinationDuration);
-        var delayDuration = utils.parseTime(req.body.delayDuration);
+        var examinationDuration = req.body.examinationDuration;
+        var delayDuration = req.body.delayDuration;
         var json = { "username": username };
         if (greetingURL) {
             json.greetingURL = greetingURL;
@@ -233,6 +235,7 @@ module.exports = function (app, express) {
             json.imageURL = imageURL;
         }
         if (examinationDuration) {
+            examinationDuration = utils.parseTime(examinationDuration);
             if (examinationDuration == "00:00:00") {
                 res.json(utils.responseFailure("Thời lượng khám không chính xác"));
                 return;
@@ -245,6 +248,7 @@ module.exports = function (app, express) {
             }
         }
         if (delayDuration) {
+            delayDuration = utils.parseTime(delayDuration);
             if (delayDuration == "00:00:00") {
                 res.json(utils.responseFailure("Thời gian trễ không chính xác"));
                 return;
