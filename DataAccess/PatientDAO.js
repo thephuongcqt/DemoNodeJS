@@ -162,7 +162,7 @@ var patientDao = {
                 })
                 .catch(err => {
                     logger.log(err);
-                    reject("Update patient fail");
+                    reject(err);
                 });
         });
     }
