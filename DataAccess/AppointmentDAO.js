@@ -20,12 +20,12 @@ var appointmentDao = {
             }            
             var countToStart = findStartDayOff(today, wks);
             var countToEnd = findEndDayOff(today, wks);
+            console.log(countToStart);            
+            console.log(countToEnd);
             if (countToStart == 6) {
                 // off all days of week
                 var mStart = new Date().addDays(1 -today);
                 var mEnd = new Date().addDays(6 + 1 - today);
-                console.log(mStart);            
-                console.log(mEnd);
                 var message = "Phòng khám tạm nghỉ từ ngày " + utils.parseDateOnly(mStart) +   " đến ngày " + utils.parseDateOnly(mEnd) + ", xin lỗi vì sự bất tiện này";
                 resolve(message);
             } else if (countToEnd == 0 && countToStart == 0) {
