@@ -57,10 +57,10 @@ module.exports = function (app, express) {
                 maxLength: 20
             });
             res.end(twiml.toString());
-        } else{
+        } else {
             twiml.reject();
             res.end(twiml.toString());
-        }        
+        }
     });
 
     // Receive record and make appointment with google speech to text
@@ -96,22 +96,38 @@ module.exports = function (app, express) {
 
     // book appointment by SMS
     apiRouter.post("/Message", function (req, res) {
-        res.set('Content-Type', 'text/xml');
-        res.end();
-        var clinicPhone = req.body.To;
-        var patientPhone = req.body.From;
-        var message = req.body.Body;
+        try {
+            res.set('Content-Type', 'text/xml');
+            res.end();
+            var clinicPhone = req.body.To;
+            var patientPhone = req.body.From;
+            var message = req.body.Body;
 
-        message = utils.toBeautifulName(message);
-        var isValid = utils.checkValidateMessage(message);
-        if (isValid) {
-            var patientName = utils.getFullName(message);
-            if (patientName.toUpperCase().trim() == "TESTBLANKNAME") {
-                patientName = "";
+            var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
+            if (userClinic) {
+                var username = userClinic.username;
+                var isDayOff = await checkIsDayOff(username);
+                if (isDayOff) {
+                    var message = await appointmentDao.getMessageForOffDay(username);                    
+                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                    return;
+                }
+                message = utils.toBeautifulName(message);
+                var isValid = utils.checkValidateMessage(message);
+                if (isValid) {
+                    var patientName = utils.getFullName(message);
+                    if (patientName.toUpperCase().trim() == "TESTBLANKNAME") {
+                        patientName = "";
+                    }
+                    makeAppointment(patientPhone, patientName, clinicPhone);
+                } else {
+                    sendSMSToPatient(clinicPhone, patientPhone, Const.Error.WrongFormatMessage);
+                }
+            } else {
+                logger.log(new Error("The phone number doesnt map to any clinic account"));
             }
-            makeAppointment(patientPhone, patientName, clinicPhone);
-        } else {
-            sendSMSToPatient(clinicPhone, patientPhone, Const.Error.WrongFormatMessage);
+        } catch (error) {
+            logger.log(error);
         }
     });
     return apiRouter;
