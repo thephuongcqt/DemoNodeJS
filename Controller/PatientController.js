@@ -127,7 +127,7 @@ module.exports = function (app, express) {
             logger.successLog("updatePatient");
         }
         catch (err) {
-            res.json(utils.responseFailure(err.message));
+            res.json(utils.responseFailure("Đã có lỗi xảy ra khi thay đổi thông tin bệnh nhân"));
             logger.log(err);
         }
     });
