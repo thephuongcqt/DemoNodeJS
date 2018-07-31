@@ -124,6 +124,20 @@ var utils = {
         var expiredDate = new Date();
         expiredDate.setDate(expiredDate.getDate() + 1);
         return expiredDate;
+    },
+
+    getStartDay: function(date){
+        if(!date){
+            date = new Date();
+        }
+        return date.setHours(0, 0, 0, 0);        
+    },
+
+    getEndDay: function(date){
+        if(!date){
+            date = new Date();
+        }
+        return date.setHours(23, 59, 59, 999);        
     }
 }
 module.exports = utils;

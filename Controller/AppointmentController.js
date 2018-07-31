@@ -178,7 +178,10 @@ module.exports = function (app, express) {
                                 var mTime = Moment(item.appointmentTime);
                                 var miliseconds = utils.getMiliseconds(mDuration);
                                 mTime.add(miliseconds, "milliseconds");
-
+                                if(mTime.toDate() > utils.getEndDay()){
+                                    mTime = Moment(utils.getEndDay());
+                                }                                
+                                
                                 var json = {
                                     "appointmentID": item.appointmentID,
                                     "appointmentTime": mTime.toDate()

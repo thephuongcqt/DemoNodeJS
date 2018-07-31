@@ -103,13 +103,12 @@ var appointmentDao = {
     },
 
     getAppointmentsInCurrentDayWithProperties: function (json) {
-        var startDate = new Date(), endDate = new Date();
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
+        var startDay = utils.getStartDay(), endDay = utils.getEndDay();         
+
         return new Promise((resolve, reject) => {
             db.Appointment.where(json)
                 .query(function (appointment) {
-                    appointment.whereBetween('appointmentTime', [startDate, endDate]);
+                    appointment.whereBetween('appointmentTime', [startDay, endDay]);
                 })
                 .fetchAll()
                 .then(model => {
@@ -123,13 +122,11 @@ var appointmentDao = {
 
     getAppointmentsInCurrentDayWithRelated: function (json, related) {
         var relatedJson = { withRelated: related };
-        var startDate = new Date(), endDate = new Date();
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
+        var startDay = utils.getStartDay(), endDay = utils.getEndDay();    
         return new Promise((resolve, reject) => {
             db.Appointment.where(json)
                 .query(function (appointment) {
-                    appointment.whereBetween('appointmentTime', [startDate, endDate]);
+                    appointment.whereBetween('appointmentTime', [startDay, endDay]);
                 })
                 .fetchAll(relatedJson)
                 .then(model => {
@@ -142,13 +139,11 @@ var appointmentDao = {
     },
 
     getAppointmentsForSpecifyDayWithProperties: function (json, dateString) {
-        var startDate = new Date(dateString), endDate = new Date(dateString);
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
+        var startDay = utils.getStartDay(new Date(dateString)), endDay = utils.getEndDay(new Date(dateString));        
         return new Promise((resolve, reject) => {
             db.Appointment.where(json)
                 .query(function (appointment) {
-                    appointment.whereBetween('appointmentTime', [startDate, endDate]);
+                    appointment.whereBetween('appointmentTime', [startDay, endDay]);
                 })
                 .fetchAll()
                 .then(model => {
@@ -162,13 +157,11 @@ var appointmentDao = {
 
     getAppointmentsForSpecifyDayWithRelated: function (json, dateString, related) {
         var relatedJson = { withRelated: related };
-        var startDate = new Date(dateString), endDate = new Date(dateString);
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
+        var startDay = utils.getStartDay(new Date(dateString)), endDay = utils.getEndDay(new Date(dateString));        
         return new Promise((resolve, reject) => {
             db.Appointment.where(json)
                 .query(function (appointment) {
-                    appointment.whereBetween('appointmentTime', [startDate, endDate]);
+                    appointment.whereBetween('appointmentTime', [startDay, endDay]);
                 })
                 .fetchAll(relatedJson)
                 .then(model => {
@@ -181,15 +174,12 @@ var appointmentDao = {
     },
 
     getBookedNumbersInCurrentDay: function (clinicUsername) {
-        var startCurrentDay = new Date();
-        startCurrentDay.setHours(0, 0, 0, 0);
-        var endCurrentDay = new Date();
-        endCurrentDay.setHours(23, 59, 59, 999);
+        var startDay = utils.getStartDay(), endDay = utils.getEndDay();        
 
         return new Promise((resolve, reject) => {
             db.Appointment.forge()
                 .query(function (appointment) {
-                    appointment.whereBetween('appointmentTime', [startCurrentDay, endCurrentDay]);
+                    appointment.whereBetween('appointmentTime', [startDay, endDay]);
                     appointment.where("clinicUsername", clinicUsername);
                 })
                 .fetchAll({ withRelated: ["patient"] })
