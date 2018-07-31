@@ -36,6 +36,13 @@ var utils = {
         return null;
     },
 
+    getDateForUI: function(date){
+        if(date){
+            return Moment(date).format("DD-MM-YYYY");
+        }
+        return null;
+    },
+
     parseDate: function (date) {
         if (date) {
             return Moment(date).format("YYYY-MM-DDTHH:mm:ss.000Z");
