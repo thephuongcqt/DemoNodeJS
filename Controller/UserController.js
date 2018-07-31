@@ -32,7 +32,7 @@ module.exports = function (app, express) {
                     } else if (user.role == Const.ROLE_CLINIC) {
                         var clinic = await clinicDAO.getClinicResponse(username);
                         res.json(utils.responseSuccess(clinic));
-                        logger.successLog("Login");
+                        logger.successLog("Login: " + username);
                     } else {
                         res.json(utils.responseFailure("Tài khoản không tồn tại"));
                     }

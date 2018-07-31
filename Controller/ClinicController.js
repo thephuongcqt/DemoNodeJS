@@ -298,7 +298,7 @@ module.exports = function (app, express) {
                     if (isCorrectPassword) {
                         var result = await clinicDAO.getClinicResponse(username);
                         res.json(utils.responseSuccess(result));
-                        logger.successLog("Login");
+                        logger.successLog("Login: " + username);
                         return;
                     }
                 }

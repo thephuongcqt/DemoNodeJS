@@ -67,7 +67,7 @@ module.exports = function (app, express) {
                     if(secondPhoneNumber == phoneNumber){
                         res.json(utils.responseFailure("Số ĐT chính và phụ không được trùng nhau"));
                         return;
-                    }                    
+                    }
                 } else{
                     if(secondPhoneNumber == ""){
                         secondPhoneNumber = null;
@@ -78,9 +78,9 @@ module.exports = function (app, express) {
             }
 
             var json = {
-                phoneNumber: phoneNumber,
-                fullName: fullName,
-                clinicUsername: patientInfo.clinicUsername
+                "phoneNumber": phoneNumber,
+                "fullName": fullName,
+                "clinicUsername": patientInfo.clinicUsername
             }
             var existedPatient = await patientDao.checkExistedPatient(json);
             if(existedPatient && existedPatient.patientID != patientID){

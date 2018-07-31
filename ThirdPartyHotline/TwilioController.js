@@ -222,7 +222,7 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         return;
     }
     patientName = utils.toBeautifulName(patientName);
-    //get clinicUsername from phoneNumber    
+    //get clinicUsername from phoneNumber
 
     var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
     if (userClinic) {
