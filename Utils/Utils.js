@@ -127,17 +127,22 @@ var utils = {
     },
 
     getStartDay: function(date){
-        if(!date){
+        
+        if(date){            
+        } else{
             date = new Date();
         }
-        return date.setHours(0, 0, 0, 0);        
+        date.setHours(0, 0, 0, 0);        
+        return date;
     },
 
     getEndDay: function(date){
-        if(!date){
+        if(date){            
+        } else{
             date = new Date();
         }
-        return date.setHours(23, 59, 59, 999);        
+        date.setHours(23, 59, 59, 999);        
+        return date;
     }
 }
 module.exports = utils;

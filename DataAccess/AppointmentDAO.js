@@ -157,7 +157,7 @@ var appointmentDao = {
 
     getAppointmentsForSpecifyDayWithRelated: function (json, dateString, related) {
         var relatedJson = { withRelated: related };
-        var startDay = utils.getStartDay(new Date(dateString)), endDay = utils.getEndDay(new Date(dateString));        
+        var startDay = utils.getStartDay(new Date(dateString)), endDay = utils.getEndDay(new Date(dateString));                        
         return new Promise((resolve, reject) => {
             db.Appointment.where(json)
                 .query(function (appointment) {
@@ -192,7 +192,7 @@ var appointmentDao = {
                     resolve(bookedNumbers);
                 })
                 .catch(function (err) {
-                    reject(bookedNumbers);
+                    reject(err);
                 })
         });
     },
