@@ -190,7 +190,7 @@ module.exports = function (app, express) {
                                 promises.push(promise);
                                 var patientPhone = item.bookedPhone;
                                 if (patientPhone && clinicPhone) {
-                                    var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:MM") + ". Xin lỗi bạn vì sự bất tiện này."
+                                    var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:mm") + " ngày " + mTime.format("DD-MM-YYYY") + ". Xin lỗi bạn vì sự bất tiện này."                                                                        
                                     twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                                 }
                                 changed = true
