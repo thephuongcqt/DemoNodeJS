@@ -150,7 +150,7 @@ module.exports = function (app, express) {
                 var result = await workingHoursDAO.updateWorkingHour(username, today, undefined, undefined, Const.DAYOFF);
                 logger.log(result);
                 // End set today is off day
-                firebase.addNotificationToFirestore(username, "Huỷ hẹn thành công", "Có " + count + " cuộc hẹn đã dược huỷ thành công");
+                firebase.addNotificationToFirestore(username, "Huỷ hẹn thành công", "Có " + count + " cuộc hẹn đã được huỷ thành công");
                 res.json(utils.responseSuccess(json));
                 logger.successLog("cancelWorking");
             } else {
