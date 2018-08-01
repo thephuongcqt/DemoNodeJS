@@ -104,7 +104,7 @@ var patientDao = {
     checkPatientBooked: function (clinicUsername, phoneNumber, fullName) {
         return new Promise((resolve, reject) => {
             var json = { "phoneNumber": phoneNumber, "fullName": fullName, "clinicUsername": clinicUsername };
-            this.checkExistedPatient(json)
+            this.getPatientForMakeAppointment(json)
                 .then(patient => {
                     if (patient) {
                         var json = { "clinicUsername": clinicUsername, "patientID": patient.patientID };
