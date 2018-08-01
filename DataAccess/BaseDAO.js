@@ -1,4 +1,21 @@
+var db = require("./DBUtils");
 var dao = {
+    rawQuery(sql, params){
+        return new Promise((resolve, reject) => {
+            db.knex.raw(sql, params)
+                .then(result => {
+                    if (result && result.length > 0) {
+                        var json = JSON.parse(JSON.stringify(result[0]));
+                        resolve(json);
+                    }
+                    resolve(null);
+                })
+                .catch(error => {
+                    reject(error);
+                });
+        })        
+    },
+
     create: function (table, json) {
         return new Promise((resolve, reject) => {
             table.forge(json)
@@ -78,6 +95,23 @@ var dao = {
         });
     },
 
+    deleteByProperties: function(table, json){
+        return new Promise((resolve, reject) => {
+            table.where(json)
+            .destroy()
+            .then(model => {
+                if(model){
+                    resolve(model.toJSON());
+                } else {
+                    resolve(model);
+                }
+            })
+            .catch(err => {
+                reject(err);
+            })
+        });
+    },
+
     findByID: function (table, idName, id) {
         return new Promise((resolve, reject) => {
             var json = {};
@@ -90,6 +124,27 @@ var dao = {
                     } else{
                         resolve(model);
                     }                    
+                })
+                .catch(err => {
+                    reject(err);
+                });
+        });
+    },
+
+    findByPK: function(table, json, relateds){
+        var relatedJson = { withRelated: [] };
+        if(relateds){
+            relatedJson.withRelated = relateds;
+        }        
+        return new Promise((resolve, reject) => {
+            table.where(json)
+                .fetch(relatedJson)
+                .then(model => {
+                    if(model){
+                        resolve(model.toJSON());
+                    } else{
+                        resolve(model);
+                    }
                 })
                 .catch(err => {
                     reject(err);

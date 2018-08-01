@@ -5,99 +5,82 @@ var Moment = require('moment');
 var logger = require("./Utils/Logger");
 var configUtils = require("./Utils/ConfigUtils");
 var twilioUtils = require("./ThirdPartyHotline/TwilioUtils");
+var baseDAO = require("./DataAccess/BaseDAO");
+var clinicDao = require("./DataAccess/ClinicDAO");
+var appointmentDao = require("./DataAccess/AppointmentDAO");
+var scheduler = require("./Scheduler/Scheduler");
+var medicalDao = require("./DataAccess/MedicalRecordDAO");
+var patientDao = require("./DataAccess/PatientDAO");
+var symptomDao = require("./DataAccess/SymptomDAO");
+var firebase = require("./Notification/FirebaseAdmin");
+
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
 
 var test = async function () {
-    var dao = require("./DataAccess/BaseDAO");
-    var clinicDao = require("./DataAccess/ClinicDAO");
-    var appointmentDao = require("./DataAccess/AppointmentDAO");
-    var scheduler = require("./Scheduler/Scheduler");
-
-    // var startDate = new Date("2018-06-25");
-    // var endDate = new Date();
-    // var sql = "SELECT * FROM tbl_appointment WHERE remindTime BETWEEN ? AND ? "
-    //     + " AND clinicUsername = ?"
-    //     + " AND isReminded = ?";
-    // db.knex.raw(sql, [startDate, endDate, "hoanghoa", 0])
-    // .then(collection => {
-    //     var result = collection[0];
-    //     if(result && result.length > 0){
-    //         var model = JSON.parse(JSON.stringify(result));
-    //         console.log(model);
-    //     }        
-    // })
-    // .catch(error => {
-    //     console.log(error);
-    // })
     try {
-        var startDate = new Date('2017-04-01');
-        var endDate = new Date('2018-07-04');
-
-        var sqlReportDay = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, DATE(appointmentTime) as date " 
-        + "FROM tbl_appointment "
-        + "WHERE clinicUsername = 'kingofthekiller' "
-        + "GROUP BY DATE(appointmentTime)";
-
-        var sqlReportMonth = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month " 
-        + "FROM tbl_appointment "
-        + "WHERE clinicUsername = ? AND appointmentTime BETWEEN  ? AND ? "
-        + "GROUP BY MONTH(appointmentTime)"
-
-
-        var sqlTest = "SELECT count(*) as total, SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) as present, MONTH(appointmentTime) as month " 
-        + "FROM tbl_appointment "
-        + "WHERE appointmentTime BETWEEN  ? AND ? "
-        + "GROUP BY MONTH(appointmentTime)";
-
-        var result = await appointmentDao.reportByYear("hoanghoa", startDate, endDate);
-        console.log(result);
-        // db.knex.raw(sqlTest, [startDate, endDate])
-        //     .then(collection => {
-        //         var result = collection[0];
-        //         if (result && result.length > 0) {
-        //             var model = JSON.parse(JSON.stringify(result));
-        //             console.log(model);
-        //         }
-        //     })
-        //     .catch(err => {
-        //         console.log(err)
-        //     })
-        // dao.findAll(db.License)
-        // .then(model => {
-        //     console.log(model);
-        // })
-        // var blockDao = require("./DataAccess/BlockDAO");
-        // var isBlock = await blockDao.isBlockNumber("+18327795275", "+19792136847");
-        // var isBlock2 = await blockDao.isBlockNumber("+18326735555", "+19792136847");
-        // console.log(isBlock);
-        // console.log(isBlock2);
-        // var nonce = '{\n  "mBillingAddress": {},\n  "mClientMetadataId": "BA-3LH5161843851561Y",\n  "mEmail": "phuongntse62087-buyer@fpt.edu.vn",\n  "mFirstName": "test",\n  "mLastName": "buyer",\n  "mPayerId": "4PXH4BAKHM4TL",\n  "mPhone": "",\n  "mShippingAddress": {},\n  "mDefault": false,\n  "mDescription": "PayPal",\n  "mNonce": "ee71d1e2-58c2-0486-5fd4-0d7fcc4576a9"\n}';
-        // nonce = JSON.parse('{\n mBillingAddress: {},\n  mClientMetadataId: "BA-3LH5161843851561Y",\n  mEmail: "phuongntse62087-buyer@fpt.edu.vn",\n  mFirstName: "test",\n  mLastName: "buyer",\n  mPayerId: "4PXH4BAKHM4TL",\n  mPhone: "",\n  mShippingAddress: {},\n  mDefault: false,\n  mDescription: "PayPal",\n  mNonce: "ee71d1e2-58c2-0486-5fd4-0d7fcc4576a9" }' );
-        // console.log(nonce);
-        // var mBookedTime = Moment(new Date());
-        // var message = "Cuộc hẹn của bạn sẽ diễn ra vào lúc " + mBookedTime.format("HH:mm") + " phút ngày " + mBookedTime.format("YYYY-MM-DD") + ". Mong bạn có mặt đúng giờ";
-
-        // twilioUtils.sendSMS("+19792136847", "+18327795475", message);
-        // var appointments = await appointmentDao.getAppointmentsToRemind(new Date());
-        // console.log(appointments);
-        // var appointments = await appointmentDao.getAppointmentsToRemind(new Date("2018-06-26 20:00:00"), "hoanghoa");
-        // console.log(appointments);
-        // var clinic = await dao.findByIDWithRelated(db.Clinic, "username", "hoanghoa", "user");
-        // var mDuration = utils.getMomentTime(clinic.examinationDuration);
-        // var aDuration = getTotalDuration(1, mDuration);
-        // var mDuration =  Moment.duration(clinic.examinationDuration);
-        // var mTime = Moment(new Date("2018-06-26 20:00:00"));
-        // console.log(mTime);
-        // mTime.subtract(mDuration);
-        // console.log(mTime);
-        // console.log(clinic);
-        // var startDate = new Date("2018-06-26");
-        // var endDate = new Date("2018-06-26 20:00:00"));
-        //     });
+        var json = {
+            phoneNumber: "+18882713991"
+        }
+        var results = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");        
+        var clinic = results[0].clinic;
+        console.log(clinic.username);
     } catch (error) {
         console.log(error);
     }
 };
 test();
+
+function findStartDayOff(today, wks){
+    var root = today;    
+    var count = 0;
+    while(wks[today] == 1){
+        today = getNextDay(today, false);
+        if(wks[today] != 1){
+            return count;
+        }
+        if(today == root){
+            return count;
+        }
+        count++;
+    }
+    return count;
+}
+
+function findEndDayOff(today, wks){   
+    var root = today; 
+    var count = 0;
+    while(wks[today] == 1){
+        today = getNextDay(today, true);
+        if(wks[today] != 1){
+            return count;
+        }
+        if(today == root){
+            return count;
+        }
+        count++;
+    }
+    return count;
+}
+
+function getNextDay(today, ascending){
+    if(ascending == true){
+        if(today == 6){
+            return 0;
+        } else{
+            return today + 1;
+        }
+    } else{
+        if(today == 0){
+            return 6;
+        } else{
+            return today - 1;
+        }
+    }
+}
 
 function getTotalDuration(count, duration) {
     var times = miliseconds(duration.hour(), duration.minute(), duration.second());

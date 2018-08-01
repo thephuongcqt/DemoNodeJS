@@ -11,7 +11,46 @@ var authenUtils = require("../Utils/AuthenUtils");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
+    
+    apiRouter.get("/testNotify", async function (req, res) {
+        try {
+            var username = req.query.username;
+            var message = req.query.message;
+            firebase.testNotify(username, message);
+            res.json(utils.responseSuccess(username + " | " + message));
+            logger.successLog("testNotify");
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
+    });
 
+    apiRouter.post("/subscribeTopic", async function (req, res) {
+        try {
+            var token = req.body.token;
+            var topic = req.body.topic;
+            firebase.subscribeTopic(token, topic);
+            res.json(utils.responseSuccess("success"));
+            logger.successLog("subscribeTopic");
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
+    });
+
+    apiRouter.post("/unsubscribeTopic", async function (req, res) {
+        try {
+            var token = req.body.token;
+            var topic = req.body.topic;
+            firebase.unsubscribeTopic(token, topic);
+            res.json(utils.responseSuccess("success"));
+            logger.successLog("unsubscribeTopic");
+        } catch (error) {
+            logger.log(error);
+            res.json(utils.responseFailure(error.message));
+        }
+
+    });
     // apiRouter.post("/removeTwilioAccount", async function (req, res) {
     //     var username = req.body.username;
 
@@ -40,9 +79,11 @@ module.exports = function (app, express) {
                 user.greetingURL = user.clinic.greetingURL;
                 user.accountSid = user.clinic.accountSid;
                 user.authToken = user.clinic.authToken;
+                user.delayDuration = user.clinic.delayDuration;
                 delete user.clinic;
             }
             res.json(utils.responseSuccess(clinics));
+            logger.successLog("getClinicsForStaff");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
@@ -110,7 +151,7 @@ module.exports = function (app, express) {
         var clinicName = req.body.clinicName;
         var examinationDuration = req.body.examinationDuration;
         var email = req.body.email;
-
+        var delayDuration = req.body.delayDuration;
         try {
             var user = await baseDAO.findByIDWithRelated(db.User, "username", username, "clinic");
             if (!user || !user.clinic) {
@@ -121,7 +162,7 @@ module.exports = function (app, express) {
                 throw new Error(Const.Error.IncorrectUsernameOrPassword);
             }
             var json = { "username": username };
-            if (address || clinicName || examinationDuration) {
+            if (address || clinicName || examinationDuration || delayDuration) {
                 // update clinic table
                 if (address) {
                     json.address = address;
@@ -130,7 +171,30 @@ module.exports = function (app, express) {
                     json.clinicName = clinicName;
                 }
                 if (examinationDuration) {
-                    json.examinationDuration = examinationDuration;
+                    examinationDuration = utils.parseTime(examinationDuration);
+                    if (examinationDuration == "00:00:00") {
+                        res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                        return;
+                    }
+                    var checkDuration = utils.getMomentTime(examinationDuration).isValid();
+                    if (checkDuration == true) {
+                        json.examinationDuration = examinationDuration;
+                    } else {
+                        json.examinationDuration = undefined;
+                    }
+                }
+                if (delayDuration) {
+                    delayDuration = utils.parseTime(delayDuration);
+                    if (delayDuration == "00:00:00") {
+                        res.json(utils.responseFailure("Thời gian trễ không chính xác"));
+                        return;
+                    }
+                    var checkDelay = utils.getMomentTime(delayDuration).isValid();
+                    if (checkDelay == true) {
+                        json.delayDuration = delayDuration;
+                    } else {
+                        json.delayDuration = undefined;
+                    }
                 }
                 await baseDAO.update(db.Clinic, json, "username");
             }
@@ -145,6 +209,7 @@ module.exports = function (app, express) {
 
             json = await clinicDAO.getClinicResponse(username);
             res.json(utils.responseSuccess(json));
+            logger.successLog("changeInformation");
         } catch (error) {
             logger.log(error);
             if (error.message == Const.Error.IncorrectUsernameOrPassword) {
@@ -160,7 +225,8 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var imageURL = req.body.imageURL;
         var dur = req.body.examinationDuration;
-        var examinationDuration = utils.parseTime(req.body.examinationDuration);
+        var examinationDuration = req.body.examinationDuration;
+        var delayDuration = req.body.delayDuration;
         var json = { "username": username };
         if (greetingURL) {
             json.greetingURL = greetingURL;
@@ -169,6 +235,11 @@ module.exports = function (app, express) {
             json.imageURL = imageURL;
         }
         if (examinationDuration) {
+            examinationDuration = utils.parseTime(examinationDuration);
+            if (examinationDuration == "00:00:00") {
+                res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                return;
+            }
             var checkDuration = utils.getMomentTime(examinationDuration).isValid();
             if (checkDuration == true) {
                 json.examinationDuration = examinationDuration;
@@ -176,9 +247,23 @@ module.exports = function (app, express) {
                 json.examinationDuration = undefined;
             }
         }
+        if (delayDuration) {
+            delayDuration = utils.parseTime(delayDuration);
+            if (delayDuration == "00:00:00") {
+                res.json(utils.responseFailure("Thời gian trễ không chính xác"));
+                return;
+            }
+            var checkDelay = utils.getMomentTime(delayDuration).isValid();
+            if (checkDelay == true) {
+                json.delayDuration = delayDuration;
+            } else {
+                json.delayDuration = undefined;
+            }
+        }
         try {
             await baseDAO.update(db.Clinic, json, "username");
             res.json(utils.responseSuccess(json));
+            logger.successLog("changeClinicProfile");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(Const.Error.UpdateClinicError));
@@ -189,6 +274,7 @@ module.exports = function (app, express) {
         getAllClinic()
             .then(function (results) {
                 res.json(utils.responseSuccess(results));
+                logger.successLog("getAllClinic");
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
@@ -212,6 +298,7 @@ module.exports = function (app, express) {
                     if (isCorrectPassword) {
                         var result = await clinicDAO.getClinicResponse(username);
                         res.json(utils.responseSuccess(result));
+                        logger.successLog("Login: " + username);
                         return;
                     }
                 }
@@ -243,6 +330,7 @@ module.exports = function (app, express) {
             var host = req.protocol + '://' + req.get('host');
             await authenUtils.sendConfirmRegister(host, username, email);
             res.json(utils.responseSuccess("Đăng ký tài khoản thành công"));
+            logger.successLog("register");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
@@ -254,6 +342,7 @@ module.exports = function (app, express) {
         try {
             var result = await clinicDAO.getClinicResponse(username);
             res.json(utils.responseSuccess(result));
+            logger.successLog("getClinicInformation");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));
@@ -279,6 +368,7 @@ function getAllClinic() {
                     user.expiredLicense = user.clinic.expiredLicense;
                     user.imageURL = user.clinic.imageURL;
                     user.greetingURL = user.clinic.greetingURL;
+                    user.delayDuration = user.clinic.delayDuration;                    
                     delete user.clinic;
                     userList.push(user);
                 }

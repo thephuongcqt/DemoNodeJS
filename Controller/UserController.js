@@ -32,6 +32,7 @@ module.exports = function (app, express) {
                     } else if (user.role == Const.ROLE_CLINIC) {
                         var clinic = await clinicDAO.getClinicResponse(username);
                         res.json(utils.responseSuccess(clinic));
+                        logger.successLog("Login: " + username);
                     } else {
                         res.json(utils.responseFailure("Tài khoản không tồn tại"));
                     }
@@ -52,6 +53,7 @@ module.exports = function (app, express) {
             userDAO.getAllUser(role)
                 .then(function (result) {
                     res.json(utils.responseSuccess(result));
+                    logger.successLog("getAllUser");
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
@@ -60,6 +62,7 @@ module.exports = function (app, express) {
             userDAO.getAllClinic()
                 .then(function (result) {
                     res.json(utils.responseSuccess(result));
+                    logger.successLog("getAllUser");
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
@@ -68,6 +71,7 @@ module.exports = function (app, express) {
             userDAO.getAll()
                 .then(function (result) {
                     res.json(utils.responseSuccess(result));
+                    logger.successLog("getAllUser");
                 })
                 .catch(function (err) {
                     res.json(utils.responseFailure(err));
@@ -75,47 +79,47 @@ module.exports = function (app, express) {
         }
     });
     //change password
-    apiRouter.post("/changePassword", function (req, res) {
+    apiRouter.post("/changePassword", async function (req, res) {
         var username = req.body.username;
         var password = req.body.password;
         var newPassword = req.body.newPassword;
-        userDAO.getUserInfo(username)
-            .then(function (result) {
-                if (password == null) {
-                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
-                } else {
-                    hash.comparePassword(password, result.password)
-                        .then(function (result) {
-                            if (result == true) {
-                                if (newPassword == null) {
-                                    res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
-                                } else {
-                                    hash.hashPassword(newPassword)
-                                        .then(function (result) {
-                                            userDAO.updateUser(username, result)
-                                                .then(function (result) {
-                                                    res.json(utils.responseSuccess("Thay đổi mật khẩu thành công"));
-                                                })
-                                                .catch(function (err) {
-                                                    res.json(utils.responseFailure(err));
-                                                });
-                                        })
-                                        .catch(function (err) {
-                                            res.json(utils.responseFailure(err));
-                                        });
-                                }
-                            } else {
-                                res.json(utils.responseFailure("Mật khẩu không đúng"));
-                            }
-                        })
-                        .catch(function (err) {
-                            res.json(utils.responseFailure(err));
-                        });
+        try {
+            if (!username) {
+                res.json(utils.responseFailure("Xin vui lòng nhập tên đăng nhập"));
+                return;
+            }
+            if (!password) {
+                res.json(utils.responseFailure("Xin vui lòng nhập mật khẩu"));
+                return;
+            }
+            if (!newPassword) {
+                res.json(utils.responseFailure("Xin vui lòng nhập mật khẩu mới"));
+                return;
+            }
+            var user = await userDAO.getUserInfo(username);
+            if (user) {
+                var compare = await hash.comparePassword(password, user.password);
+                if (compare == false) {
+                    res.json(utils.responseFailure("Mật khẩu không đúng"));
+                    return;
                 }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-            });
+                var hashPassword = await hash.hashPassword(newPassword);
+                var userUpdate = await userDAO.updateUser(username, hashPassword);
+                var checkPass = await hash.comparePassword(newPassword, userUpdate.password);
+                if (checkPass == false) {
+                    res.json(utils.responseFailure("Đặt lại mật khẩu thất bại"));
+                    return;
+                }
+                res.json(utils.responseSuccess("Đặt lại mật khẩu thành công"));
+                logger.successLog("changePassword");
+                return;
+            }
+            res.json(utils.responseFailure("Tài khoản không tồn tại"));
+        }
+        catch (err) {
+            res.json(utils.responseFailure(err.message));
+            logger.log(err);
+        }
     });
     // update information
     apiRouter.post("/update", async function (req, res) {
@@ -139,13 +143,16 @@ module.exports = function (app, express) {
                     resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
                     var results = Object.assign(resultUser, resultClinic);
                     res.json(utils.responseSuccess(results));
+                    logger.successLog("updateUser");
                 } else {
                     res.json(utils.responseSuccess(resultUser));
+                    logger.successLog("updateUser");
                 }
             } else {
                 if (users.role == Const.ROLE_CLINIC) {
                     resultClinic = await userDAO.updateClinic(username, address, clinicName, accountSid, authToken);
                     res.json(utils.responseSuccess(resultClinic));
+                    logger.successLog("updateUser");
                 } else {
                     res.json(utils.responseFailure("Không có thông tin cập nhật"));
                 }
@@ -181,6 +188,7 @@ module.exports = function (app, express) {
                                 userDAO.createUser(username, password, phoneNumber, fullName, email, role)
                                     .then(function (result) {
                                         res.json(utils.responseSuccess(result));
+                                        logger.successLog("createUser");
                                     })
                                     .catch(function (err) {
                                         res.json(utils.responseFailure(err));
@@ -196,7 +204,7 @@ module.exports = function (app, express) {
                             logger.log(err);
                         });
                 } else {
-                    res.json(utils.responseFailure("Không thể tạo tài khoản này"));
+                    res.json(utils.responseFailure("Tài khoản này đã tồn tại"));
                 }
             })
             .catch(function (err) {
@@ -241,6 +249,7 @@ module.exports = function (app, express) {
                 }
                 if (checkDuplicate == true) {
                     res.json(utils.responseSuccess("Tài khoản khả dụng"));
+                    logger.successLog("checkDuplicate");
                 }
             })
             .catch(function (err) {
@@ -260,6 +269,7 @@ module.exports = function (app, express) {
                         .then(function (result) {
                             if (result == true) {
                                 res.json(utils.responseSuccess("Mật khẩu chính xác"));
+                                logger.successLog("checkPassword");
                             } else {
                                 res.json(utils.responseFailure("Mật khẩu không đúng"));
                             }
@@ -273,48 +283,30 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure(err));
             });
     });
-    //reset password
-    apiRouter.post("/resetPassword", function (req, res) {
-        var username = req.body.username;
-        var email = req.body.email;
-        userDAO.getUserInfo(username)
-            .then(function (results) {
-                if (results.isActive == Const.DEACTIVATION) {
-                    res.json(utils.responseFailure("Tài khoản này không hoạt động"));
-                } else {
-                    if (email == null) {
-                        res.json(utils.responseFailure("Vui lòng nhập email"));
-                    } else {
-                        if (email == results.email) {
-                            var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-                            // Generate random number, eg: 0.123456
-                            // Convert  to base-36 : "0.4fzyo82mvyr"
-                            // Cut off last 8 characters : "yo82mvyr"
-                            var randomstring = Math.random().toString(36).slice(-8);
-                            hash.hashPassword(randomstring)
-                                .then(function (password) {
-                                    userDAO.updateUser(username, password)
-                                        .then(function (result) {
-                                            res.json(utils.responseSuccess("Đặt lại mật khẩu thành công"));
-                                        })
-                                        .catch(function (err) {
-                                            res.json(utils.responseFailure(err));
-                                        });
-                                    nodeMailer.sendEmailToPatient(username, randomstring, results.fullName, email);
-                                })
-                                .catch(function (err) {
-                                    res.json(utils.responseFailure(err));
-                                });
-                        } else {
-                            res.json(utils.responseFailure("Email này không tồn tại"));
-                        }
-                    }
-                }
-            })
-            .catch(function (err) {
-                res.json(utils.responseFailure(err));
-            });
-    });
+    // //reset password
+    // apiRouter.post("/resetPassword", async function (req, res) {
+    //     var username = req.body.username;
+    //     var password = req.body.password;
+    //     var user = await userDAO.getUserInfo(username);
+    //     try {
+    //         if (!password) {
+    //             res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
+    //             return;
+    //         }
+    //         if (user) {
+    //             var newPassword = await hash.hashPassword(password);
+    //             var json = { "username": username, "password": password };
+    //             await baseDao.update(db.User, json, "username");
+    //             res.json(utils.responseFailure("Đặt lại mật khẩu thành công"));
+    //             return;
+    //         }
+    //     }
+    //     catch (err) {
+    //         res.json(utils.responseFailure(err.message));
+    //         logger.log(err);
+    //     }
+    //     res.json(utils.responseFailure("Không tìm thấy tài khoản"));
+    // });
     // delete account
     apiRouter.get("/delete", async function (req, res) {
         try {
@@ -345,6 +337,7 @@ module.exports = function (app, express) {
                     }
                     await userDAO.deleteUser(req.query.username);
                     res.json(utils.responseSuccess("Delete account successfully"));
+                    logger.successLog("deleteUser");
                 }
             }
         }
@@ -368,6 +361,7 @@ module.exports = function (app, express) {
                                 userDAO.updateUser(username, newpass)
                                     .then(function (result) {
                                         res.json(utils.responseSuccess(result));
+                                        logger.successLog("hash");
                                     });
                             });
                     }
@@ -386,6 +380,7 @@ module.exports = function (app, express) {
         baseDao.findAll(db.User)
             .then(collection => {
                 res.json(utils.responseSuccess(collection));
+                logger.successLog("dev/getAllUser");
             })
             .catch(err => {
                 logger.log(err);
@@ -402,6 +397,7 @@ module.exports = function (app, express) {
             var json = { "username": username, "password": newPassword };
             var result = await baseDao.update(db.User, json, "username");
             res.json(utils.responseSuccess(result));
+            logger.successLog("dev/changePassword");
         } catch (error) {
             logger.log(error);
             res.json(utils.responseFailure(error.message));

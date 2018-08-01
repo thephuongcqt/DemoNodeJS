@@ -7,7 +7,7 @@ var configUtils = require("../Utils/ConfigUtils");
 var hash = require("../Utils/Bcrypt");
 var blockDAO = require("../DataAccess/BlockDAO");
 
-var clinicDao = {
+var clinicDao = {    
     getTwilioAccountByID: async function (accountSid) {
         try {
             var json = { accountSid: accountSid };
@@ -123,7 +123,6 @@ var clinicDao = {
             if (!phoneNumber) {
                 throw new Error("Undefined phone number");
             }
-            phoneNumber = "+" + phoneNumber.trim();
             var json = { "phoneNumber": phoneNumber };
             var clinics = await dao.findByPropertiesWithRelated(db.User, json, "clinic");
             if (!clinics || clinics.length == 0) {
@@ -209,7 +208,8 @@ var clinicDao = {
                 "username": username,
                 "address": address,
                 "clinicName": clinicName,
-                "examinationDuration": undefined
+                "examinationDuration": undefined,
+                "delayDuration": undefined
             };
             var promises = [dao.create(db.User, userJson), dao.create(db.Clinic, clinicJson)];
             var dayOfWeek = [0, 1, 2, 3, 4, 5, 6];
@@ -294,6 +294,7 @@ var clinicDao = {
             clinic.address = clinic.address;
             clinic.clinicName = clinic.clinicName;
             clinic.examinationDuration = clinic.examinationDuration;
+            clinic.delayDuration = clinic.delayDuration;
             clinic.expiredLicense = utils.parseDate(clinic.expiredLicense);
             clinic.currentTime = utils.parseDate(new Date());
             clinic.imageURL = clinic.imageURL;

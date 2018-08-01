@@ -86,7 +86,7 @@ async function handleBuyLicense(username, licenseID) {
         var bill = {
             clinicUsername: clinic.username,
             licenseID: license.licenseID,
-            startDate: new Date(),
+            saleDate: new Date(),
             salePrice: license.price
         }
 

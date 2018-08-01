@@ -30,7 +30,7 @@
     "ejs": "^2.6.1",
     "exceljs": "^1.4.10",
     "express": "^4.16.3",
-    "firebase-admin": "^5.12.1",
+    "firebase-admin": "^5.13.0",
     "fs": "0.0.1-security",
     "handlebars": "^4.0.11",
     "https": "^1.0.0",

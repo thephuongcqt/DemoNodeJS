@@ -35,10 +35,24 @@ var utils = {
         }
         return null;
     },
-    
+
+    getDateForUI: function(date){
+        if(date){
+            return Moment(date).format("DD-MM-YYYY");
+        }
+        return null;
+    },
+
     parseDate: function (date) {
         if (date) {
             return Moment(date).format("YYYY-MM-DDTHH:mm:ss.000Z");
+        }
+        return null;
+    },
+
+    parseDateOnly: function (date) {
+        if (date) {
+            return Moment(date).format("YYYY-MM-DD");
         }
         return null;
     },
@@ -57,17 +71,78 @@ var utils = {
         return null;
     },
 
-    toUpperCaseForName: function (name) {
-        var splitStr = name.toLowerCase().split(' ');
-        for (var i = 0; i < splitStr.length; i++) {
-            splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+    toBeautifulName: function (name) {
+        if (name) {
+            var splitStr = name.toLowerCase().split(' ');
+            for (var i = 0; i < splitStr.length; i++) {
+                splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+            }
+            return splitStr.join(' ').replace(/\s\s+/g, ' ').trim();;
         }
-        return splitStr.join(' ');
+        return name;
+    },
+
+    checkValidateMessage: function (message) {
+        var patternMatchingWords = "[0-9~!@#$%^&*_+:<>?,.]{1,}";
+        if (RegExp(patternMatchingWords).test(message)) {
+            return false;
+        }
+        patternMatchingWords = "[\[\]]"
+        if (RegExp(patternMatchingWords).test(message)) {
+            return false;
+        }
+
+        var firstLetter = "[A-EGHIK-VXYÂĐỔÔÚỨ]".normalize("NFC"),
+            otherLetters = "[a-eghik-vxyàáâãèéêìíòóôõùúýỳỹỷỵựửữừứưụủũợởỡờớơộổỗồốọỏịỉĩệểễềếẹẻẽặẳẵằắăậẩẫầấạảđ₫]".normalize("NFC"),
+            regexString = "^Dh "
+                // + firstLetter + otherLetters + "+\\s"
+                + "(" + firstLetter + otherLetters + "+\\s)*";
+        // + firstLetter + otherLetters + "+$";
+        var regexPattern = RegExp(regexString);
+        return regexPattern.test(message);
+    },
+
+    getFullName: function (name) {
+        return name.replace(new RegExp("^Dh "), "");
     },
 
     generatePasswordToken: function () {
         var min = 1000, max = 9999;
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+
+    miliseconds: function (hours, minutes, seconds) {
+        return ((hours * 60 * 60 + minutes * 60 + seconds) * 1000);
+    },
+
+    getMiliseconds: function (mTime) {
+        var times = this.miliseconds(mTime.hour(), mTime.minute(), mTime.second());
+        return times;
+    },
+
+    expiredDate: function () {
+        var expiredDate = new Date();
+        expiredDate.setDate(expiredDate.getDate() + 1);
+        return expiredDate;
+    },
+
+    getStartDay: function(date){
+        
+        if(date){            
+        } else{
+            date = new Date();
+        }
+        date.setHours(0, 0, 0, 0);        
+        return date;
+    },
+
+    getEndDay: function(date){
+        if(date){            
+        } else{
+            date = new Date();
+        }
+        date.setHours(23, 59, 59, 999);        
+        return date;
     }
 }
 module.exports = utils;

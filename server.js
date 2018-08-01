@@ -12,6 +12,11 @@ var backgroundService = require("./Scheduler/BackgroundService");
 var accountController = require("./Controller/TwilioAccountController")(app, express);
 var blockController = require("./Controller/BlockController")(app, express);
 var reportController = require("./Controller/Report")(app, express);
+var medicineController = require("./Controller/MedicineController")(app, express);
+var diseaseController = require("./Controller/DiseaseController")(app, express);
+var medicalRecordController = require("./Controller/MedicalRecordController")(app, express);
+var patientController = require("./Controller/PatientController")(app, express);
+var regimenController = require("./Controller/RegimenController")(app, express);
 // Add headers
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -61,6 +66,16 @@ app.use("/account", accountController);
 app.use("/block", blockController);
 // route to report controller 
 app.use("/report", reportController);
+// route to medicine controller 
+app.use("/medicine", medicineController);
+// route to disease controller 
+app.use("/disease", diseaseController);
+// route to medical record controller 
+app.use("/medicalRecord", medicalRecordController);
+// route to patient controller 
+app.use("/patient", patientController);
+// route to regimen controller
+app.use("/regimen", regimenController);
 //////////////////////////////////////////////////////////////////////
 
 app.use("/", function(req, res){

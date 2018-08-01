@@ -14,6 +14,7 @@ module.exports = function (app, express) {
         getWorkingHours(req.query.username)
             .then(function (results) {
                 res.json(utils.responseSuccess(results));
+                logger.successLog("getWorkingHours");
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
@@ -26,12 +27,22 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var startWorking = req.body.startWorking;
         var endWorking = req.body.endWorking;
-        var parseStartWorking = utils.parseTime(req.body.startWorking);
-        var parseEndWorking = utils.parseTime(req.body.endWorking);
+        if (startWorking) {
+            var parseStartWorking = utils.parseTime(req.body.startWorking);
+            var checkStartWorking = utils.getMomentTime(parseStartWorking).isValid();
+        } else{
+            res.json(utils.responseFailure("Vui lòng nhập giờ bắt đầu"));
+            return;
+        }
+        if (endWorking) {
+            var parseEndWorking = utils.parseTime(req.body.endWorking);
+            var checkEndWorking = utils.getMomentTime(parseEndWorking).isValid();
+        }else{
+            res.json(utils.responseFailure("Vui lòng nhập giờ kết thúc"));
+            return;
+        }
         var applyDates = req.body.applyDate;
         var isDayOff = req.body.isDayOff;
-        var checkStartWorking = utils.getMomentTime(parseStartWorking).isValid();
-        var checkEndWorking = utils.getMomentTime(parseEndWorking).isValid();
         if (checkStartWorking == false) {
             parseStartWorking = undefined;
         }
@@ -50,6 +61,7 @@ module.exports = function (app, express) {
                 }
                 var resultUpdate = await getWorkingHours(username);
                 res.json(utils.responseSuccess(resultUpdate));
+                logger.successLog("updateWorkingHours");
             }
         }
         catch (err) {
@@ -62,8 +74,9 @@ module.exports = function (app, express) {
         var username = req.body.username;
         var listValue = req.body.values;
         var examinationDuration = req.body.examinationDuration;
+        var delayDuration = req.body.delayDuration;
         var isDayOff = Const.DAYWORK;
-        // var listValue = [{
+        // listValue = [{
         //     "startWorking": "08:00:00 AM",
         //     "endWorking": "8:00:00 PM",
         //     "applyDate": 1
@@ -74,17 +87,35 @@ module.exports = function (app, express) {
         //     "applyDate": 0
         // }];
         try {
-            if (req.body.examinationDuration) {
+            var jsonDuration = { "username": username };
+            if (examinationDuration || delayDuration) {
                 examinationDuration = utils.parseTime(req.body.examinationDuration);
                 var checkDuration = utils.getMomentTime(examinationDuration).isValid();
                 if (checkDuration == true) {
-                    var json = { "username": username };
-                    json.examinationDuration = examinationDuration;
-                    await baseDAO.update(db.Clinic, json, "username");
+                    if (examinationDuration == "00:00:00") {
+                        res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                        return;
+                    }
+                    jsonDuration.examinationDuration = examinationDuration;
+                } else {
+                    jsonDuration.examinationDuration = undefined;
                 }
+                delayDuration = utils.parseTime(req.body.delayDuration);
+                var checkDelay = utils.getMomentTime(delayDuration).isValid();
+                if (checkDelay == true) {
+                    if (delayDuration == "00:00:00") {
+                        res.json(utils.responseFailure("Thời gian trễ không chính xác"));
+                        return;
+                    }
+                    jsonDuration.delayDuration = delayDuration;
+                } else {
+                    jsonDuration.delayDuration = undefined;
+                }
+                await baseDAO.update(db.Clinic, jsonDuration, "username");
             }
             if (listValue == null) {
                 res.json(utils.responseFailure("Vui lòng nhập giờ làm việc"));
+                return;
             } else {
                 if (listValue.length > 0) {
                     for (var i = 0; i < listValue.length; i++) {
@@ -123,6 +154,7 @@ module.exports = function (app, express) {
                 }
                 resultUpdate = await getWorkingHours(username);
                 res.json(utils.responseSuccess(resultUpdate));
+                logger.successLog("updateAllWorkingHours");
             }
         }
         catch (err) {
@@ -132,6 +164,7 @@ module.exports = function (app, express) {
     });
     return apiRouter;
 };
+
 function getWorkingHours(username) {
     return new Promise((resolve, reject) => {
         workingHoursDAO.getWorkingHours(username)
