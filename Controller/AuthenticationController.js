@@ -60,11 +60,11 @@ module.exports = function (app, express) {
                 return;
             }
             if (user) {
-                if(user.isActive == Const.ACTIVATION){
+                if (user.isActive == Const.ACTIVATION) {
                     res.json(utils.responseFailure("Tài khoản đã kích hoạt thành công"));
                     return;
                 }
-                if(user.isActive == Const.DEACTIVATION){
+                if (user.isActive == Const.DEACTIVATION) {
                     var host = req.protocol + '://' + req.get('host');
                     await authenUtils.sendConfirmRegister(host, username, user.email);
                     res.json(utils.responseSuccess("Gửi email thành công"));
@@ -93,22 +93,24 @@ module.exports = function (app, express) {
                     if (user.isActive == Const.DEACTIVATION) {
                         res.json(utils.responseSuccess("Vui lòng xác nhận email trước khi đặt lại mật khẩu"));
                         return;
-                    }
-                    for (var i in isToken) {
-                        dbToken = isToken[i];
-                        if (dbToken.expiredDate >= new Date()) {
-                            var expired = utils.expiredDate();
-                            await baseDao.update(db.Token, { "ID": dbToken.ID, "expiredDate": expired }, "ID");
-                            await emailUtils.sendCodeForResetPassword(user.email, dbToken.token, user.username);
-                        } else {
-                            logger.log(new Error("Expired Token: " + token + " Username: " + username));
+                    } else {
+                        await tokenDao.deleteExpiredTokens();
+                        var existToken = await baseDao.findByPropertiesWithManyRelated(db.Token, json, "user");
+                        if (existToken && existToken.length > 0) {
+                            for (var i in existToken) {
+                                var expired = utils.expiredDate();
+                                await baseDao.update(db.Token, { "ID": existToken[i].ID, "expiredDate": expired }, "ID");
+                                await emailUtils.sendCodeForResetPassword(user.email, existToken[i].token, user.username);
+                                res.json(utils.responseSuccess("Bạn vui lòng nhập mã đã được gửi tới email để xác nhận đặt lại mật khẩu"));
+                                logger.successLog("requestResetPassword");
+                                return;
+                            }
                         }
                     }
-                } else {
-                    var token = utils.generatePasswordToken();
-                    await tokenDao.createToken(token, user.username);
-                    await emailUtils.sendCodeForResetPassword(user.email, token, user.username);
                 }
+                var token = utils.generatePasswordToken();
+                await tokenDao.createToken(token, user.username);
+                await emailUtils.sendCodeForResetPassword(user.email, token, user.username);
                 res.json(utils.responseSuccess("Bạn vui lòng nhập mã đã được gửi tới email để xác nhận đặt lại mật khẩu"));
                 logger.successLog("requestResetPassword");
                 return;
