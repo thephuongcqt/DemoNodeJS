@@ -49,10 +49,9 @@ module.exports = function (app, express) {
             }
             var patientInfo = await patientDao.getPatientInfo(patientID);
             if (!patientInfo) {
-                res.json(utils.responseFailure("Bệnh nhân không có trong hệ thống"));
+                res.json(utils.responseFailure("Bệnh nhân không có trong hệ thống"));
                 return;
             }
-
             if(!phoneNumber && !secondPhoneNumber){
                 res.json(utils.responseFailure("Bệnh nhân phải có ít nhất một số điện thoại"));                
                 return;
@@ -76,7 +75,6 @@ module.exports = function (app, express) {
                     }
                 }
             }
-
             var json = {
                 "phoneNumber": phoneNumber,
                 "fullName": fullName,
@@ -87,7 +85,6 @@ module.exports = function (app, express) {
                 res.json(utils.responseFailure("Bệnh nhân đã bị trùng lặp, vui lòng kiểm tra lại tên hoặc số điện thoại"));
                 return;
             }
-
             if (yob != null) {
                 if (yob == "1970-01-01T00:00:00.000Z") {
                     yob = undefined;
