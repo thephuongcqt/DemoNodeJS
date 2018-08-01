@@ -8,6 +8,8 @@ var logger = require("../Utils/Logger");
 var blockDAO = require("../DataAccess/BlockDAO");
 var appointmentDao = require("../DataAccess/AppointmentDAO");
 var twilioUtils = require("../ThirdPartyHotline/TwilioUtils");
+var firebase = require("../Notification/FirebaseAdmin");
+var workingHoursDAO = require("../DataAccess/WokingHoursDAO");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
@@ -116,6 +118,7 @@ module.exports = function (app, express) {
             var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, ["patient"]);
             var promises = [];
             var changed = false;
+            var count = 0;
             for (var index in appointmentsList) {
                 var item = appointmentsList[index];
                 if (item.appointmentTime > new Date() && item.status == Const.appointmentStatus.ABSENT) {
@@ -131,7 +134,8 @@ module.exports = function (app, express) {
                     if (clinicPhone && patientPhone) {
                         twilioUtils.sendSMS(clinicPhone, patientPhone, Const.AppointmentCancelMessage);
                     }
-                    changed = true
+                    changed = true;
+                    count++;
                 }
             }
             await Promise.all(promises)
@@ -141,6 +145,12 @@ module.exports = function (app, express) {
                     currentTime: utils.parseDate(new Date()),
                     appointments: appointments
                 }
+                // Beginset today is off day
+                var today = new Date().getDay();
+                var result = await workingHoursDAO.updateWorkingHour(username, today, undefined, undefined, Const.DAYOFF);
+                logger.log(result);
+                // End set today is off day
+                firebase.addNotificationToFirestore(username, "Huỷ hẹn thành công", "Có " + count + " cuộc hẹn đã dược huỷ thành công");
                 res.json(utils.responseSuccess(json));
                 logger.successLog("cancelWorking");
             } else {
@@ -172,6 +182,7 @@ module.exports = function (app, express) {
                         var clinicPhone = users[0].phoneNumber;
                         var appointmentsList = await appointmentDao.getAppointmentsInCurrentDayWithRelated({ "clinicUsername": username }, ["patient"]);
                         var promises = [];
+                        var count = 0;
                         for (var index in appointmentsList) {
                             var item = appointmentsList[index];
                             if (item.appointmentTime > new Date() && item.status == Const.appointmentStatus.ABSENT) {
@@ -193,7 +204,8 @@ module.exports = function (app, express) {
                                     var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:mm") + " ngày " + mTime.format("DD-MM-YYYY") + ". Xin lỗi bạn vì sự bất tiện này."                                                                        
                                     twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                                 }
-                                changed = true
+                                changed = true;
+                                count++;
                             }
                         }
                         await Promise.all(promises)
@@ -203,6 +215,7 @@ module.exports = function (app, express) {
                                 currentTime: utils.parseDate(new Date()),
                                 appointments: appointments
                             }
+                            firebase.addNotificationToFirestore(username, "Thay đổi giờ khám thành công", "Có " + count + " cuộc hẹn được thay đổi giờ khám");
                             res.json(utils.responseSuccess(json));
                             logger.successLog("adjustAppointment");
                         } else {
@@ -220,7 +233,6 @@ module.exports = function (app, express) {
             logger.log(error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
         }
-
     });
 
     return apiRouter;
