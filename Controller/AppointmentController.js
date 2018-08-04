@@ -48,6 +48,7 @@ module.exports = function (app, express) {
             } else {
                 appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient", "medicalRecord"]);
             }
+            var mapAppointment = {};
             for (var i in appointments) {
                 var appointment = appointments[i];
                 appointment.phoneNumber = appointment.patient.phoneNumber;
@@ -63,6 +64,11 @@ module.exports = function (app, express) {
                 delete appointment.patient;
                 delete appointment.medicalRecord;
                 delete appointment.clinicUsername;
+                if(mapAppointment[appointment.appointmentID]){
+                    mapAppointment[appointment.appointmentID] = false;
+                } else{
+                    appointment.status = Const.appointmentStatus.DUPLICATE;
+                }
             }
             var json = {
                 currentTime: utils.parseDate(new Date()),

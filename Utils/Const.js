@@ -12,7 +12,8 @@ module.exports = {
     appointmentStatus: {
         ABSENT: 0,
         PRESENT: 1,
-        CLINIC_CANCEL: 2
+        CLINIC_CANCEL: 2,
+        DUPLICATE: 3
     },
 
     UNCHECK: 0,
