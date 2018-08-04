@@ -1,12 +1,15 @@
 const speech = require('@google-cloud/speech');
 const https = require('https');
+const http = require('http');
 var logger = require("../Utils/Logger");
-
 const googleClient = new speech.SpeechClient({
-    keyFilename: './Certificate/GGSpeechToText.json'
+    keyFilename: './Certificate/googleservices.json'
 });
+const fptServicesUrl = "http://api.openfpt.vn/text2speech/v4";
+const apiKeyFPT = "54ba20f8352e404d858e9619e3a752b0";
+var request = require('request');
 
-var sttFunctions = {
+var services = {
     getTextFromVoice: function (url) {
         return new Promise((resolve, reject) => {
             https.get(url, function (res) {
@@ -46,6 +49,31 @@ var sttFunctions = {
                 });
             });
         });
+    },
+
+    getVoiceFromText: function (text) {
+        var options = {
+            uri: 'http://api.openfpt.vn/text2speech/v4',
+            method: 'POST',
+            headers: {
+                accept: 'application/json',
+                api_key: apiKeyFPT,
+                voice: 'hatieumai',
+                speed: -1,
+                prosody: 1
+            },
+            body: text
+        };
+        return new Promise((resolve, reject) => {
+            request(options, function (error, response, body) {
+                if (!error && response.statusCode == 200) {                    
+                    var responseObj = JSON.parse(body);
+                    resolve(responseObj.async);
+                } else {
+                    reject(error);
+                }
+            });
+        })
     }
 };
-module.exports = sttFunctions;
+module.exports = services;

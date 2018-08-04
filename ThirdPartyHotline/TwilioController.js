@@ -1,4 +1,4 @@
-var speechToText = require("../SpeechToText/SpeechToTextController");
+var cloudServices = require("../SpeechToText/GoogleServices");
 var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
@@ -41,9 +41,16 @@ module.exports = function (app, express) {
             var isDayOff = await checkIsDayOff(username);
             if (isDayOff) {
                 var message = await appointmentDao.getMessageForOffDay(username);
-                twiml.reject();
-                res.end(twiml.toString());
-                twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                try {
+                    var audioUrl = cloudServices.getVoiceFromText(message);
+                    twiml.play(audioUrl);
+                    twilml.hangup();
+                } catch (error) {
+                    logger.log(error);
+                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                    twiml.reject();
+                }                
+                res.end(twiml.toString());                
                 return;
             }
             var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
@@ -70,7 +77,7 @@ module.exports = function (app, express) {
 
         var client = await twilioDao.getTwilioByID(req.body.AccountSid);
         if (client) {
-            speechToText.getTextFromVoice(req.body.RecordingUrl)
+            cloudServices.getTextFromVoice(req.body.RecordingUrl)
                 .then(patientName => {
                     client.calls(req.body.CallSid)
                         .fetch()
