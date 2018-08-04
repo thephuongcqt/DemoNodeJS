@@ -67,28 +67,28 @@ var services = {
             body: text
         };
         return new Promise((resolve, reject) => {
-            request(options, function (error, response, body) {
+            request(options, async function (error, response, body) {
                 if (!error && response.statusCode == 200) {
                     var responseObj = JSON.parse(body);
                     var destinationUri = audioUri + username + ".mp3";
-
-                    fs.unlink(destinationUri, (err) => {
-                        if (err) reject(err);
-                        var callback = function(){                            
-                            resolve("/" + destinationUri);
-                        }
-                        var file = fs.createWriteStream(destinationUri);
-                        var request = https.get(responseObj.async, function (response) {
-                            response.pipe(file);
-                            file.on('finish', function () {
-                                file.close(callback);
-                              });
-                              file.on('error', function (err) {
-                                fs.unlink(dest);
-                                reject(err);
-                              });
-                        });
-                    });                    
+                    if (fs.existsSync(destinationUri)) {
+                        fs.unlink(destinationUri);
+                    }
+                    
+                    var callback = function(){                            
+                        resolve("/" + destinationUri);
+                    }
+                    var file = fs.createWriteStream(destinationUri);
+                    var request = https.get(responseObj.async, function (response) {
+                        response.pipe(file);
+                        file.on('finish', function () {
+                            file.close(callback);
+                          });
+                          file.on('error', function (err) {
+                            fs.unlink(dest);
+                            reject(err);
+                          });
+                    });      
                 } else {
                     reject(error);
                 }
