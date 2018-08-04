@@ -42,9 +42,9 @@ module.exports = function (app, express) {
             if (isDayOff) {
                 var message = await appointmentDao.getMessageForOffDay(username);
                 try {
-                    var audioUrl = cloudServices.getVoiceFromText(message);
+                    var audioUrl = await cloudServices.getVoiceFromText(message, username);
                     twiml.play(audioUrl);
-                    twilml.hangup();
+                    twiml.hangup();
                 } catch (error) {
                     logger.log(error);
                     twilioUtils.sendSMS(clinicPhone, patientPhone, message);

@@ -23,8 +23,8 @@ Date.prototype.addDays = function(days) {
 
 var test = async function () {
     try {
-        var text = "Chó Kiệt tai lãng quá, đi khám tai lại đi nha";
-        var url = await ggServices.getVoiceFromText(text);
+        var text = "Khi bên anh em thấy điều chi"; 
+        var url = await ggServices.getVoiceFromText(text, "hoanghoa");
         console.log(url);
     } catch (error) {
         console.log(error);

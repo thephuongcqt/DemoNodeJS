@@ -1,13 +1,15 @@
 const speech = require('@google-cloud/speech');
 const https = require('https');
 const http = require('http');
+var fs = require('fs');
 var logger = require("../Utils/Logger");
 const googleClient = new speech.SpeechClient({
     keyFilename: './Certificate/googleservices.json'
 });
 const fptServicesUrl = "http://api.openfpt.vn/text2speech/v4";
 const apiKeyFPT = "54ba20f8352e404d858e9619e3a752b0";
-var request = require('request');
+const request = require('request');
+const audioUri = "Audios/";
 
 var services = {
     getTextFromVoice: function (url) {
@@ -51,7 +53,7 @@ var services = {
         });
     },
 
-    getVoiceFromText: function (text) {
+    getVoiceFromText: function (text, username) {
         var options = {
             uri: 'http://api.openfpt.vn/text2speech/v4',
             method: 'POST',
@@ -66,9 +68,27 @@ var services = {
         };
         return new Promise((resolve, reject) => {
             request(options, function (error, response, body) {
-                if (!error && response.statusCode == 200) {                    
+                if (!error && response.statusCode == 200) {
                     var responseObj = JSON.parse(body);
-                    resolve(responseObj.async);
+                    var destinationUri = audioUri + username + ".mp3";
+
+                    fs.unlink(destinationUri, (err) => {
+                        if (err) reject(err);
+                        var callback = function(){                            
+                            resolve("/" + destinationUri);
+                        }
+                        var file = fs.createWriteStream(destinationUri);
+                        var request = https.get(responseObj.async, function (response) {
+                            response.pipe(file);
+                            file.on('finish', function () {
+                                file.close(callback);
+                              });
+                              file.on('error', function (err) {
+                                fs.unlink(dest);
+                                reject(err);
+                              });
+                        });
+                    });                    
                 } else {
                     reject(error);
                 }
