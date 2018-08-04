@@ -67,7 +67,8 @@ module.exports = function (app, express) {
                 if(mapAppointment[appointment.appointmentID]){
                     mapAppointment[appointment.appointmentID] = false;
                 } else{
-                    appointment.status = Const.appointmentStatus.DUPLICATE;
+                    appointments.splice(i, 1);
+                    // appointment.status = Const.appointmentStatus.DUPLICATE;
                 }
             }
             var json = {
