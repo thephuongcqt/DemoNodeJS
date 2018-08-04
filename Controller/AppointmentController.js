@@ -61,15 +61,15 @@ module.exports = function (app, express) {
                 appointment.currentTime = utils.parseDate(new Date());
                 appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
                 appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;
-                delete appointment.patient;
-                delete appointment.medicalRecord;
-                delete appointment.clinicUsername;
                 if(mapAppointment[appointment.patient.patientID]){
                     mapAppointment[appointment.patient.patientID] = false;
                 } else{
                     appointments.splice(i, 1);
                     // appointment.status = Const.appointmentStatus.DUPLICATE;
                 }
+                delete appointment.patient;
+                delete appointment.medicalRecord;
+                delete appointment.clinicUsername;                
             }
             var json = {
                 currentTime: utils.parseDate(new Date()),
