@@ -95,7 +95,7 @@ app.use("/Audios", function(request, response){
             }
             else {
                 response.writeHead(500);
-                response.end('Sorry, check with the site admin for error: '+error.code+' ..\n');
+                response.end('Sorry, check with the site admin for error: ' + error.code+' ..\n');
                 response.end(); 
             }
         }
