@@ -43,6 +43,15 @@ var utils = {
         return null;
     },
 
+    getDateForVoice: function(date){
+        if(date){
+            var mDate = Moment(date);
+            var message = mDate.format("D") + " tháng " + mDate.format("M") + " năm " + mDate.format("YYYY");
+            return message;
+        }
+        return null;
+    },
+
     parseDate: function (date) {
         if (date) {
             return Moment(date).format("YYYY-MM-DDTHH:mm:ss.000Z");

@@ -44,7 +44,9 @@ module.exports = function (app, express) {
                 try {
                     var audioUrl = await cloudServices.getVoiceFromText(message, username);
                     audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
-                    twiml.play(audioUrl);
+                    twiml.play({
+                        loop: 1
+                    }, audioUrl);
                     twiml.hangup();
                 } catch (error) {
                     logger.log(error);

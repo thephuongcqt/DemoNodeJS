@@ -70,11 +70,10 @@ var services = {
             request(options, async function (error, response, body) {
                 if (!error && response.statusCode == 200) {
                     var responseObj = JSON.parse(body);
-                    var destinationUri = audioUri + username + ".mp3";
-                    if (fs.existsSync(destinationUri)) {
+                    var destinationUri = audioUri + username + new Date().getTime() + ".mp3";
+                    if (fs.existsSync(destinationUri)) {                        
                         fs.unlink(destinationUri);
-                    }
-                    
+                    }                    
                     var callback = function(){                            
                         resolve("/" + destinationUri);
                     }
