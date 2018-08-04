@@ -36,7 +36,7 @@ module.exports = function (app, express) {
         var searchDate = req.query.date;
         var json = { "clinicUsername": clinicUsername };
         try {
-            var appointments;
+            var arr;
             var blocks = await baseDAO.findByProperties(db.Block, { "clinicUsername": clinicUsername, "isBlock": 1 });
             var blockedNumbers = [];
             for (var index in blocks) {
@@ -44,13 +44,14 @@ module.exports = function (app, express) {
                 blockedNumbers.push(item.phoneNumber);
             }
             if (searchDate) {
-                appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, ["patient", "medicalRecord"]);
+                arr = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, ["patient", "medicalRecord"]);
             } else {
-                appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient", "medicalRecord"]);
+                arr = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient", "medicalRecord"]);
             }
             var mapAppointment = {};
-            for (var i in appointments) {
-                var appointment = appointments[i];
+            var appointments = []
+            for (var i in arr) {                
+                var appointment = arr[i];                
                 appointment.phoneNumber = appointment.patient.phoneNumber;
                 appointment.fullName = appointment.patient.fullName;
                 appointment.address = appointment.patient.address;
@@ -60,15 +61,16 @@ module.exports = function (app, express) {
                 appointment.isBlock = utils.checkNumberInArray(appointment.patient.phoneNumber, blockedNumbers);
                 appointment.currentTime = utils.parseDate(new Date());
                 appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
-                appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;                
+                appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;                                
                 if(mapAppointment[appointment.patient.patientID]){
-                    appointments.splice(i, 1);
+                                       
                 } else{
                     mapAppointment[appointment.patient.patientID] = true;
                     delete appointment.patient;
                     delete appointment.medicalRecord;
-                    delete appointment.clinicUsername;                                                    
-                }                               
+                    delete appointment.clinicUsername;
+                    appointments.push(appointment);
+                }                
             }            
             var json = {
                 currentTime: utils.parseDate(new Date()),
