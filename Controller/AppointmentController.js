@@ -64,8 +64,8 @@ module.exports = function (app, express) {
                 delete appointment.patient;
                 delete appointment.medicalRecord;
                 delete appointment.clinicUsername;
-                if(mapAppointment[appointment.appointmentID]){
-                    mapAppointment[appointment.appointmentID] = false;
+                if(mapAppointment[appointment.patient.patientID]){
+                    mapAppointment[appointment.patient.patientID] = false;
                 } else{
                     appointments.splice(i, 1);
                     // appointment.status = Const.appointmentStatus.DUPLICATE;
