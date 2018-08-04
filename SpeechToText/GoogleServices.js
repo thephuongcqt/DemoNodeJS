@@ -70,24 +70,28 @@ var services = {
             request(options, async function (error, response, body) {
                 if (!error && response.statusCode == 200) {
                     var responseObj = JSON.parse(body);
+                    logger.log(new Error(JSON.stringify(responseObj)));
                     var destinationUri = audioUri + username + new Date().getTime() + ".mp3";
-                    if (fs.existsSync(destinationUri)) {                        
+                    if (fs.existsSync(destinationUri)) {
                         fs.unlink(destinationUri);
-                    }                    
-                    var callback = function(){                            
+                    }
+                    var callback = function () {
                         resolve("/" + destinationUri);
                     }
-                    var file = fs.createWriteStream(destinationUri);
-                    var request = https.get(responseObj.async, function (response) {
-                        response.pipe(file);
-                        file.on('finish', function () {
-                            file.close(callback);
-                          });
-                          file.on('error', function (err) {
-                            fs.unlink(dest);
-                            reject(err);
-                          });
-                    });      
+                    var downloadAudioFile = function () {
+                        var file = fs.createWriteStream(destinationUri);
+                        var request = https.get(responseObj.async, function (response) {
+                            response.pipe(file);
+                            file.on('finish', function () {
+                                file.close(callback);
+                            });
+                            file.on('error', function (err) {
+                                fs.unlink(dest);
+                                reject(err);
+                            });
+                        });
+                    }
+                    setTimeout(downloadAudioFile, 1000);
                 } else {
                     reject(error);
                 }
