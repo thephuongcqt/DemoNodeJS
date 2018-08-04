@@ -38,9 +38,10 @@ module.exports = function (app, express) {
         var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
         if (userClinic) {
             var username = userClinic.username;
+            var clinicName = userClinic.clinic.clinicName;
             var isDayOff = await checkIsDayOff(username);
             if (isDayOff) {
-                var message = await appointmentDao.getMessageForOffDay(username);
+                var message = await appointmentDao.getMessageForOffDay(username, clinicName);
                 try {
                     var audioUrl = await cloudServices.getVoiceFromText(message, username);
                     audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
@@ -116,9 +117,10 @@ module.exports = function (app, express) {
             var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
             if (userClinic) {
                 var username = userClinic.username;
+                var clinicName = userClinic.clinic.clinicName;
                 var isDayOff = await checkIsDayOff(username);
-                if (isDayOff) {
-                    var message = await appointmentDao.getMessageForOffDay(username);                    
+                if (isDayOff){
+                    var message = await appointmentDao.getMessageForOffDay(username, clinicName);
                     twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                     return;
                 }
