@@ -13,7 +13,7 @@ const audioUri = "Audios/";
 
 var services = {
     getTextFromVoice: function (url) {
-        return new Promise((resolve, reject) => {
+        return new Promise((GoogleServicesresolve, reject) => {
             https.get(url, function (res) {
                 var data = []; // List of Buffer objects
                 res.on("data", function (chunk) {

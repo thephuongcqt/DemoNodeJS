@@ -1,4 +1,4 @@
-var cloudServices = require("../SpeechToText/GoogleServices");
+var cloudServices = require("../SpeechToText/CloudServices");
 var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");

@@ -13,7 +13,7 @@ var medicalDao = require("./DataAccess/MedicalRecordDAO");
 var patientDao = require("./DataAccess/PatientDAO");
 var symptomDao = require("./DataAccess/SymptomDAO");
 var firebase = require("./Notification/FirebaseAdmin");
-var cloudServices = require("./SpeechToText/GoogleServices");
+var cloudServices = require("./SpeechToText/CloudServices");
 
 Date.prototype.addDays = function(days) {
     var date = new Date(this.valueOf());
