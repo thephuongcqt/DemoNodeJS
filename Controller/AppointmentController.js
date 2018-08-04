@@ -60,17 +60,16 @@ module.exports = function (app, express) {
                 appointment.isBlock = utils.checkNumberInArray(appointment.patient.phoneNumber, blockedNumbers);
                 appointment.currentTime = utils.parseDate(new Date());
                 appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
-                appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;
+                appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;                
                 if(mapAppointment[appointment.patient.patientID]){
-                    mapAppointment[appointment.patient.patientID] = false;
-                } else{
                     appointments.splice(i, 1);
-                    // appointment.status = Const.appointmentStatus.DUPLICATE;
-                }
-                delete appointment.patient;
-                delete appointment.medicalRecord;
-                delete appointment.clinicUsername;                
-            }
+                } else{
+                    mapAppointment[appointment.patient.patientID] = true;
+                    delete appointment.patient;
+                    delete appointment.medicalRecord;
+                    delete appointment.clinicUsername;                                                    
+                }                               
+            }            
             var json = {
                 currentTime: utils.parseDate(new Date()),
                 appointments: appointments
