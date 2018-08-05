@@ -46,3 +46,9 @@ fptclinicphone3@gmail.com
 phone: 18557549349
 sid: ACa1af72639ac06713167d8e81fcf0a0f5
 authToken: c2684427738fb0751e73d828787d4901
+
+fptclinicphone5@gmail.com
+phone: +18338363884
+sid: ACc45f902c815667b7c29d510d9229ba74
+authToken: a3122beb666b057aed109d0d8110b865
+

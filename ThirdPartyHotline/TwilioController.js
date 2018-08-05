@@ -1,4 +1,4 @@
-var speechToText = require("../SpeechToText/SpeechToTextController");
+var cloudServices = require("../SpeechToText/CloudServices");
 var db = require("../DataAccess/DBUtils");
 var utils = require("../Utils/Utils");
 var Const = require("../Utils/Const");
@@ -27,23 +27,47 @@ module.exports = function (app, express) {
         var patientPhone = req.query.From;
         var clinicPhone = req.query.To;
 
-        var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
-        if (isBlock) {
-            twiml.reject();
-            res.end(twiml.toString());
-            twilioUtils.sendSMS(clinicPhone, patientPhone, Const.BlockedError);
-            return;
-        }
         //get clinic        
         var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
         if (userClinic) {
             var username = userClinic.username;
+            var clinicName = userClinic.clinic.clinicName;
+
+            var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
+            if (isBlock) {
+                var message = "bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám để biết thêm chi tiết";
+                try {
+                    var audioUrl = await cloudServices.getVoiceFromText(message, username);
+                    audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
+                    twiml.play({
+                        loop: 2
+                    }, audioUrl);
+                    twiml.hangup();
+                } catch (error) {
+                    logger.log(error);
+                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                    twiml.reject();
+                }
+                res.end(twiml.toString());
+                return;
+            }
+
             var isDayOff = await checkIsDayOff(username);
             if (isDayOff) {
-                var message = await appointmentDao.getMessageForOffDay(username);
-                twiml.reject();
+                var message = await appointmentDao.getMessageForOffDay(username, clinicName);
+                try {
+                    var audioUrl = await cloudServices.getVoiceFromText(message, username);
+                    audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
+                    twiml.play({
+                        loop: 2
+                    }, audioUrl);
+                    twiml.hangup();
+                } catch (error) {
+                    logger.log(error);
+                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                    twiml.reject();
+                }
                 res.end(twiml.toString());
-                twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                 return;
             }
             var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
@@ -70,7 +94,7 @@ module.exports = function (app, express) {
 
         var client = await twilioDao.getTwilioByID(req.body.AccountSid);
         if (client) {
-            speechToText.getTextFromVoice(req.body.RecordingUrl)
+            cloudServices.getTextFromVoice(req.body.RecordingUrl)
                 .then(patientName => {
                     client.calls(req.body.CallSid)
                         .fetch()
@@ -106,9 +130,18 @@ module.exports = function (app, express) {
             var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
             if (userClinic) {
                 var username = userClinic.username;
+                var clinicName = userClinic.clinic.clinicName;
+
+                var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
+                if (isBlock) {
+                    var message = "bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám để biết thêm chi tiết";
+                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                    return;
+                }
+
                 var isDayOff = await checkIsDayOff(username);
                 if (isDayOff) {
-                    var message = await appointmentDao.getMessageForOffDay(username);                    
+                    var message = await appointmentDao.getMessageForOffDay(username, clinicName);
                     twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                     return;
                 }
@@ -203,19 +236,6 @@ async function scheduleAppointment(user, patient, patientPhone) {
 }
 
 async function makeAppointment(patientPhone, patientName, clinicPhone) {
-    var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
-    if (isBlock) {
-        twilioUtils.sendSMS(clinicPhone, patientPhone, Const.BlockedError);
-        return;
-    }
-
-    // if (!patientName.trim()) {
-    //     //Patient name is empty
-    //     var message = "Vui lòng nhập tên để đăng ký khám bệnh";
-    //     sendSMSToPatient(clinicPhone, patientPhone, message);
-    //     return;
-    // }
-
     if (patientName.length > 50) {
         var message = "Tên quá dài, vui lòng thử lại";
         sendSMSToPatient(clinicPhone, patientPhone, message);

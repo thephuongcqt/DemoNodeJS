@@ -5,7 +5,7 @@ var Moment = require('moment');
 var utils = require("../Utils/Utils");
 
 var appointmentDao = {
-    getMessageForOffDay: async function (username) {
+    getMessageForOffDay: async function (username, clinicName) {
         return new Promise(async (resolve, reject) => {
             var results = await dao.findByProperties(db.WorkingHours, { clinicUsername: username });
             var wks = [];
@@ -23,14 +23,14 @@ var appointmentDao = {
                 // off all days of week
                 var mStart = new Date().addDays(1 -today);
                 var mEnd = new Date().addDays(6 + 1 - today);
-                var message = "Phòng khám tạm nghỉ từ ngày " + utils.getDateForUI(mStart) +  " đến ngày " + utils.getDateForUI(mEnd) + ", xin lỗi vì sự bất tiện này";
+                var message = "Phòng khám " + clinicName + " tạm nghỉ từ ngày " + utils.getDateForVoice(mStart) +  " đến ngày " + utils.getDateForVoice(mEnd) + ", xin lỗi vì sự bất tiện này";
                 resolve(message);
             } else if (countToEnd == 0 && countToStart == 0) {
-                resolve("Hôm nay phòng khám không làm việc, vui lòng quay lại vào hôm sau");
+                resolve("Hôm nay phòng khám " + clinicName + " không làm việc, vui lòng quay lại vào hôm sau");
             } else {
                 var mStart = new Date().addDays(-countToStart);
                 var mEnd = new Date().addDays(countToEnd);
-                var message = "Phòng khám tạm nghỉ từ ngày " + utils.getDateForUI(mStart) +   " đến ngày " + utils.getDateForUI(mEnd) + ", xin lỗi vì sự bất tiện này";
+                var message = "Phòng khám " + clinicName + "  tạm nghỉ từ ngày " + utils.getDateForVoice(mStart) +   " đến ngày " + utils.getDateForVoice(mEnd) + ", xin lỗi vì sự bất tiện này";
                 resolve(message);
             }
         });

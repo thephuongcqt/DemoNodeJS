@@ -13,6 +13,7 @@ var medicalDao = require("./DataAccess/MedicalRecordDAO");
 var patientDao = require("./DataAccess/PatientDAO");
 var symptomDao = require("./DataAccess/SymptomDAO");
 var firebase = require("./Notification/FirebaseAdmin");
+var cloudServices = require("./SpeechToText/CloudServices");
 
 Date.prototype.addDays = function(days) {
     var date = new Date(this.valueOf());
@@ -22,12 +23,13 @@ Date.prototype.addDays = function(days) {
 
 var test = async function () {
     try {
-        var json = {
-            phoneNumber: "+18882713991"
-        }
-        var results = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");        
-        var clinic = results[0].clinic;
-        console.log(clinic.username);
+        var text = "Khi bên anh em thấy điều chi"; 
+        // var url = await ggServices.getVoiceFromText(text, "hoanghoa");
+        // console.log(url);
+        var message = await appointmentDao.getMessageForOffDay("chotdemo2");
+        console.log(message);
+        var audioUrl = await cloudServices.getVoiceFromText(message, "chotdemo2");
+        console.log(audioUrl);
     } catch (error) {
         console.log(error);
     }
