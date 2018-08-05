@@ -17,6 +17,7 @@ module.exports = function (app, express) {
         try {
             var user = await userDAO.getUserInfo(username);
             if (password == null) {
+                logger.failLog("Login", new Error("Please enter password"));
                 res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
             } else {
                 var isCorrectPassword = await hash.comparePassword(password, user.password);
@@ -25,23 +26,28 @@ module.exports = function (app, express) {
                         delete user.password;
                         delete user.isActive;
                         res.json(utils.responseSuccess(user));
+                        logger.successLog("Login: " + user);
                     } else if (user.isActive == Const.ACTIVATION && user.role == Const.ROLE_STAFF) {
                         delete user.password;
                         delete user.isActive;
                         res.json(utils.responseSuccess(user));
+                        logger.successLog("Login: " + user);
                     } else if (user.role == Const.ROLE_CLINIC) {
                         var clinic = await clinicDAO.getClinicResponse(username);
                         res.json(utils.responseSuccess(clinic));
                         logger.successLog("Login: " + username);
                     } else {
+                        logger.failLog("Login", new Error("Account is not exist"));
                         res.json(utils.responseFailure("Tài khoản không tồn tại"));
                     }
                 } else {
+                    logger.failLog("Login", new Error("Password is not correct"));
                     res.json(utils.responseFailure("Mật khẩu không đúng"));
                 }
             }
         } catch (error) {
             logger.log(error);
+            logger.failLog("Login", error);
             res.json(utils.responseFailure(error.message));
         }
     });
@@ -56,6 +62,7 @@ module.exports = function (app, express) {
                     logger.successLog("getAllUser");
                 })
                 .catch(function (err) {
+                    logger.failLog("getAllUser", err);
                     res.json(utils.responseFailure(err));
                 });
         } else if (role == Const.ROLE_CLINIC) {
@@ -65,6 +72,7 @@ module.exports = function (app, express) {
                     logger.successLog("getAllUser");
                 })
                 .catch(function (err) {
+                    logger.failLog("getAllUser", err);
                     res.json(utils.responseFailure(err));
                 });
         } else {
@@ -74,6 +82,7 @@ module.exports = function (app, express) {
                     logger.successLog("getAllUser");
                 })
                 .catch(function (err) {
+                    logger.failLog("getAllUser", err);
                     res.json(utils.responseFailure(err));
                 });
         }
@@ -86,14 +95,17 @@ module.exports = function (app, express) {
         try {
             if (!username) {
                 res.json(utils.responseFailure("Xin vui lòng nhập tên đăng nhập"));
+                logger.failLog("changePassword", new Error("Please enter username"));
                 return;
             }
             if (!password) {
                 res.json(utils.responseFailure("Xin vui lòng nhập mật khẩu"));
+                logger.failLog("changePassword", new Error("Please enter password"));
                 return;
             }
             if (!newPassword) {
                 res.json(utils.responseFailure("Xin vui lòng nhập mật khẩu mới"));
+                logger.failLog("changePassword", new Error("Please enter new password"));
                 return;
             }
             var user = await userDAO.getUserInfo(username);
@@ -101,6 +113,7 @@ module.exports = function (app, express) {
                 var compare = await hash.comparePassword(password, user.password);
                 if (compare == false) {
                     res.json(utils.responseFailure("Mật khẩu không đúng"));
+                    logger.failLog("changePassword", new Error("Password is not correct"));
                     return;
                 }
                 var hashPassword = await hash.hashPassword(newPassword);
@@ -108,16 +121,19 @@ module.exports = function (app, express) {
                 var checkPass = await hash.comparePassword(newPassword, userUpdate.password);
                 if (checkPass == false) {
                     res.json(utils.responseFailure("Đặt lại mật khẩu thất bại"));
+                    logger.failLog("changePassword", new Error("Re-enter password fail"));
                     return;
                 }
                 res.json(utils.responseSuccess("Đặt lại mật khẩu thành công"));
                 logger.successLog("changePassword");
                 return;
             }
+            logger.failLog("changePassword", new Error("Account is not exist"));
             res.json(utils.responseFailure("Tài khoản không tồn tại"));
         }
         catch (err) {
             res.json(utils.responseFailure(err.message));
+            logger.failLog("changePassword", err);
             logger.log(err);
         }
     });
@@ -154,11 +170,13 @@ module.exports = function (app, express) {
                     res.json(utils.responseSuccess(resultClinic));
                     logger.successLog("updateUser");
                 } else {
+                    logger.failLog("updateUser", new Error("Information is blank"));
                     res.json(utils.responseFailure("Không có thông tin cập nhật"));
                 }
             }
         }
         catch (err) {
+            logger.failLog("updateUser", err);
             res.json(utils.responseFailure("Không thể cập nhật"));
         }
     });
@@ -192,23 +210,28 @@ module.exports = function (app, express) {
                                     })
                                     .catch(function (err) {
                                         res.json(utils.responseFailure(err));
+                                        logger.failLog("createUser", err);
                                         logger.log(err);
                                     });
                             }
                             else {
+                                logger.failLog("createUser", new Error("Create account fail"));
                                 res.json(utils.responseFailure("Tạo tài khoản không thành công"));
                             }
                         })
                         .catch(function (err) {
                             res.json(utils.responseFailure(err));
+                            logger.failLog("createUser", err);
                             logger.log(err);
                         });
                 } else {
+                    logger.failLog("createUser", new Error("Account is exist"));
                     res.json(utils.responseFailure("Tài khoản này đã tồn tại"));
                 }
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
+                logger.failLog("createUser", err);
                 logger.log(err);
             });
     });
@@ -225,6 +248,7 @@ module.exports = function (app, express) {
                     if (username != null) {
                         if (user.username == username) {
                             res.json(utils.responseFailure("Tài khoản đã tồn tại"));
+                            logger.failLog("checkDuplicate", new Error("Account is exist"));
                             checkDuplicate = false;
                             break;
                         }
@@ -233,6 +257,7 @@ module.exports = function (app, express) {
                     if (phoneNumber != null) {
                         if (user.phoneNumber == phoneNumber) {
                             res.json(utils.responseFailure("Số điện thoại đã tồn tại"));
+                            logger.failLog("checkDuplicate", new Error("Phone number is exist"));
                             checkDuplicate = false;
                             break;
                         }
@@ -241,6 +266,7 @@ module.exports = function (app, express) {
                     if (email != null) {
                         if (user.email == email) {
                             res.json(utils.responseFailure("Email đã tồn tại"));
+                            logger.failLog("checkDuplicate", new Error("Email is exist"));
                             checkDuplicate = false;
                             break;
                         }
@@ -253,6 +279,7 @@ module.exports = function (app, express) {
                 }
             })
             .catch(function (err) {
+                logger.failLog("checkDuplicate", err);
                 res.json(utils.responseFailure(err));
             });
     });
@@ -263,6 +290,7 @@ module.exports = function (app, express) {
         userDAO.getUserInfo(username)
             .then(function (results) {
                 if (password == null) {
+                    logger.failLog("checkPassword", new Error("Please enter password"));
                     res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
                 } else {
                     hash.comparePassword(password, results.password)
@@ -271,15 +299,18 @@ module.exports = function (app, express) {
                                 res.json(utils.responseSuccess("Mật khẩu chính xác"));
                                 logger.successLog("checkPassword");
                             } else {
+                                logger.failLog("checkPassword", new Error("Password is not correct"));
                                 res.json(utils.responseFailure("Mật khẩu không đúng"));
                             }
                         })
                         .catch(function (err) {
+                            logger.failLog("checkPassword", err);
                             res.json(utils.responseFailure(err));
                         });
                 }
             })
             .catch(function (err) {
+                logger.failLog("checkPassword", err);
                 res.json(utils.responseFailure(err));
             });
     });
@@ -312,6 +343,7 @@ module.exports = function (app, express) {
         try {
             var resultUser = await userDAO.getUserInfo(req.query.username);
             if (!resultUser) {
+                logger.failLog("deleteUser", new Error("Account is not exist"));
                 res.json(utils.responseFailure("Account is not exist"));
             } else {
                 if (resultUser.role == Const.ROLE_ADMIN || resultUser.role == Const.ROLE_STAFF) {
@@ -343,6 +375,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure(err.message));
+            logger.failLog("deleteUser", err);
             logger.log(err);
         }
     });
@@ -353,6 +386,7 @@ module.exports = function (app, express) {
         userDAO.getUserInfo(username)
             .then(function (results) {
                 if (password == null) {
+                    logger.failLog("hash", new Error("Please enter password"));
                     res.json(utils.responseFailure("Vui lòng nhập mật khẩu"));
                 } else {
                     if (password == results.password) {
@@ -369,6 +403,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.failLog("hash", err);
                 logger.log(err);
             });
     });
@@ -384,6 +419,7 @@ module.exports = function (app, express) {
             })
             .catch(err => {
                 logger.log(err);
+                logger.failLog("dev/getAllUser", err);
                 res.json(utils.responseFailure(err.message));
             })
     });
@@ -400,6 +436,7 @@ module.exports = function (app, express) {
             logger.successLog("dev/changePassword");
         } catch (error) {
             logger.log(error);
+            logger.failLog("dev/changePassword", error);
             res.json(utils.responseFailure(error.message));
         }
     });

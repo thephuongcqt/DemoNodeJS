@@ -14,7 +14,7 @@ module.exports = function (app, express) {
         var phoneNumber = req.body.phoneNumber;
         var accountSid = req.body.accountSid;
         var authToken = req.body.authToken;
-        if(phoneNumber, accountSid, authToken){
+        if (phoneNumber, accountSid, authToken) {
             var json = {
                 "phoneNumber": phoneNumber,
                 "accountSid": accountSid,
@@ -27,22 +27,25 @@ module.exports = function (app, express) {
                 return;
             } catch (error) {
                 logger.log(error);
-                res.json(utils.responseFailure("Duplicate Phone number"))
+                logger.failLog("createNewTwilio", error);
+                res.json(utils.responseFailure("Duplicate Phone number"));
                 return;
-            }           
+            }
         }
+        logger.failLog("createNewTwilio", new Error("An error occured"));
         res.json(utils.responseFailure("An error occured"));
     });
 
     apiRouter.get("/getTwilios", async function (req, res) {
         try {
-            var list = await baseDAO.findAll(db.Twilio);    
+            var list = await baseDAO.findAll(db.Twilio);
             res.json(utils.responseSuccess(list));
             logger.successLog("getTwilios");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getTwilios", error);
             res.json(utils.responseFailure(error.message));
-        }    
+        }
     });
 
     return apiRouter;

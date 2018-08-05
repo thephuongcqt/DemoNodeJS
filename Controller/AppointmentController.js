@@ -27,6 +27,7 @@ module.exports = function (app, express) {
             logger.successLog("getAppointmentsListByDate");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getAppointmentsListByDate", error);
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
         }
     });
@@ -72,6 +73,7 @@ module.exports = function (app, express) {
             logger.successLog("getAppointmentsListByDateForWeb");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getAppointmentsListByDateForWeb", error);
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
         }
     });
@@ -101,11 +103,13 @@ module.exports = function (app, express) {
                 res.json(utils.responseSuccess(resultUpdate));
                 logger.successLog("checkVisit");
             } else {
+                logger.failLog("checkVisit", new Error("An error occurred!"));
                 res.json(utils.responseFailure("An error occurred!"));
             }
         }
         catch (err) {
             logger.log(err);
+            logger.failLog("checkVisit", err);
             res.json(utils.responseFailure(err.message));
         }
     });
@@ -154,11 +158,13 @@ module.exports = function (app, express) {
                 res.json(utils.responseSuccess(json));
                 logger.successLog("cancelWorking");
             } else {
+                logger.failLog("cancelWorking", new Error("An error occurred!"));
                 res.json(utils.responseFailure("Không có cuộc hẹn nào được huỷ thành công"));
             }
 
         } catch (error) {
             logger.log(error);
+            logger.failLog("cancelWorking", error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
         }
     });
@@ -173,6 +179,7 @@ module.exports = function (app, express) {
                 if (checkDuration == true) {
                     if (duration == "00:00:00") {
                         res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                        logger.failLog("adjustAppointment", new Error("Duration is not exactly!"));
                         return;
                     }
                     var mDuration = utils.getMomentTime(duration);
@@ -189,10 +196,10 @@ module.exports = function (app, express) {
                                 var mTime = Moment(item.appointmentTime);
                                 var miliseconds = utils.getMiliseconds(mDuration);
                                 mTime.add(miliseconds, "milliseconds");
-                                if(mTime.toDate() > utils.getEndDay()){
+                                if (mTime.toDate() > utils.getEndDay()) {
                                     mTime = Moment(utils.getEndDay());
-                                }                                
-                                
+                                }
+
                                 var json = {
                                     "appointmentID": item.appointmentID,
                                     "appointmentTime": mTime.toDate()
@@ -201,7 +208,7 @@ module.exports = function (app, express) {
                                 promises.push(promise);
                                 var patientPhone = item.bookedPhone;
                                 if (patientPhone && clinicPhone) {
-                                    var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:mm") + " ngày " + mTime.format("DD-MM-YYYY") + ". Xin lỗi bạn vì sự bất tiện này."                                                                        
+                                    var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:mm") + " ngày " + mTime.format("DD-MM-YYYY") + ". Xin lỗi bạn vì sự bất tiện này."
                                     twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                                 }
                                 changed = true;
@@ -219,18 +226,22 @@ module.exports = function (app, express) {
                             res.json(utils.responseSuccess(json));
                             logger.successLog("adjustAppointment");
                         } else {
+                            logger.failLog("adjustAppointment", new Error("An error occurred!"));
                             res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
                         }
                     } catch (error) {
                         logger.log(error);
+                        logger.failLog("adjustAppointment", error);
                         res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
                     }
                 }
-            } else{
+            } else {
+                logger.failLog("adjustAppointment", new Error("Missing parameters"));
                 res.json(utils.responseFailure("Missing parameters"));
             }
         } catch (error) {
             logger.log(error);
+            logger.failLog("adjustAppointment", error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
         }
     });

@@ -11,7 +11,7 @@ var authenUtils = require("../Utils/AuthenUtils");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
-    
+
     apiRouter.get("/testNotify", async function (req, res) {
         try {
             var username = req.query.username;
@@ -21,6 +21,7 @@ module.exports = function (app, express) {
             logger.successLog("testNotify");
         } catch (error) {
             logger.log(error);
+            logger.failLog("testNotify", error);
             res.json(utils.responseFailure(error.message));
         }
     });
@@ -34,6 +35,7 @@ module.exports = function (app, express) {
             logger.successLog("subscribeTopic");
         } catch (error) {
             logger.log(error);
+            logger.failLog("subscribeTopic", error);
             res.json(utils.responseFailure(error.message));
         }
     });
@@ -47,6 +49,7 @@ module.exports = function (app, express) {
             logger.successLog("unsubscribeTopic");
         } catch (error) {
             logger.log(error);
+            logger.failLog("unsubscribeTopic", error);
             res.json(utils.responseFailure(error.message));
         }
 
@@ -86,6 +89,7 @@ module.exports = function (app, express) {
             logger.successLog("getClinicsForStaff");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getClinicsForStaff", error);
             res.json(utils.responseFailure(error.message));
         }
     });
@@ -155,10 +159,12 @@ module.exports = function (app, express) {
         try {
             var user = await baseDAO.findByIDWithRelated(db.User, "username", username, "clinic");
             if (!user || !user.clinic) {
+                logger.failLog("changeInformation", new Error(Const.Error.IncorrectUsernameOrPassword));
                 throw new Error(Const.Error.IncorrectUsernameOrPassword);
             }
             var correctPassword = await hash.comparePassword(password, user.password);
             if (!correctPassword) {
+                logger.failLog("changeInformation", new Error(Const.Error.IncorrectUsernameOrPassword));
                 throw new Error(Const.Error.IncorrectUsernameOrPassword);
             }
             var json = { "username": username };
@@ -174,6 +180,7 @@ module.exports = function (app, express) {
                     examinationDuration = utils.parseTime(examinationDuration);
                     if (examinationDuration == "00:00:00") {
                         res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                        logger.failLog("changeInformation", new Error("Duration is not correct"));
                         return;
                     }
                     var checkDuration = utils.getMomentTime(examinationDuration).isValid();
@@ -187,6 +194,7 @@ module.exports = function (app, express) {
                     delayDuration = utils.parseTime(delayDuration);
                     if (delayDuration == "00:00:00") {
                         res.json(utils.responseFailure("Thời gian trễ không chính xác"));
+                        logger.failLog("changeInformation", new Error("Delay duration is not correct"));
                         return;
                     }
                     var checkDelay = utils.getMomentTime(delayDuration).isValid();
@@ -213,8 +221,10 @@ module.exports = function (app, express) {
         } catch (error) {
             logger.log(error);
             if (error.message == Const.Error.IncorrectUsernameOrPassword) {
+                logger.failLog("changeInformation", new Error(Const.Error.IncorrectUsernameOrPassword));
                 res.json(utils.responseFailure(error.message));
             } else {
+                logger.failLog("changeInformation", new Error(Const.Error.ClinicChangeInformationError));
                 res.json(utils.responseFailure(Const.Error.ClinicChangeInformationError));
             }
         }
@@ -238,6 +248,7 @@ module.exports = function (app, express) {
             examinationDuration = utils.parseTime(examinationDuration);
             if (examinationDuration == "00:00:00") {
                 res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                logger.failLog("changeClinicProfile", new Error("Duration is not correct"));
                 return;
             }
             var checkDuration = utils.getMomentTime(examinationDuration).isValid();
@@ -251,6 +262,7 @@ module.exports = function (app, express) {
             delayDuration = utils.parseTime(delayDuration);
             if (delayDuration == "00:00:00") {
                 res.json(utils.responseFailure("Thời gian trễ không chính xác"));
+                logger.failLog("changeClinicProfile", new Error("Delay duration is not correct"));
                 return;
             }
             var checkDelay = utils.getMomentTime(delayDuration).isValid();
@@ -266,6 +278,7 @@ module.exports = function (app, express) {
             logger.successLog("changeClinicProfile");
         } catch (error) {
             logger.log(error);
+            logger.failLog("changeClinicProfile", error);
             res.json(utils.responseFailure(Const.Error.UpdateClinicError));
         }
     });
@@ -278,6 +291,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
+                logger.failLog("getAllClinic", err);
                 logger.log(err);
             });
     });
@@ -303,9 +317,11 @@ module.exports = function (app, express) {
                     }
                 }
             }
+            logger.failLog("Login", new Error("Wrong account"));
             res.json(utils.responseFailure("Sai tên đăng nhập hoặc mật khẩu"));
         } catch (error) {
             logger.log(error);
+            logger.failLog("Login", new Error("An error occur"));
             res.json(utils.responseFailure("Đã xảy ra lỗi khi đăng nhập, vui lòng thử lại sau"));
         }
     });
@@ -320,9 +336,11 @@ module.exports = function (app, express) {
         var phoneNumber = req.body.phoneNumber;
         try {
             if (username == null || password == null || clinicName == null || address == null || email == null || phoneNumber == null) {
+                logger.failLog("register", new Error(Const.Error.ClinicRegisterMissingFields));
                 throw new Error(Const.Error.ClinicRegisterMissingFields);
             }
             if (await clinicDAO.checkExistedClinic(username, email, phoneNumber)) {
+                logger.failLog("register", new Error(Const.Error.ClinicRegisterExistedClinic));
                 throw new Error(Const.Error.ClinicRegisterExistedClinic);
             }
             await clinicDAO.insertClinic(username, password, clinicName, address, email, phoneNumber);
@@ -333,6 +351,7 @@ module.exports = function (app, express) {
             logger.successLog("register");
         } catch (error) {
             logger.log(error);
+            logger.failLog("register", error);
             res.json(utils.responseFailure(error.message));
         }
     });
@@ -345,6 +364,7 @@ module.exports = function (app, express) {
             logger.successLog("getClinicInformation");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getClinicInformation", error);
             res.json(utils.responseFailure(error.message));
         }
     });
@@ -368,7 +388,7 @@ function getAllClinic() {
                     user.expiredLicense = user.clinic.expiredLicense;
                     user.imageURL = user.clinic.imageURL;
                     user.greetingURL = user.clinic.greetingURL;
-                    user.delayDuration = user.clinic.delayDuration;                    
+                    user.delayDuration = user.clinic.delayDuration;
                     delete user.clinic;
                     userList.push(user);
                 }

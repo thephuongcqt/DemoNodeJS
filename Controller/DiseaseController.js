@@ -24,6 +24,7 @@ module.exports = function (app, express) {
             logger.successLog("getAllDiseases");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getAllDiseases", error);
             res.json(utils.responseFailure(Const.GetDiseaseListFailure));
         }
     });
@@ -35,6 +36,8 @@ module.exports = function (app, express) {
             var resultInfo = await diseaseDao.getDiseaseInfo(req.body.diseaseID);
             if (!resultInfo) {
                 res.json(utils.responseFailure("Disease is not exist"));
+                logger.failLog("updateDisease", new Error("Disease is not exist"));
+                return;
             } else {
                 if (isNaN(isActive)) {
                     isActive = undefined;
@@ -46,6 +49,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure(err.message));
+            logger.failLog("updateDisease", err);
             logger.log(err);
         }
     });
@@ -55,6 +59,7 @@ module.exports = function (app, express) {
             var diseaseName = req.body.diseaseName;
             if (!diseaseName) {
                 res.json(utils.responseFailure("Vui lòng nhập tên bệnh"));
+                logger.failLog("createDisease", new Error("Please enter disease name"));
                 return;
             }
             var json = { "diseaseName": diseaseName };
@@ -64,9 +69,11 @@ module.exports = function (app, express) {
                     var changeActive = Const.ACTIVATION;
                     await diseaseDao.updateDisease(resultInfo[0].diseaseID, undefined, changeActive);
                     res.json(utils.responseSuccess("Tạo mới bệnh thành công"));
+                    logger.successLog("createDisease");
                     return;
                 }
                 res.json(utils.responseFailure("Bệnh đã tồn tại trong hệ thống"));
+                logger.failLog("createDisease", new Error("Disease is exist"));
                 return;
             }
             await diseaseDao.createDisease(diseaseName);
@@ -74,6 +81,7 @@ module.exports = function (app, express) {
             logger.successLog("createDisease");
         } catch (err) {
             res.json(utils.responseFailure(err.message));
+            logger.failLog("createDisease", err);
             logger.log(err);
         }
     });

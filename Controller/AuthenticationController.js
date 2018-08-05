@@ -33,6 +33,7 @@ module.exports = function (app, express) {
                         return;
                     } else {
                         logger.log(new Error("Expired Token: " + token + " Username: " + username));
+                        logger.failLog("authenToken", new Error("Expired Token"));
                         res.sendFile(path.resolve('html/error.html'));
                         return;
                     }
@@ -40,10 +41,12 @@ module.exports = function (app, express) {
             }
         } catch (error) {
             logger.log(error);
+            logger.failLog("authenToken", error);
             res.sendFile(path.resolve('html/error.html'));
             return;
         }
         logger.log(new Error("Cannot authenticate token: " + token + " Username: " + username));
+        logger.failLog("authenToken", new Error("Cannot authenticate token"));
         res.sendFile(path.resolve('html/error.html'));
     });
 
@@ -52,16 +55,19 @@ module.exports = function (app, express) {
         try {
             if (!username) {
                 res.json(utils.responseFailure("Vui lòng nhập tên đăng nhập"));
+                logger.failLog("requestSendingEmailConfirm", new Error("Please enter username"));
                 return;
             }
             var user = await baseDao.findByID(db.User, "username", username);
             if (!user) {
                 res.json(utils.responseFailure("Tài khoản không tồn tại"));
+                logger.failLog("requestSendingEmailConfirm", new Error("Account is not exist!"));
                 return;
             }
             if (user) {
                 if (user.isActive == Const.ACTIVATION) {
                     res.json(utils.responseFailure("Tài khoản đã kích hoạt thành công"));
+                    logger.failLog("requestSendingEmailConfirm", new Error("Account is actived"));
                     return;
                 }
                 if (user.isActive == Const.DEACTIVATION) {
@@ -73,8 +79,10 @@ module.exports = function (app, express) {
                 }
             }
         } catch (error) {
+            logger.failLog("requestSendingEmailConfirm", error);
             logger.log(error);
         }
+        logger.failLog("requestSendingEmailConfirm", new Error("Send mail fail!"));
         res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình gửi mail, bạn vui lòng thử lại sau"));
     });
 
@@ -83,6 +91,7 @@ module.exports = function (app, express) {
         try {
             if (!username) {
                 res.json(utils.responseFailure("Vui lòng nhập tên đăng nhập"));
+                logger.failLog("requestResetPassword", new Error("Please enter username"));
                 return;
             }
             var user = await baseDao.findByID(db.User, "username", username);
@@ -92,6 +101,7 @@ module.exports = function (app, express) {
                 if (isToken && isToken.length > 0) {
                     if (user.isActive == Const.DEACTIVATION) {
                         res.json(utils.responseSuccess("Vui lòng xác nhận email trước khi đặt lại mật khẩu"));
+                        logger.failLog("requestResetPassword", new Error("Please verify email"));
                         return;
                     } else {
                         await tokenDao.deleteExpiredTokens();
@@ -116,10 +126,13 @@ module.exports = function (app, express) {
                 return;
             }
             res.json(utils.responseFailure("Tài khoản không tồn tại"));
+            logger.failLog("requestResetPassword", new Error("Account is not exist"));
             return;
         } catch (error) {
+            logger.failLog("requestResetPassword", error);
             logger.log(error);
         }
+        logger.failLog("requestResetPassword", new Error("An error occured"));
         res.json(utils.responseFailure("Đã có lỗi xảy ra trong quá trình gửi mail, bạn vui lòng thử lại sau"));
     });
 
@@ -141,6 +154,7 @@ module.exports = function (app, express) {
                             var checkPass = await hash.comparePassword(password, user.password);
                             if (checkPass == false) {
                                 res.json(utils.responseFailure("Đặt lại mật khẩu thất bại"));
+                                logger.failLog("authenPassword", new Error("Re-enter password fail"));
                                 return;
                             }
                             await baseDao.delete(db.Token, "ID", dbToken.ID);
@@ -148,6 +162,7 @@ module.exports = function (app, express) {
                             logger.successLog("authenPassword");
                             return;
                         } else {
+                            logger.failLog("authenPassword", new Error("Expired Token"));
                             logger.log(new Error("Expired Token: " + token + " Username: " + username));
                         }
                     }
@@ -155,14 +170,18 @@ module.exports = function (app, express) {
             }
             if (!token) {
                 res.json(utils.responseFailure("Vui lòng nhập mã xác nhận"));
+                logger.failLog("authenPassword", new Error("Please enter verify code"));
                 return;
             } if (!password) {
                 res.json(utils.responseFailure("Vui lòng nhập mật khẩu mới"));
+                logger.failLog("authenPassword", new Error("Please neter new password"));
                 return;
             }
         } catch (error) {
+            logger.failLog("authenPassword", error);
             logger.log(error);
         }
+        logger.failLog("authenPassword", new Error("An error occured"));
         res.json(utils.responseFailure("Đã có lỗi xảy khi xác nhận"));
     });
 
