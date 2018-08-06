@@ -71,7 +71,8 @@ var services = {
                 if (!error && response.statusCode == 200) {
                     var responseObj = JSON.parse(body);
                     logger.log(new Error(JSON.stringify(responseObj)));
-                    var destinationUri = audioUri + username + new Date().getTime() + ".mp3";
+                    // var destinationUri = audioUri + username + new Date().getTime() + ".mp3";
+                    var destinationUri = audioUri + username + ".mp3";
                     if (fs.existsSync(destinationUri)) {
                         fs.unlink(destinationUri);
                     }
@@ -91,7 +92,7 @@ var services = {
                             });
                         });
                     }
-                    setTimeout(downloadAudioFile, 1000);
+                    setTimeout(downloadAudioFile, 1500);
                 } else {
                     reject(error);
                 }
