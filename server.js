@@ -83,7 +83,7 @@ app.use("/regimen", regimenController);
 app.use("/Audios", function(request, response){
     var filePath = 'Audios' + request.url;
     var extname = path.extname(filePath);
-    var contentType = 'audio/wav';
+    var contentType = 'audio/mpeg';
     
     fs.readFile(filePath, function(error, content) {
         if (error) {
