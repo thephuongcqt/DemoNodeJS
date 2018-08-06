@@ -15,7 +15,7 @@ var symptomDao = require("./DataAccess/SymptomDAO");
 var firebase = require("./Notification/FirebaseAdmin");
 var cloudServices = require("./SpeechToText/CloudServices");
 
-Date.prototype.addDays = function(days) {
+Date.prototype.addDays = function (days) {
     var date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
     return date;
@@ -23,28 +23,38 @@ Date.prototype.addDays = function(days) {
 
 var test = async function () {
     try {
-        var text = "Khi bên anh em thấy điều chi"; 
-        // var url = await ggServices.getVoiceFromText(text, "hoanghoa");
-        // console.log(url);
-        var message = await appointmentDao.getMessageForOffDay("chotdemo2");
-        console.log(message);
-        var audioUrl = await cloudServices.getVoiceFromText(message, "chotdemo2");
-        console.log(audioUrl);
+        var text = "  phòng kham biên hoà  ".trim();
+        // var newText = text.toUpperCase();
+        // var regexs = ["^PHÒNG KHÁM", "^PHONG KHAM", "^PHÒNG KHAM", "^PHONG KHÁM"];
+        // var isMatch = false;
+        // for (var index in regexs) {
+        //     var regexString = regexs[index];
+        //     var regexPattern = RegExp(regexString);
+        //     if (regexPattern.test(newText)) {
+        //         isMatch = true;
+        //         break;
+        //     }
+        // }
+        // if(isMatch){
+        //     text = text.slice(11);
+        // }
+        var clinicName = utils.getClinicName(text);
+        console.log(clinicName);
     } catch (error) {
         console.log(error);
     }
 };
 test();
 
-function findStartDayOff(today, wks){
-    var root = today;    
+function findStartDayOff(today, wks) {
+    var root = today;
     var count = 0;
-    while(wks[today] == 1){
+    while (wks[today] == 1) {
         today = getNextDay(today, false);
-        if(wks[today] != 1){
+        if (wks[today] != 1) {
             return count;
         }
-        if(today == root){
+        if (today == root) {
             return count;
         }
         count++;
@@ -52,15 +62,15 @@ function findStartDayOff(today, wks){
     return count;
 }
 
-function findEndDayOff(today, wks){   
-    var root = today; 
+function findEndDayOff(today, wks) {
+    var root = today;
     var count = 0;
-    while(wks[today] == 1){
+    while (wks[today] == 1) {
         today = getNextDay(today, true);
-        if(wks[today] != 1){
+        if (wks[today] != 1) {
             return count;
         }
-        if(today == root){
+        if (today == root) {
             return count;
         }
         count++;
@@ -68,17 +78,17 @@ function findEndDayOff(today, wks){
     return count;
 }
 
-function getNextDay(today, ascending){
-    if(ascending == true){
-        if(today == 6){
+function getNextDay(today, ascending) {
+    if (ascending == true) {
+        if (today == 6) {
             return 0;
-        } else{
+        } else {
             return today + 1;
         }
-    } else{
-        if(today == 0){
+    } else {
+        if (today == 0) {
             return 6;
-        } else{
+        } else {
             return today - 1;
         }
     }

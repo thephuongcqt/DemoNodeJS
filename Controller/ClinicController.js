@@ -52,7 +52,6 @@ module.exports = function (app, express) {
             logger.failLog("unsubscribeTopic", error);
             res.json(utils.responseFailure(error.message));
         }
-
     });
     // apiRouter.post("/removeTwilioAccount", async function (req, res) {
     //     var username = req.body.username;
@@ -339,6 +338,7 @@ module.exports = function (app, express) {
                 logger.failLog("register", new Error(Const.Error.ClinicRegisterMissingFields));
                 throw new Error(Const.Error.ClinicRegisterMissingFields);
             }
+            clinicName = utils.getClinicName(clinicName);
             if (await clinicDAO.checkExistedClinic(username, email, phoneNumber)) {
                 logger.failLog("register", new Error(Const.Error.ClinicRegisterExistedClinic));
                 throw new Error(Const.Error.ClinicRegisterExistedClinic);

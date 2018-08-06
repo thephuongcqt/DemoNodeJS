@@ -111,6 +111,25 @@ var utils = {
         return regexPattern.test(message);
     },
 
+    getClinicName: function(clinicName){
+        clinicName.trim();
+        var newText = clinicName.toUpperCase();
+        var regexs = ["^PHÒNG KHÁM", "^PHONG KHAM", "^PHÒNG KHAM", "^PHONG KHÁM"];
+        var isMatch = false;
+        for (var index in regexs) {
+            var regexString = regexs[index];
+            var regexPattern = RegExp(regexString);
+            if (regexPattern.test(newText)) {
+                isMatch = true;
+                break;
+            }
+        }
+        if(isMatch){
+            clinicName = clinicName.slice(11);
+        }
+        return clinicName;
+    },
+
     getFullName: function (name) {
         return name.replace(new RegExp("^Dh "), "");
     },
