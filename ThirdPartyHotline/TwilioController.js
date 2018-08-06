@@ -78,7 +78,7 @@ module.exports = function (app, express) {
             twiml.record({
                 recordingStatusCallback: recordURL,
                 method: 'POST',
-                maxLength: 20
+                maxlength: 20
             });
             res.end(twiml.toString());
         } else {
