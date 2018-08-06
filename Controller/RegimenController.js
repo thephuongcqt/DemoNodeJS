@@ -31,7 +31,8 @@ module.exports = function (app, express) {
                                 "medicineID": item.medicineID,
                                 "quantity": item.quantity,
                                 "description": item.description,
-                                "unitName": item.medicine.unitName
+                                "unitName": item.medicine.unitName,
+                                "medicineName": item.medicine.medicineName
                             }
                             if (medicine) {
                                 addMedicine(medicineMap, medicine);
