@@ -8,9 +8,22 @@ var clinicDAO = require("../DataAccess/ClinicDAO");
 var baseDAO = require("../DataAccess/BaseDAO");
 var firebase = require("../Notification/FirebaseAdmin");
 var authenUtils = require("../Utils/AuthenUtils");
+var appointmentDAO = require("../DataAccess/AppointmentDAO");
 
 module.exports = function (app, express) {
     apiRouter = express.Router();
+
+    apiRouter.post("/getBookingHistory", async function (req, res) {
+        try {
+            var username = req.body.username;
+            var list = await appointmentDAO.getHistory(username);
+            res.json(utils.responseSuccess(list));
+        } catch (error) {
+            logger.log(error);
+            logger.failLog("subscribeTopic", error);
+            res.json(utils.responseFailure(error.message));
+        }
+    });
 
     apiRouter.get("/testNotify", async function (req, res) {
         try {
