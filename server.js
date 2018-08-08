@@ -87,7 +87,7 @@ app.use("/Audios", function(request, response){
     
     fs.readFile(filePath, function(error, content) {
         if (error) {
-            console.log(error);
+            logger.log(error);
             if(error.code == 'ENOENT'){
                 response.writeHead(404);
                 response.end('Sorry, File not found');

@@ -8,7 +8,7 @@ var appointmentDao = {
     getHistory: async (username) => {
         return new Promise(async (resolve, reject) => {
             try {                
-                var sql = "SELECT a.bookedPhone, Count(*) as BookingCount, SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as absent"
+                var sql = "SELECT a.bookedPhone as phoneNumber, Count(*) as BookingCount, SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as absent"
                     + " FROM tbl_appointment a, tbl_patient b"
                     + " WHERE a.patientID = b.patientID AND a.clinicUsername LIKE ?"
                     + " GROUP BY a.bookedPhone";
@@ -18,12 +18,21 @@ var appointmentDao = {
                 }
                 var json = {
                     "clinicUsername": username,
-                    "isBlock": 1                    
+                    "isBlock": 1
                 }
-                var blockList = await dao.findByProperties(db.Block, json)
-                for(var index in phonesList){
-                    var item = phonesList[index];
-                    item.isBlock = utils.checkNumberInArray(item.bookedPhone, blockList);
+                var blockList = await dao.findByProperties(db.Block, json);
+                if(blockList && blockList.length > 0){
+                    for(var i in phonesList){
+                        var phone = phonesList[i];
+                        phone.isBlock = false;
+                        for(var j in blockList){
+                            var block = blockList[j];
+                            if(block.phoneNumber.trim() == phone.phoneNumber.trim()){
+                                phone.isBlock = true;
+                                break;
+                            }
+                        }
+                    }
                 }
                 resolve(phonesList);
             } catch (error) {
