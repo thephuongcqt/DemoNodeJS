@@ -21,16 +21,17 @@ var appointmentDao = {
                     "isBlock": 1
                 }
                 var blockList = await dao.findByProperties(db.Block, json);
-                if(blockList && blockList.length > 0){
-                    for(var i in phonesList){
-                        var phone = phonesList[i];
-                        phone.isBlock = false;
-                        for(var j in blockList){
-                            var block = blockList[j];
-                            if(block.phoneNumber.trim() == phone.phoneNumber.trim()){
-                                phone.isBlock = true;
-                                break;
-                            }
+                if(blockList){
+                    blockList = [];
+                }
+                for(var i in phonesList){
+                    var phone = phonesList[i];
+                    phone.isBlock = false;
+                    for(var j in blockList){
+                        var block = blockList[j];
+                        if(block.phoneNumber.trim() == phone.phoneNumber.trim()){
+                            phone.isBlock = true;
+                            break;
                         }
                     }
                 }

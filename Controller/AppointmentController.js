@@ -64,15 +64,15 @@ module.exports = function (app, express) {
                 appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
                 appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;                                
                 if(mapAppointment[appointment.patient.patientID]){
-                                       
+
                 } else{
                     mapAppointment[appointment.patient.patientID] = true;
                     delete appointment.patient;
                     delete appointment.medicalRecord;
                     delete appointment.clinicUsername;
                     appointments.push(appointment);
-                }                
-            }            
+                }
+            }
             var json = {
                 currentTime: utils.parseDate(new Date()),
                 appointments: appointments

@@ -22,7 +22,6 @@ var services = {
                 res.on("end", function () {
                     data = Buffer.concat(data); // Make one large Buffer of it
                     const audioBytes = data.toString("base64");
-
                     const audio = {
                         content: audioBytes,
                     };
