@@ -21,7 +21,7 @@ var appointmentDao = {
                     "isBlock": 1
                 }
                 var blockList = await dao.findByProperties(db.Block, json);
-                if(blockList){
+                if(!blockList){
                     blockList = [];
                 }
                 for(var i in phonesList){
