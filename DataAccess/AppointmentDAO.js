@@ -8,7 +8,7 @@ var appointmentDao = {
     getHistory: async (username) => {
         return new Promise(async (resolve, reject) => {
             try {                
-                var sql = "SELECT a.bookedPhone as phoneNumber, Count(*) as BookingCount, SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as absent"
+                var sql = "SELECT a.bookedPhone as phoneNumber, Count(*) as bookingCount, SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as absent"
                     + " FROM tbl_appointment a, tbl_patient b"
                     + " WHERE a.patientID = b.patientID AND a.clinicUsername LIKE ?"
                     + " GROUP BY a.bookedPhone";

@@ -23,45 +23,26 @@ Date.prototype.addDays = function (days) {
 
 var test = async function () {
     try {
-        var username = "hoanghoa";
-        var sql = "SELECT a.bookedPhone, Count(*) as BookingCount, SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as absent"
-            + " FROM tbl_appointment a, tbl_patient b"
-            + " WHERE a.patientID = b.patientID AND a.clinicUsername LIKE ?"
-            + " GROUP BY a.bookedPhone";
-        var result = await baseDAO.rawQuery(sql, [username])
-        for(var index in result){
-            var item = result[index];
-            item.isBlock = true
+        var json = {
+            bookedPhone: null
         }
-        console.log(result);
-        // db.knex.raw(sql, [username])
-        //     .then(result => {
-        //         if (result && result.length > 0) {
-        //             var tblAppointment = JSON.parse(JSON.stringify(result[0]));                    
-        //             console.log(tblAppointment);
-        //         }
-
-        //     })
-        //     .catch(error => {
-        //         console.log(error);
-        //     });
-        // var text = "  phòng kham biên hoà  ".trim();
-        // var newText = text.toUpperCase();
-        // var regexs = ["^PHÒNG KHÁM", "^PHONG KHAM", "^PHÒNG KHAM", "^PHONG KHÁM"];
-        // var isMatch = false;
-        // for (var index in regexs) {
-        //     var regexString = regexs[index];
-        //     var regexPattern = RegExp(regexString);
-        //     if (regexPattern.test(newText)) {
-        //         isMatch = true;
-        //         break;
-        //     }
-        // }
-        // if(isMatch){
-        //     text = text.slice(11);
-        // }
-        // var clinicName = utils.getClinicName(text);
-        // console.log(clinicName);
+        var result = await baseDAO.findByPropertiesWithRelated(db.Appointment, json, "patient");
+        for(var index in result){
+            var item = result[index];            
+            if(item.patient.patientID){                
+                var appointment = {
+                    "appointmentID": item.appointmentID,
+                    "bookedPhone": item.patient.phoneNumber
+                }                
+                var aa = await baseDAO.update(db.Appointment, appointment, "appointmentID");
+                console.log(aa);
+            } else{
+                var appointment = {
+                    "appointmentID": item.appointmentID,                    
+                }
+                await baseDAO.deleteByProperties(db.Appointment, appointment);
+            }            
+        }
     } catch (error) {
         console.log(error);
     }
