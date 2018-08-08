@@ -16,6 +16,7 @@ module.exports = function (app, express) {
             logger.successLog("getAllPatients");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getAllPatients", error);
             res.json(utils.responseFailure(Const.GetPatientListFailure));
         }
     });
@@ -28,6 +29,7 @@ module.exports = function (app, express) {
             logger.successLog("getPatientInfo");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getPatientInfo", error);
             res.json(utils.responseFailure(Const.GetPatientListFailure));
         }
     });
@@ -50,27 +52,31 @@ module.exports = function (app, express) {
             var patientInfo = await patientDao.getPatientInfo(patientID);
             if (!patientInfo) {
                 res.json(utils.responseFailure("Bệnh nhân không có trong hệ thống"));
+                logger.failLog("updatePatient", new Error("Patient is not exist"));
                 return;
             }
-            if(!phoneNumber && !secondPhoneNumber){
-                res.json(utils.responseFailure("Bệnh nhân phải có ít nhất một số điện thoại"));                
+            if (!phoneNumber && !secondPhoneNumber) {
+                res.json(utils.responseFailure("Bệnh nhân phải có ít nhất một số điện thoại"));
+                logger.failLog("updatePatient", new Error("Patient must phone number"));
                 return;
-            } else{
-                if(!phoneNumber){
+            } else {
+                if (!phoneNumber) {
                     res.json(utils.responseFailure("Số điện thoại chính không được để rỗng"));
+                    logger.failLog("updatePatient", new Error("Phone number is not blank"));
                     return;
                 }
-                if(secondPhoneNumber){
+                if (secondPhoneNumber) {
                     secondPhoneNumber = secondPhoneNumber.trim();
                     phoneNumber = phoneNumber.trim();
-                    if(secondPhoneNumber == phoneNumber){
+                    if (secondPhoneNumber == phoneNumber) {
                         res.json(utils.responseFailure("Số ĐT chính và phụ không được trùng nhau"));
+                        logger.failLog("updatePatient", new Error("Phone number is not duplicate"));
                         return;
                     }
-                } else{
-                    if(secondPhoneNumber == ""){
+                } else {
+                    if (secondPhoneNumber == "") {
                         secondPhoneNumber = null;
-                    } else{
+                    } else {
                         secondPhoneNumber = undefined;
                     }
                 }
@@ -81,8 +87,9 @@ module.exports = function (app, express) {
                 "clinicUsername": patientInfo.clinicUsername
             }
             var existedPatient = await patientDao.checkExistedPatient(json);
-            if(existedPatient && existedPatient.patientID != patientID){
+            if (existedPatient && existedPatient.patientID != patientID) {
                 res.json(utils.responseFailure("Bệnh nhân đã bị trùng lặp, vui lòng kiểm tra lại tên hoặc số điện thoại"));
+                logger.failLog("updatePatient", new Error("Patient is duplicate"));
                 return;
             }
             if (yob != null) {
@@ -93,6 +100,7 @@ module.exports = function (app, express) {
                     var checkYOB = Moment(parseYOB, 'YYYY-MM-DD', true).isValid();
                     if (checkYOB == false) {
                         res.json(utils.responseFailure("Ngày sinh không hợp lệ"));
+                        logger.failLog("updatePatient", new Error("Birthday is not correct"));
                         return;
                     }
                 }
@@ -103,20 +111,21 @@ module.exports = function (app, express) {
                 } else {
                     if (isNaN(gender)) {
                         res.json(utils.responseFailure("Giới tính không hợp lệ"));
+                        logger.failLog("updatePatient", new Error("Gender is not correct"));
                         return;
                     }
                 }
             }
             if (fullName == null) {
                 fullName = undefined;
-            }            
+            }
             var json = {
                 "patientID": patientID,
                 "phoneNumber": phoneNumber,
                 "fullName": fullName,
                 "address": address,
                 "yob": yob,
-                "gender": gender, 
+                "gender": gender,
                 "secondPhoneNumber": secondPhoneNumber
             };
             var resultUpdate = await patientDao.updatePatient(json);
@@ -125,31 +134,33 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi thay đổi thông tin bệnh nhân"));
+            logger.failLog("updatePatient", err);
             logger.log(err);
         }
     });
 
-    apiRouter.post("/search", async function(req, res){
+    apiRouter.post("/search", async function (req, res) {
         try {
             var searchValue = req.body.searchValue;
             var username = req.body.username;
             var patientsList = [];
-            if(username && searchValue){
-                patientsList = await  patientDao.searchPatient(searchValue, username);
+            if (username && searchValue) {
+                patientsList = await patientDao.searchPatient(searchValue, username);
             }
             res.json(utils.responseSuccess(patientsList));
             logger.successLog("searchPatient");
-        } catch (error) {            
+        } catch (error) {
             logger.log(error);
+            logger.failLog("searchPatient", error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi tìm kiếm bệnh nhân"));
-        }        
+        }
     });
 
-    apiRouter.post("/merge", async function(req, res){
+    apiRouter.post("/merge", async function (req, res) {
         try {
             var oldPatientID = req.body.oldPatientID;
             var newPatientID = req.body.newPatientID;
-            if(oldPatientID && newPatientID){
+            if (oldPatientID && newPatientID) {
                 var oldJson = {
                     "patientID": oldPatientID
                 }
@@ -157,8 +168,8 @@ module.exports = function (app, express) {
                     "patientID": newPatientID
                 }
                 var oldPatient = await baseDAO.findByPK(db.Patient, oldJson);
-                var newPatient = await baseDAO.findByPK(db.Patient, newJson);                
-                if(newPatient && oldPatient){                    
+                var newPatient = await baseDAO.findByPK(db.Patient, newJson);
+                if (newPatient && oldPatient) {
                     var appointmentOfPatients = await baseDAO.findByProperties(db.Appointment, { "patientID": oldPatientID });
                     if (appointmentOfPatients && appointmentOfPatients.length > 0) {
                         var promises = [];
@@ -170,28 +181,30 @@ module.exports = function (app, express) {
                             }
                             promises.push(baseDAO.update(db.Appointment, json, "appointmentID"));
                         }
-                        await Promise.all(promises);                     
+                        await Promise.all(promises);
                     }
                     try {
-                        await baseDAO.deleteByProperties(db.Patient, { "patientID": oldPatientID });    
+                        await baseDAO.deleteByProperties(db.Patient, { "patientID": oldPatientID });
                     } catch (error) {
                         logger.log(error);
                     }
-                    if(oldPatient.phoneNumber != newPatient.phoneNumber){
+                    if (oldPatient.phoneNumber != newPatient.phoneNumber) {
                         var json = {
                             "patientID": newPatientID,
                             "secondPhoneNumber": oldPatient.phoneNumber
                         };
-                        await patientDao.updatePatient(json);    
-                    }                    
+                        await patientDao.updatePatient(json);
+                    }
                     res.json(utils.responseSuccess("Thay đổi thông tin thành công"));
                     logger.successLog("mergePatient");
-                } else{
+                } else {
                     res.json(utils.responseFailure("Không tìm thấy bệnh nhân, xin vui lòng kiểm tra lại"));
+                    logger.failLog("mergePatient", new Error("Patient is not exist"));
                 }
             }
         } catch (error) {
             logger.log(error);
+            logger.failLog("mergePatient", error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi merge"));
         }
     });

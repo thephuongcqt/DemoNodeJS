@@ -64,7 +64,7 @@ var patientDao = {
                                 resolve(tmp);
                                 return;
                             }
-                        }                        
+                        }     
                     }
                     resolve(null);
                 } else{

@@ -24,6 +24,7 @@ module.exports = function (app, express) {
             logger.successLog("getAllMedicines");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getAllMedicines", error);
             res.json(utils.responseFailure(Const.GetMedicineListFailure));
         }
     });
@@ -35,7 +36,8 @@ module.exports = function (app, express) {
         try {
             var resultInfo = await medicineDao.getMedicineInfo(req.body.medicineID);
             if (!resultInfo) {
-                res.json(utils.responseFailure("Medicine is not exist"));
+            logger.failLog("updateMedicine", new Error("Medicine is not exist"));
+            res.json(utils.responseFailure("Medicine is not exist"));
             } else {
                 if (isNaN(isActive)) {
                     isActive = undefined;
@@ -47,6 +49,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure(err.message));
+            logger.failLog("updateMedicine", err);
             logger.log(err);
         }
     });
@@ -57,11 +60,13 @@ module.exports = function (app, express) {
             var unitName = req.body.unitName;
             if (!medicineName) {
                 res.json(utils.responseFailure("Vui lòng nhập tên thuốc"));
-                return;
+            logger.failLog("createMedicine", new Error("Please enter medicine name"));
+            return;
             }
             if (!unitName) {
                 res.json(utils.responseFailure("Vui lòng nhập đơn vị thuốc"));
-                return;
+            logger.failLog("createMedicine", new Error("Please enter unit"));
+            return;
             }
             var json = { "medicineName": medicineName };
             var resultInfo = await baseDAO.findByProperties(db.Medicine, json);
@@ -74,13 +79,15 @@ module.exports = function (app, express) {
                     return;
                 }
                 res.json(utils.responseFailure("Thuốc đã tồn tại trong hệ thống"));
-                return;
+            logger.failLog("createMedicine", new Error("Medicine is exist"));
+            return;
             }
             await medicineDao.createMedicine(medicineName, unitName);
             res.json(utils.responseSuccess("Tạo mới thuốc thành công"));
             logger.successLog("createMedicine");
         } catch (err) {
             res.json(utils.responseFailure(err.message));
+            logger.failLog("createMedicine", err);
             logger.log(err);
         }
     });

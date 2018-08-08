@@ -13,8 +13,9 @@ var medicalDao = require("./DataAccess/MedicalRecordDAO");
 var patientDao = require("./DataAccess/PatientDAO");
 var symptomDao = require("./DataAccess/SymptomDAO");
 var firebase = require("./Notification/FirebaseAdmin");
+var cloudServices = require("./SpeechToText/CloudServices");
 
-Date.prototype.addDays = function(days) {
+Date.prototype.addDays = function (days) {
     var date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
     return date;
@@ -23,26 +24,40 @@ Date.prototype.addDays = function(days) {
 var test = async function () {
     try {
         var json = {
-            phoneNumber: "+18882713991"
+            bookedPhone: null
         }
-        var results = await baseDAO.findByPropertiesWithRelated(db.User, json, "clinic");        
-        var clinic = results[0].clinic;
-        console.log(clinic.username);
+        var result = await baseDAO.findByPropertiesWithRelated(db.Appointment, json, "patient");
+        for(var index in result){
+            var item = result[index];            
+            if(item.patient.patientID){                
+                var appointment = {
+                    "appointmentID": item.appointmentID,
+                    "bookedPhone": item.patient.phoneNumber
+                }                
+                var aa = await baseDAO.update(db.Appointment, appointment, "appointmentID");
+                console.log(aa);
+            } else{
+                var appointment = {
+                    "appointmentID": item.appointmentID,                    
+                }
+                await baseDAO.deleteByProperties(db.Appointment, appointment);
+            }            
+        }
     } catch (error) {
         console.log(error);
     }
 };
 test();
 
-function findStartDayOff(today, wks){
-    var root = today;    
+function findStartDayOff(today, wks) {
+    var root = today;
     var count = 0;
-    while(wks[today] == 1){
+    while (wks[today] == 1) {
         today = getNextDay(today, false);
-        if(wks[today] != 1){
+        if (wks[today] != 1) {
             return count;
         }
-        if(today == root){
+        if (today == root) {
             return count;
         }
         count++;
@@ -50,15 +65,15 @@ function findStartDayOff(today, wks){
     return count;
 }
 
-function findEndDayOff(today, wks){   
-    var root = today; 
+function findEndDayOff(today, wks) {
+    var root = today;
     var count = 0;
-    while(wks[today] == 1){
+    while (wks[today] == 1) {
         today = getNextDay(today, true);
-        if(wks[today] != 1){
+        if (wks[today] != 1) {
             return count;
         }
-        if(today == root){
+        if (today == root) {
             return count;
         }
         count++;
@@ -66,17 +81,17 @@ function findEndDayOff(today, wks){
     return count;
 }
 
-function getNextDay(today, ascending){
-    if(ascending == true){
-        if(today == 6){
+function getNextDay(today, ascending) {
+    if (ascending == true) {
+        if (today == 6) {
             return 0;
-        } else{
+        } else {
             return today + 1;
         }
-    } else{
-        if(today == 0){
+    } else {
+        if (today == 0) {
             return 6;
-        } else{
+        } else {
             return today - 1;
         }
     }

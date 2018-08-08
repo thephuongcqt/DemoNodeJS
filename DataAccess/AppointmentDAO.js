@@ -5,32 +5,69 @@ var Moment = require('moment');
 var utils = require("../Utils/Utils");
 
 var appointmentDao = {
-    getMessageForOffDay: async function (username) {
+    getHistory: async (username) => {
+        return new Promise(async (resolve, reject) => {
+            try {                
+                var sql = "SELECT a.bookedPhone as phoneNumber, Count(*) as bookingCount, SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as absent"
+                    + " FROM tbl_appointment a, tbl_patient b"
+                    + " WHERE a.patientID = b.patientID AND a.clinicUsername LIKE ?"
+                    + " GROUP BY a.bookedPhone";
+                var phonesList = await dao.rawQuery(sql, [username]);
+                if(!phonesList){
+                    phonesList = [];
+                }
+                var json = {
+                    "clinicUsername": username,
+                    "isBlock": 1
+                }
+                var blockList = await dao.findByProperties(db.Block, json);
+                if(!blockList){
+                    blockList = [];
+                }
+                for(var i in phonesList){
+                    var phone = phonesList[i];
+                    phone.isBlock = false;
+                    for(var j in blockList){
+                        var block = blockList[j];
+                        if(block.phoneNumber.trim() == phone.phoneNumber.trim()){
+                            phone.isBlock = true;
+                            break;
+                        }
+                    }
+                }
+                resolve(phonesList);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    getMessageForOffDay: async function (username, clinicName) {
         return new Promise(async (resolve, reject) => {
             var results = await dao.findByProperties(db.WorkingHours, { clinicUsername: username });
             var wks = [];
             for (var index in results) {
                 var item = results[index];
                 wks[item.applyDate] = item.isDayOff;
-            }            
+            }
             var today = new Date().getDay();
-            if(wks[today] == 0){
+            if (wks[today] == 0) {
                 reject(new Error("Hom nay phong kham van lam viec binh thuong"));
-            }            
+            }
             var countToStart = findStartDayOff(today, wks);
             var countToEnd = findEndDayOff(today, wks);
             if (countToStart == 6) {
                 // off all days of week
-                var mStart = new Date().addDays(1 -today);
+                var mStart = new Date().addDays(1 - today);
                 var mEnd = new Date().addDays(6 + 1 - today);
-                var message = "Phòng khám tạm nghỉ từ ngày " + utils.getDateForUI(mStart) +  " đến ngày " + utils.getDateForUI(mEnd) + ", xin lỗi vì sự bất tiện này";
+                var message = "Phòng khám " + clinicName + " tạm nghỉ từ ngày " + utils.getDateForVoice(mStart) + " đến ngày " + utils.getDateForVoice(mEnd) + ", xin lỗi vì sự bất tiện này";
                 resolve(message);
             } else if (countToEnd == 0 && countToStart == 0) {
-                resolve("Hôm nay phòng khám không làm việc, vui lòng quay lại vào hôm sau");
+                resolve("Hôm nay phòng khám " + clinicName + " không làm việc, vui lòng quay lại vào hôm sau");
             } else {
                 var mStart = new Date().addDays(-countToStart);
                 var mEnd = new Date().addDays(countToEnd);
-                var message = "Phòng khám tạm nghỉ từ ngày " + utils.getDateForUI(mStart) +   " đến ngày " + utils.getDateForUI(mEnd) + ", xin lỗi vì sự bất tiện này";
+                var message = "Phòng khám " + clinicName + "  tạm nghỉ từ ngày " + utils.getDateForVoice(mStart) + " đến ngày " + utils.getDateForVoice(mEnd) + ", xin lỗi vì sự bất tiện này";
                 resolve(message);
             }
         });
@@ -103,7 +140,7 @@ var appointmentDao = {
     },
 
     getAppointmentsInCurrentDayWithProperties: function (json) {
-        var startDay = utils.getStartDay(), endDay = utils.getEndDay();         
+        var startDay = utils.getStartDay(), endDay = utils.getEndDay();
 
         return new Promise((resolve, reject) => {
             db.Appointment.where(json)
@@ -122,7 +159,7 @@ var appointmentDao = {
 
     getAppointmentsInCurrentDayWithRelated: function (json, related) {
         var relatedJson = { withRelated: related };
-        var startDay = utils.getStartDay(), endDay = utils.getEndDay();    
+        var startDay = utils.getStartDay(), endDay = utils.getEndDay();
         return new Promise((resolve, reject) => {
             db.Appointment.where(json)
                 .query(function (appointment) {
@@ -139,7 +176,7 @@ var appointmentDao = {
     },
 
     getAppointmentsForSpecifyDayWithProperties: function (json, dateString) {
-        var startDay = utils.getStartDay(new Date(dateString)), endDay = utils.getEndDay(new Date(dateString));        
+        var startDay = utils.getStartDay(new Date(dateString)), endDay = utils.getEndDay(new Date(dateString));
         return new Promise((resolve, reject) => {
             db.Appointment.where(json)
                 .query(function (appointment) {
@@ -157,7 +194,7 @@ var appointmentDao = {
 
     getAppointmentsForSpecifyDayWithRelated: function (json, dateString, related) {
         var relatedJson = { withRelated: related };
-        var startDay = utils.getStartDay(new Date(dateString)), endDay = utils.getEndDay(new Date(dateString));                        
+        var startDay = utils.getStartDay(new Date(dateString)), endDay = utils.getEndDay(new Date(dateString));
         return new Promise((resolve, reject) => {
             db.Appointment.where(json)
                 .query(function (appointment) {
@@ -174,7 +211,7 @@ var appointmentDao = {
     },
 
     getBookedNumbersInCurrentDay: function (clinicUsername) {
-        var startDay = utils.getStartDay(), endDay = utils.getEndDay();        
+        var startDay = utils.getStartDay(), endDay = utils.getEndDay();
 
         return new Promise((resolve, reject) => {
             db.Appointment.forge()

@@ -12,7 +12,7 @@ module.exports = function (app, express) {
             var username = req.body.username;
             var diseaseIDs = req.body.diseaseIDs;
             if (username && diseaseIDs) {
-                var remindingList = [];                
+                var remindingList = [];
                 var medicinesList = [];
                 var medicineMap = {};
                 for (var i in diseaseIDs) {
@@ -24,62 +24,65 @@ module.exports = function (app, express) {
                     var regimens = await baseDAO.findByProperties(db.Regimen, json);
                     if (regimens && regimens.length > 0) {
                         var reminding = regimens[0].reminding;
-                        var regimenMedicine = await baseDAO.findByPropertiesWithRelated(db.RegimenMedicine, json, "medicine");                        
+                        var regimenMedicine = await baseDAO.findByPropertiesWithRelated(db.RegimenMedicine, json, "medicine");
                         for (var index in regimenMedicine) {
                             var item = regimenMedicine[index];
                             var medicine = {
                                 "medicineID": item.medicineID,
                                 "quantity": item.quantity,
                                 "description": item.description,
-                                "unitName": item.medicine.unitName
-                            }                            
-                            if(medicine){
+                                "unitName": item.medicine.unitName,
+                                "medicineName": item.medicine.medicineName
+                            }
+                            if (medicine) {
                                 addMedicine(medicineMap, medicine);
                             }
                         }
-                        if (reminding){
+                        if (reminding) {
                             addReminding(remindingList, reminding);
                         }
                     }
                 }
-                for(var key in medicineMap){
+                for (var key in medicineMap) {
                     medicinesList.push(medicineMap[key]);
                 }
                 var jsonResponse = {
-                    remindings: remindingList,                    
+                    remindings: remindingList,
                     regimens: medicinesList
                 }
                 res.json(utils.responseSuccess(jsonResponse));
                 logger.successLog("getRegimen");
             } else {
-                res.json(utils.responseFailure("Đã có lỗi xảy ra khi lấy phác đồ điều trị"))
+                res.json(utils.responseFailure("Đã có lỗi xảy ra khi lấy phác đồ điều trị"));
+                logger.failLog("getRegimen", new Error("Get regimen fail"));
             }
         } catch (error) {
             logger.log(error);
-            res.json(utils.responseFailure("Đã có lỗi xảy ra khi lấy phác đồ điều trị"))
+            res.json(utils.responseFailure("Đã có lỗi xảy ra khi lấy phác đồ điều trị"));
+            logger.failLog("getRegimen", error);
         }
     });
     return apiRouter;
 }
 
-function addMedicine(medicineMap, medicine){    
+function addMedicine(medicineMap, medicine) {
     var existedMedicine = medicineMap[medicine.medicineID];
-    if(existedMedicine){
+    if (existedMedicine) {
         existedMedicine.quantity += medicine.quantity;
-    } else{
+    } else {
         medicineMap[medicine.medicineID] = medicine
     }
 }
 
-function addReminding(remindingList, reminding){
-    for(var index in remindingList){
+function addReminding(remindingList, reminding) {
+    for (var index in remindingList) {
         var item = remindingList[index];
         var oldReminding = item.toUpperCase().trim();
         var newReminding = reminding.toUpperCase().trim();
-        if(oldReminding == newReminding || oldReminding.includes(newReminding)){ 
+        if (oldReminding == newReminding || oldReminding.includes(newReminding)) {
             return;
         }
-        if(newReminding.includes(oldReminding)){
+        if (newReminding.includes(oldReminding)) {
             remindingList[index] = reminding.trim();
             return;
         }

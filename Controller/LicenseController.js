@@ -15,6 +15,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.failLog("getAllLicense", err);
                 logger.log(err);
             });
     });
@@ -28,6 +29,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.failLog("getLicenseInfo", err);
                 logger.log(err);
             });
     });
@@ -44,10 +46,11 @@ module.exports = function (app, express) {
         licenseDAO.createLicense(price, duration, req.body.name, req.body.description)
             .then(function (results) {
                 res.json(utils.responseSuccess(results));
-                logger.successLog("create");
+                logger.successLog("createLicense");
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err.message));
+                logger.failLog("createLicense", err);
                 logger.log(err);
             });
     });
@@ -77,6 +80,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure(err.message));
+            logger.failLog("updateLicense", err);
             logger.log(err);
         }
     });
@@ -85,9 +89,11 @@ module.exports = function (app, express) {
         try {
             var resultLicense = await licenseDAO.getLicenseBill(req.query.licenseID);
             if (!resultLicense) {
+                logger.failLog("deleteLicense", new Error("License is not exist"));
                 res.json(utils.responseFailure("License is not exist"));
             } else {
                 if (resultLicense.bills.length != 0) {
+                    logger.failLog("deleteLicense", new Error("License is using"));
                     res.json(utils.responseFailure("License is using"));
                 } else {
                     var resultDelete = await licenseDAO.deleteLicense(req.query.licenseID);
@@ -98,6 +104,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure(err.message));
+            logger.failLog("deleteLicense", err);
             logger.log(err);
         }
     });

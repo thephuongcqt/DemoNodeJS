@@ -36,9 +36,18 @@ var utils = {
         return null;
     },
 
-    getDateForUI: function(date){
-        if(date){
+    getDateForUI: function (date) {
+        if (date) {
             return Moment(date).format("DD-MM-YYYY");
+        }
+        return null;
+    },
+
+    getDateForVoice: function (date) {
+        if (date) {
+            var mDate = Moment(date);
+            var message = mDate.format("D") + " tháng " + mDate.format("M") + " năm " + mDate.format("YYYY");
+            return message;
         }
         return null;
     },
@@ -102,6 +111,30 @@ var utils = {
         return regexPattern.test(message);
     },
 
+    getClinicName: function (clinicName) {
+        if (clinicName) {
+            clinicName.trim();
+            if(clinicName.length <= 11){
+                return clinicName;
+            }
+            var newText = clinicName.toUpperCase();
+            var regexs = ["^PHÒNG KHÁM", "^PHONG KHAM", "^PHÒNG KHAM", "^PHONG KHÁM"];
+            var isMatch = false;
+            for (var index in regexs) {
+                var regexString = regexs[index];
+                var regexPattern = RegExp(regexString);
+                if (regexPattern.test(newText)) {
+                    isMatch = true;
+                    break;
+                }
+            }
+            if (isMatch) {
+                clinicName = clinicName.slice(11);
+            }
+        }
+        return clinicName;
+    },
+
     getFullName: function (name) {
         return name.replace(new RegExp("^Dh "), "");
     },
@@ -126,22 +159,22 @@ var utils = {
         return expiredDate;
     },
 
-    getStartDay: function(date){
-        
-        if(date){            
-        } else{
+    getStartDay: function (date) {
+
+        if (date) {
+        } else {
             date = new Date();
         }
-        date.setHours(0, 0, 0, 0);        
+        date.setHours(0, 0, 0, 0);
         return date;
     },
 
-    getEndDay: function(date){
-        if(date){            
-        } else{
+    getEndDay: function (date) {
+        if (date) {
+        } else {
             date = new Date();
         }
-        date.setHours(23, 59, 59, 999);        
+        date.setHours(23, 59, 59, 999);
         return date;
     }
 }

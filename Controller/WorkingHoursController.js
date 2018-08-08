@@ -18,6 +18,7 @@ module.exports = function (app, express) {
             })
             .catch(function (err) {
                 res.json(utils.responseFailure(err));
+                logger.failLog("getWorkingHours", err);
                 logger.log(err);
             });
     });
@@ -30,15 +31,17 @@ module.exports = function (app, express) {
         if (startWorking) {
             var parseStartWorking = utils.parseTime(req.body.startWorking);
             var checkStartWorking = utils.getMomentTime(parseStartWorking).isValid();
-        } else{
+        } else {
             res.json(utils.responseFailure("Vui lòng nhập giờ bắt đầu"));
+            logger.failLog("updateWorkingHours", new Error("Please enter start working hours"));
             return;
         }
         if (endWorking) {
             var parseEndWorking = utils.parseTime(req.body.endWorking);
             var checkEndWorking = utils.getMomentTime(parseEndWorking).isValid();
-        }else{
+        } else {
             res.json(utils.responseFailure("Vui lòng nhập giờ kết thúc"));
+            logger.failLog("updateWorkingHours", new Error("Please enter end working hours"));
             return;
         }
         var applyDates = req.body.applyDate;
@@ -52,6 +55,7 @@ module.exports = function (app, express) {
         try {
             if (!applyDates) {
                 res.json(utils.responseFailure("Vui lòng chọn ngày áp dụng"));
+                logger.failLog("updateWorkingHours", new Error("Please choose apply dates"));
             } else {
                 for (var i in applyDates) {
                     var applyDate = applyDates[i];
@@ -66,6 +70,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure(err));
+            logger.failLog("updateWorkingHours", err);
             logger.log(err);
         }
     });
@@ -94,6 +99,7 @@ module.exports = function (app, express) {
                 if (checkDuration == true) {
                     if (examinationDuration == "00:00:00") {
                         res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                        logger.failLog("updateAll", new Error("Examination is not correct"));
                         return;
                     }
                     jsonDuration.examinationDuration = examinationDuration;
@@ -105,6 +111,7 @@ module.exports = function (app, express) {
                 if (checkDelay == true) {
                     if (delayDuration == "00:00:00") {
                         res.json(utils.responseFailure("Thời gian trễ không chính xác"));
+                        logger.failLog("updateAll", new Error("Delay is not correct"));
                         return;
                     }
                     jsonDuration.delayDuration = delayDuration;
@@ -115,6 +122,7 @@ module.exports = function (app, express) {
             }
             if (listValue == null) {
                 res.json(utils.responseFailure("Vui lòng nhập giờ làm việc"));
+                logger.failLog("updateAll", new Error("Please enter working hours"));
                 return;
             } else {
                 if (listValue.length > 0) {
@@ -159,6 +167,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure(err));
+            logger.failLog("updateAll", err);
             logger.log(err);
         }
     });

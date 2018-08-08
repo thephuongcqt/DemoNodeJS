@@ -27,6 +27,7 @@ module.exports = function (app, express) {
             logger.successLog("getAppointmentsListByDate");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getAppointmentsListByDate", error);
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
         }
     });
@@ -36,7 +37,7 @@ module.exports = function (app, express) {
         var searchDate = req.query.date;
         var json = { "clinicUsername": clinicUsername };
         try {
-            var appointments;
+            var arr;
             var blocks = await baseDAO.findByProperties(db.Block, { "clinicUsername": clinicUsername, "isBlock": 1 });
             var blockedNumbers = [];
             for (var index in blocks) {
@@ -44,12 +45,14 @@ module.exports = function (app, express) {
                 blockedNumbers.push(item.phoneNumber);
             }
             if (searchDate) {
-                appointments = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, ["patient", "medicalRecord"]);
+                arr = await appointmentDao.getAppointmentsForSpecifyDayWithRelated(json, searchDate, ["patient", "medicalRecord"]);
             } else {
-                appointments = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient", "medicalRecord"]);
+                arr = await appointmentDao.getAppointmentsInCurrentDayWithRelated(json, ["patient", "medicalRecord"]);
             }
-            for (var i in appointments) {
-                var appointment = appointments[i];
+            var mapAppointment = {};
+            var appointments = []
+            for (var i in arr) {                
+                var appointment = arr[i];                
                 appointment.phoneNumber = appointment.patient.phoneNumber;
                 appointment.fullName = appointment.patient.fullName;
                 appointment.address = appointment.patient.address;
@@ -59,10 +62,16 @@ module.exports = function (app, express) {
                 appointment.isBlock = utils.checkNumberInArray(appointment.patient.phoneNumber, blockedNumbers);
                 appointment.currentTime = utils.parseDate(new Date());
                 appointment.appointmentTime = utils.parseDate(appointment.appointmentTime);
-                appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;
-                delete appointment.patient;
-                delete appointment.medicalRecord;
-                delete appointment.clinicUsername;
+                appointment.createdRecord = appointment.medicalRecord.appointmentID != undefined;                                
+                if(mapAppointment[appointment.patient.patientID]){
+
+                } else{
+                    mapAppointment[appointment.patient.patientID] = true;
+                    delete appointment.patient;
+                    delete appointment.medicalRecord;
+                    delete appointment.clinicUsername;
+                    appointments.push(appointment);
+                }
             }
             var json = {
                 currentTime: utils.parseDate(new Date()),
@@ -72,6 +81,7 @@ module.exports = function (app, express) {
             logger.successLog("getAppointmentsListByDateForWeb");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getAppointmentsListByDateForWeb", error);
             res.json(utils.responseFailure(Const.GetAppointmentListFailure));
         }
     });
@@ -101,11 +111,13 @@ module.exports = function (app, express) {
                 res.json(utils.responseSuccess(resultUpdate));
                 logger.successLog("checkVisit");
             } else {
+                logger.failLog("checkVisit", new Error("An error occurred!"));
                 res.json(utils.responseFailure("An error occurred!"));
             }
         }
         catch (err) {
             logger.log(err);
+            logger.failLog("checkVisit", err);
             res.json(utils.responseFailure(err.message));
         }
     });
@@ -154,11 +166,13 @@ module.exports = function (app, express) {
                 res.json(utils.responseSuccess(json));
                 logger.successLog("cancelWorking");
             } else {
+                logger.failLog("cancelWorking", new Error("An error occurred!"));
                 res.json(utils.responseFailure("Không có cuộc hẹn nào được huỷ thành công"));
             }
 
         } catch (error) {
             logger.log(error);
+            logger.failLog("cancelWorking", error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
         }
     });
@@ -173,6 +187,7 @@ module.exports = function (app, express) {
                 if (checkDuration == true) {
                     if (duration == "00:00:00") {
                         res.json(utils.responseFailure("Thời lượng khám không chính xác"));
+                        logger.failLog("adjustAppointment", new Error("Duration is not exactly!"));
                         return;
                     }
                     var mDuration = utils.getMomentTime(duration);
@@ -189,10 +204,10 @@ module.exports = function (app, express) {
                                 var mTime = Moment(item.appointmentTime);
                                 var miliseconds = utils.getMiliseconds(mDuration);
                                 mTime.add(miliseconds, "milliseconds");
-                                if(mTime.toDate() > utils.getEndDay()){
+                                if (mTime.toDate() > utils.getEndDay()) {
                                     mTime = Moment(utils.getEndDay());
-                                }                                
-                                
+                                }
+
                                 var json = {
                                     "appointmentID": item.appointmentID,
                                     "appointmentTime": mTime.toDate()
@@ -201,7 +216,7 @@ module.exports = function (app, express) {
                                 promises.push(promise);
                                 var patientPhone = item.bookedPhone;
                                 if (patientPhone && clinicPhone) {
-                                    var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:mm") + " ngày " + mTime.format("DD-MM-YYYY") + ". Xin lỗi bạn vì sự bất tiện này."                                                                        
+                                    var message = "Vì lý do bất khả kháng nên phòng khám xin phép dời lịch khám của bạn tới lúc " + mTime.format("HH:mm") + " ngày " + mTime.format("DD-MM-YYYY") + ". Xin lỗi bạn vì sự bất tiện này."
                                     twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                                 }
                                 changed = true;
@@ -219,18 +234,22 @@ module.exports = function (app, express) {
                             res.json(utils.responseSuccess(json));
                             logger.successLog("adjustAppointment");
                         } else {
+                            logger.failLog("adjustAppointment", new Error("An error occurred!"));
                             res.json(utils.responseFailure("Không có cuộc hẹn nào được chỉnh sửa thành công"));
                         }
                     } catch (error) {
                         logger.log(error);
+                        logger.failLog("adjustAppointment", error);
                         res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
                     }
                 }
-            } else{
+            } else {
+                logger.failLog("adjustAppointment", new Error("Missing parameters"));
                 res.json(utils.responseFailure("Missing parameters"));
             }
         } catch (error) {
             logger.log(error);
+            logger.failLog("adjustAppointment", error);
             res.json(utils.responseFailure("Đã có lỗi xảy ra khi huỷ lịch khám"));
         }
     });

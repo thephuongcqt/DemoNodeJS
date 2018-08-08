@@ -16,6 +16,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure(err));
+            logger.failLog("getBlock", error);
             logger.log(err);
         }
     });
@@ -41,6 +42,7 @@ module.exports = function (app, express) {
         }
         catch (err) {
             res.json(utils.responseFailure(err));
+            logger.failLog("blockNumber", err);
             logger.log(err);
         }
     });

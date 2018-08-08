@@ -22,6 +22,7 @@ module.exports = function (app, express) {
             logger.successLog("getAllMedicalRecord");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getAllMedicalRecord", error);
             res.json(utils.responseFailure(Const.GetMedicineListFailure));
         }
     });
@@ -56,7 +57,6 @@ module.exports = function (app, express) {
                     var diseasesList = [];
                     for (var index in medicalDisease) {
                         var tmp = medicalDisease[index];
-
                         var tmpResult = await baseDAO.findByID(db.Disease, "diseaseID", tmp.diseaseID);
                         var tmpJson = {
                             diseaseID: tmp.diseaseID,
@@ -66,15 +66,14 @@ module.exports = function (app, express) {
                     }
                     var symptomJson = {
                         "appointmentID": appointment.appointmentID
-                    }                    
+                    }
                     var symptomList = await baseDAO.findByPropertiesWithRelated(db.MedicalSymptom, symptomJson, "clinicalSymptom");
                     // console.log(symptomList);
                     var symptoms = []
-                    for (var index in symptomList){
+                    for (var index in symptomList) {
                         var tmp = symptomList[index];
                         symptoms.push(tmp.clinicalSymptom.symptom);
                     }
-
                     var response = {
                         appointmentID: appointment.appointmentID,
                         appointmentTime: utils.parseDate(appointment.appointmentTime),
@@ -93,6 +92,7 @@ module.exports = function (app, express) {
             logger.successLog("getMedicalRecord");
         } catch (error) {
             logger.log(error);
+            logger.failLog("getMedicalRecord", error);
             res.json(utils.responseFailure(Const.GetMedicineListFailure));
         }
     });
@@ -106,8 +106,9 @@ module.exports = function (app, express) {
             var listDisease = req.body.diseases;
             var clinicalSymptom = req.body.clinicalSymptom;
             var checkCancel = await baseDAO.findByID(db.Appointment, "appointmentID", appointmentID);
-            if(checkCancel.status != Const.appointmentStatus.PRESENT){
+            if (checkCancel.status != Const.appointmentStatus.PRESENT) {
                 res.json(utils.responseFailure("Bệnh nhân không đến khám, không thể tạo bệnh án"));
+                logger.failLog("createMedicalRecord", new Error("Can not create medical record"));
                 return;
             }
             var getAllRecords = await medicalRecordDao.getAllRecord();
@@ -115,6 +116,7 @@ module.exports = function (app, express) {
                 var checkRecord = getAllRecords[i].appointmentID;
                 if (checkRecord == appointmentID) {
                     res.json(utils.responseFailure(Const.MedicalRecordFailure));
+                    logger.failLog("createMedicalRecord", new Error(Const.MedicalRecordFailure));
                     return;
                 }
             }
@@ -124,6 +126,7 @@ module.exports = function (app, express) {
         } catch (err) {
             res.json(utils.responseFailure(err.message));
             logger.log(err);
+            logger.failLog("createMedicalRecord", err);
             medicalRecordDao.removeStuffMedialRecord(appointmentID);
         }
     });
