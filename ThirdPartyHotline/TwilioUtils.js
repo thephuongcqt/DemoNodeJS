@@ -8,7 +8,7 @@ var twilioUtils = {
     sendSMS: async function (fromPhone, to, message) {
         var client = await twilioDao.getTwilioByPhone(fromPhone);
         if (client) {
-            if (fromPhone.includes("+1")) {
+            if (to.includes("+1")) {
                 client.messages.create({
                     body: message,
                     from: fromPhone,
