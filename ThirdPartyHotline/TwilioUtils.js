@@ -40,7 +40,7 @@ var twilioUtils = {
             twiml.hangup();
 
             var filePath = Const.FilePath + "/" + clinicPhone + new Date().getTime() + ".xml";
-            var xmlUrl = "/" + filePath;
+            var xmlUrl = Const.HostName + "/" + filePath;
             await utils.writeFile(filePath, twiml.toString());
 
             if (!client) {
