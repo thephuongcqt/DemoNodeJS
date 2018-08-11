@@ -25,7 +25,7 @@ Date.prototype.addDays = function (days) {
 var test = async function () {
     try {
         var phoneNumber = "+1234920q342";
-        console.log(utils.getOnlyNumber(phoneNumber));
+        console.log(phoneNumber.includes("+1"));
         // var VoiceResponse = require('twilio').twiml.VoiceResponse;
         // var twiml = new VoiceResponse();
         // var audioUrl = "/Files/chotdemo2.mp3";
@@ -35,7 +35,7 @@ var test = async function () {
         // twiml.hangup();
         // var fileName = "Files/hoanghoa" + new Date().getTime() + ".xml";
         // var result = await utils.writeFile(fileName, twiml.toString()); 
-        // console.log(result);        
+        // console.log(result);
     } catch (error) {
         console.log(error);
     }

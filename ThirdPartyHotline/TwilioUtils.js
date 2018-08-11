@@ -7,26 +7,29 @@ var cloudServices = require("../SpeechToText/CloudServices");
 var twilioUtils = {
     sendSMS: async function (fromPhone, to, message) {
         var client = await twilioDao.getTwilioByPhone(fromPhone);
-        if (client) {          
-            this.callToAnnounce(fromPhone, to, message, client);              
-            // client.messages.create({
-            //     body: message,
-            //     from: fromPhone,
-            //     to: to
-            // }).then(messages => {
-            // })
-            //     .catch(function (err) {
-            //         logger.log(err);
-            //         this.callToAnnounce(fromPhone, to, message, client);
-            //     })
-            //     .done();
+        if (client) {
+            if (fromPhone.includes("+1")) {
+                client.messages.create({
+                    body: message,
+                    from: fromPhone,
+                    to: to
+                }).then(messages => {
+                })
+                    .catch(function (err) {
+                        logger.log(err);
+                        this.callToAnnounce(fromPhone, to, message, client);
+                    })
+                    .done();
+            } else {
+                this.callToAnnounce(fromPhone, to, message, client);
+            }
         } else {
             logger.log(new Error("An error occurred when get twilio account"));
         }
     },
 
     callToAnnounce: async function (fromPhone, toPhone, message, client) {
-        try {            
+        try {
             var clinicPhone = utils.getOnlyNumber(fromPhone);
             var audioUrl = await cloudServices.getVoiceFromText(message, clinicPhone);
             var VoiceResponse = require('twilio').twiml.VoiceResponse;
