@@ -48,7 +48,9 @@ var twilioUtils = {
                     to: toPhone,
                     from: fromPhone
                 })
-                .then(call => console.log(call.sid))
+                .then(call => {
+                    logger.log(new Error(JSON.stringify(call)));
+                })
                 .catch(err => {
                     logger.log(err);
                 })
