@@ -55,6 +55,15 @@ var utils = {
         return null;
     },
 
+    getTimeForVoice: function(date){
+        if (date) {
+            var mDate = Moment(date);
+            var message = mDate.format("h") + " giờ " + mDate.format("m") + " phút";
+            return message;
+        }
+        return null;
+    },
+
     parseDate: function (date) {
         if (date) {
             return Moment(date).format("YYYY-MM-DDTHH:mm:ss.000Z");

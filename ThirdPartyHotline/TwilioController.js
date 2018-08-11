@@ -35,7 +35,7 @@ module.exports = function (app, express) {
 
             var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
             if (isBlock) {
-                var message = "bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám để biết thêm chi tiết";
+                var message = "bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám tại số 0908223223 để biết thêm chi tiết";
                 try {
                     var audioUrl = await cloudServices.getVoiceFromText(message, username);
                     audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
@@ -134,7 +134,7 @@ module.exports = function (app, express) {
 
                 var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
                 if (isBlock) {
-                    var message = "bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám để biết thêm chi tiết";
+                    var message = "bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám tại số 0908223223 để biết thêm chi tiết";
                     twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                     return;
                 }
@@ -200,10 +200,10 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
             "bookedPhone": patientPhone
         };
         var appointment = await baseDao.create(db.Appointment, newAppointment);
-        //Begin send SMS to patient
-        var bookedDate = dateFormat(appointment.appointmentTime, "dd-mm-yyyy");
-        var bookedTime = dateFormat(appointment.appointmentTime, "HH:MM:ss");
-        var messageBody = patient.fullName + ' mã số ' + bookingNo + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' ngày ' + bookedDate + ' lúc ' + bookedTime;
+        //Begin send SMS to patient        
+        var bookedDate = utils.getDateForVoice(appointment.appointmentTime);
+        var bookedTime = utils.getTimeForVoice(appointment.appointmentTime);
+        var messageBody = patient.fullName + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' thành công. số thứ tự của quý khách là ' + bookingNo + ', thời gian khám vào lúc ' + bookedTime + " ngày " + bookedDate;        
         twilioUtils.sendSMS(user.phoneNumber, patientPhone, messageBody);
         //End send SMS to patient
 
