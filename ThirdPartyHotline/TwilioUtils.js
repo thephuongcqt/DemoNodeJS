@@ -4,7 +4,7 @@ var twilioDao = require("../DataAccess/twilioDAO");
 var logger = require("../Utils/Logger");
 var cloudServices = require("../SpeechToText/CloudServices");
 
-var utils = {
+var twilioUtils = {
     sendSMS: async function (fromPhone, to, message) {
         var client = await twilioDao.getTwilioByPhone(fromPhone);
         if (client) {            
@@ -26,7 +26,7 @@ var utils = {
     },
 
     callToAnnounce: async function (fromPhone, toPhone, message, client) {
-        try {
+        try {            
             var clinicPhone = utils.getOnlyNumber(fromPhone);
             var audioUrl = await cloudServices.getVoiceFromText(message, clinicPhone);
             var VoiceResponse = require('twilio').twiml.VoiceResponse;
@@ -59,4 +59,4 @@ var utils = {
         }
     }
 }
-module.exports = utils;
+module.exports = twilioUtils;
