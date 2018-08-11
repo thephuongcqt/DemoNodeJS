@@ -14,6 +14,7 @@ var patientDao = require("./DataAccess/PatientDAO");
 var symptomDao = require("./DataAccess/SymptomDAO");
 var firebase = require("./Notification/FirebaseAdmin");
 var cloudServices = require("./SpeechToText/CloudServices");
+var fs = require('fs');
 
 Date.prototype.addDays = function (days) {
     var date = new Date(this.valueOf());
@@ -23,26 +24,18 @@ Date.prototype.addDays = function (days) {
 
 var test = async function () {
     try {
-        var json = {
-            bookedPhone: null
-        }
-        var result = await baseDAO.findByPropertiesWithRelated(db.Appointment, json, "patient");
-        for(var index in result){
-            var item = result[index];            
-            if(item.patient.patientID){                
-                var appointment = {
-                    "appointmentID": item.appointmentID,
-                    "bookedPhone": item.patient.phoneNumber
-                }                
-                var aa = await baseDAO.update(db.Appointment, appointment, "appointmentID");
-                console.log(aa);
-            } else{
-                var appointment = {
-                    "appointmentID": item.appointmentID,                    
-                }
-                await baseDAO.deleteByProperties(db.Appointment, appointment);
-            }            
-        }
+        var phoneNumber = "+1234920q342";
+        console.log(utils.getOnlyNumber(phoneNumber));
+        // var VoiceResponse = require('twilio').twiml.VoiceResponse;
+        // var twiml = new VoiceResponse();
+        // var audioUrl = "/Files/chotdemo2.mp3";
+        // twiml.play({
+        //     loop: 2
+        // }, audioUrl);
+        // twiml.hangup();
+        // var fileName = "Files/hoanghoa" + new Date().getTime() + ".xml";
+        // var result = await utils.writeFile(fileName, twiml.toString()); 
+        // console.log(result);        
     } catch (error) {
         console.log(error);
     }

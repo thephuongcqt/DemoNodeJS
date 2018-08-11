@@ -1,6 +1,5 @@
 var express = require("express");
 var app = express();
-var path = require('path');
 var fs = require('fs');
 var userController = require("./Controller/UserController")(app, express);
 var twilioController = require("./ThirdPartyHotline/TwilioController")(app, express);
@@ -19,6 +18,8 @@ var diseaseController = require("./Controller/DiseaseController")(app, express);
 var medicalRecordController = require("./Controller/MedicalRecordController")(app, express);
 var patientController = require("./Controller/PatientController")(app, express);
 var regimenController = require("./Controller/RegimenController")(app, express);
+var fileController = require("./Controller/FileController")(app, express);
+var Const = require("./Utils/Const");
 // Add headers
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -35,6 +36,7 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', true);
 
     // Pass to next layer of middleware
+    Const.HostName = req.protocol + '://' + req.get('host');
     next();
 });
 /////////////////////////////////////////////////////////////////////////
@@ -78,44 +80,11 @@ app.use("/medicalRecord", medicalRecordController);
 app.use("/patient", patientController);
 // route to regimen controller
 app.use("/regimen", regimenController);
+// Default route
+app.use("/", fileController);
 //////////////////////////////////////////////////////////////////////
-
-app.use("/Audios", function(request, response){
-    var filePath = 'Audios' + request.url;
-    var extname = path.extname(filePath);
-    var contentType = 'audio/mpeg';
-    
-    fs.readFile(filePath, function(error, content) {
-        if (error) {
-            logger.log(error);
-            if(error.code == 'ENOENT'){
-                response.writeHead(404);
-                response.end('Sorry, File not found');
-                response.end(); 
-            }
-            else {
-                response.writeHead(500);
-                response.end('Sorry, check with the site admin for error: ' + error.code+' ..\n');
-                response.end(); 
-            }
-        }
-        else {
-            response.writeHead(200, { 'Content-Type': contentType });
-            response.end(content, 'utf-8');
-        }
-    });
-
-})
-
-app.use("/", function(req, res){
-    res.json({
-        "success": false,
-        "value": null,
-        "error": "Someting went wrong!!! this is a default route"
-    });
-});
 
 backgroundService();
 
-var server = app.listen(process.env.PORT || 8080, function(){
+var server = app.listen(process.env.PORT || 8080, function(){    
 });

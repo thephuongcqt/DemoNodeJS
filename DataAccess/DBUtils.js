@@ -7,7 +7,7 @@ const knex = require('knex')({
     // password: 'Callcenterpass1',    
     // host: '203.205.29.13',
     // host: 'localhost',
-    // host: '27.74.245.84',        
+    // host: '27.74.245.84',
     user: 'root',
     password: '123456',
     // password: '',

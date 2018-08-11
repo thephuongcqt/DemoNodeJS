@@ -9,7 +9,7 @@ const googleClient = new speech.SpeechClient({
 const fptServicesUrl = "http://api.openfpt.vn/text2speech/v4";
 const apiKeyFPT = "54ba20f8352e404d858e9619e3a752b0";
 const request = require('request');
-const audioUri = "Audios/";
+const audioUri = "Files/";
 
 var services = {
     getTextFromVoice: function (url) {

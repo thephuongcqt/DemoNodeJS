@@ -1,4 +1,7 @@
 module.exports = {
+    HostName: "",
+    FilePath: "Files",
+    
     ROLE_ADMIN: 0,
     ROLE_CLINIC: 1,
     ROLE_STAFF: 2,

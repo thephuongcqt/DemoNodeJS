@@ -1,5 +1,8 @@
 var db = require("../DataAccess/DBUtils");
 var Moment = require("moment");
+var fs = require('fs');
+var logger = require("./Logger");
+
 var utils = {
     responseFailure: function (error) {
         var response = {
@@ -176,6 +179,23 @@ var utils = {
         }
         date.setHours(23, 59, 59, 999);
         return date;
+    },
+
+    writeFile: async (filePath, content) => {
+        return new Promise((resolve, reject) => {
+            fs.writeFile(filePath, content, function(err) {
+                if(err) {
+                    reject(err);
+                } else{
+                    resolve("The file was saved!");
+                }                            
+            });
+        })        
+    },
+
+    getOnlyNumber: (phoneNumber) => {
+        var num = phoneNumber.replace(/[^0-9]/g,'');
+        return num;
     }
 }
 module.exports = utils;
