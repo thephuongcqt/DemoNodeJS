@@ -7,8 +7,8 @@ var cloudServices = require("../SpeechToText/CloudServices");
 var utils = {
     sendSMS: async function (fromPhone, to, message) {
         var client = await twilioDao.getTwilioByPhone(fromPhone);
-        if (client) {
-            callToAnnounce(fromPhone, to, message, client);
+        if (client) {            
+            this.callToAnnounce(fromPhone, to, message, client);
             // client.messages.create({
             //     body: message,
             //     from: fromPhone,
@@ -17,7 +17,7 @@ var utils = {
             // })
             //     .catch(function (err) {
             //         logger.log(err);
-            //         callToAnnounce(fromPhone, to, message, client);
+            //         this.callToAnnounce(fromPhone, to, message, client);
             //     })
             //     .done();
         } else {
