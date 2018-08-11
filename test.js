@@ -24,8 +24,9 @@ Date.prototype.addDays = function (days) {
 
 var test = async function () {
     try {
-        var phoneNumber = "+1234920q342";
-        console.log(phoneNumber.includes("+1"));
+        var phoneNumber = "+18327795475";
+        var list = await appointmentDao.getPatientNameForPhoneNumber(phoneNumber, "hoanghoa");
+        console.log(list);
         // var VoiceResponse = require('twilio').twiml.VoiceResponse;
         // var twiml = new VoiceResponse();
         // var audioUrl = "/Files/chotdemo2.mp3";

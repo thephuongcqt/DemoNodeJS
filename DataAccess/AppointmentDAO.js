@@ -6,9 +6,10 @@ var utils = require("../Utils/Utils");
 
 var appointmentDao = {
     getHistory: async (username) => {
+        
         return new Promise(async (resolve, reject) => {
             try {                
-                var sql = "SELECT a.bookedPhone as phoneNumber, Count(*) as bookingCount, SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as absent"
+                var sql = "SELECT a.bookedPhone as phoneNumber"
                     + " FROM tbl_appointment a, tbl_patient b"
                     + " WHERE a.patientID = b.patientID AND a.clinicUsername LIKE ?"
                     + " GROUP BY a.bookedPhone";
@@ -25,7 +26,8 @@ var appointmentDao = {
                     blockList = [];
                 }
                 for(var i in phonesList){
-                    var phone = phonesList[i];
+                    var phone = phonesList[i];                    
+                    phone.names = await appointmentDao.getPatientNameForPhoneNumber(phone.phoneNumber, username);
                     phone.isBlock = false;
                     for(var j in blockList){
                         var block = blockList[j];
@@ -40,6 +42,24 @@ var appointmentDao = {
                 reject(error);
             }
         });
+    },
+
+    getPatientNameForPhoneNumber: (phone, username) => {
+        return new Promise((resolve, reject) => {
+            var sql = "SELECT fullName FROM tbl_patient WHERE (phoneNumber LIKE ? OR secondPhoneNumber LIKE ?) AND clinicUsername LIKE ?";
+            dao.rawQuery(sql, [phone, phone, username])
+            .then(result => {
+                var list = []
+                for(var index in result){
+                    var name = result[index].fullName
+                    list.push(name);
+                }
+                resolve(list);
+            })
+            .catch(err => {
+                reject(err);
+            })
+        });        
     },
 
     getMessageForOffDay: async function (username, clinicName) {
