@@ -7,19 +7,18 @@ var cloudServices = require("../SpeechToText/CloudServices");
 var twilioUtils = {
     sendSMS: async function (fromPhone, to, message) {
         var client = await twilioDao.getTwilioByPhone(fromPhone);
-        if (client) {            
-            this.callToAnnounce(fromPhone, to, message, client);
-            // client.messages.create({
-            //     body: message,
-            //     from: fromPhone,
-            //     to: to
-            // }).then(messages => {
-            // })
-            //     .catch(function (err) {
-            //         logger.log(err);
-            //         this.callToAnnounce(fromPhone, to, message, client);
-            //     })
-            //     .done();
+        if (client) {                        
+            client.messages.create({
+                body: message,
+                from: fromPhone,
+                to: to
+            }).then(messages => {
+            })
+                .catch(function (err) {
+                    logger.log(err);
+                    this.callToAnnounce(fromPhone, to, message, client);
+                })
+                .done();
         } else {
             logger.log(new Error("An error occurred when get twilio account"));
         }
