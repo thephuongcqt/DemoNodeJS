@@ -21,7 +21,7 @@ module.exports = function (app, express) {
         res.set('Content-Type', 'text/xml');
         var VoiceResponse = require('twilio').twiml.VoiceResponse;
         var twiml = new VoiceResponse();
-        
+
         var patientPhone = req.query.From;
         var clinicPhone = req.query.To;
         if(!patientPhone){
@@ -36,7 +36,7 @@ module.exports = function (app, express) {
         if (userClinic) {
             var username = userClinic.username;
             var clinicName = userClinic.clinic.clinicName;
-            var message = "Phòng khám sẽ sắp xếp lịch khám và thông báo kết quả tới cho bạn sau vài phút";
+            var message = "Phòng khám sẽ sắp xếp lịch khám và thông báo kết quả tới cho quý khách sau vài phút, cám ơn quý khách";
             var audioUrl = await cloudServices.getVoiceFromText(message, username);
             audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
             twiml.play({
@@ -48,6 +48,7 @@ module.exports = function (app, express) {
         }
         res.end(twiml.toString());
     });
+
     // book appointment by Call
     apiRouter.use("/Voice", async function (req, res) {
         res.set('Content-Type', 'text/xml');
