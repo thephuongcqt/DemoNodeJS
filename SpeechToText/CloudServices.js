@@ -91,7 +91,7 @@ var services = {
                             });
                         });
                     }
-                    setTimeout(downloadAudioFile, 1500);
+                    setTimeout(downloadAudioFile, 4000);
                 } else {
                     reject(error);
                 }

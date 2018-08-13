@@ -35,7 +35,7 @@ module.exports = function (app, express) {
 
             var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
             if (isBlock) {
-                var message = "bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám tại số 0908223223 để biết thêm chi tiết";
+                var message = "Bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám tại số 0908223223 để biết thêm chi tiết";
                 try {
                     var audioUrl = await cloudServices.getVoiceFromText(message, username);
                     audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
@@ -134,7 +134,7 @@ module.exports = function (app, express) {
 
                 var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
                 if (isBlock) {
-                    var message = "bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám tại số 0908223223 để biết thêm chi tiết";
+                    var message = "Bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám tại số 0908223223 để biết thêm chi tiết";
                     twilioUtils.sendSMS(clinicPhone, patientPhone, message);
                     return;
                 }
@@ -237,7 +237,7 @@ async function scheduleAppointment(user, patient, patientPhone) {
 
 async function makeAppointment(patientPhone, patientName, clinicPhone) {
     if (patientName.length > 50) {
-        var message = "Tên quá dài, vui lòng thử lại";
+        var message = "Tên quá dài, vui lòng thử lại";
         twilioUtils.sendSMS(clinicPhone, patientPhone, message);
         return;
     }
