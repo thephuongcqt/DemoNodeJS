@@ -64,7 +64,7 @@ module.exports = function (app, express) {
             clinicPhone = req.body.To;
         }
 
-        //get clinic        
+        //get clinic
         var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
         if (userClinic) {
             var username = userClinic.username;
@@ -115,7 +115,8 @@ module.exports = function (app, express) {
             twiml.record({
                 recordingStatusCallback: recordURL,
                 method: 'POST',
-                maxLength: 15,
+                maxLength: 25,
+                timeout: 5,
                 action: actionURL
             });
             res.end(twiml.toString());
