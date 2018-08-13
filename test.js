@@ -24,7 +24,11 @@ Date.prototype.addDays = function (days) {
 
 var test = async function () {
     try {
-        console.log(configUtils.getDefaultFinishedRecordingURL());
+        logger.log({
+            "alsdkfjda": "alskdfj",
+            "day ne": "asldkfj"
+        })
+        logger.log("test ne");
         // var text = "đây là message test";
         // var url = await cloudServices.getVoiceFromText(text, "test");
         // console.log(url);
