@@ -17,12 +17,19 @@ var twilioUtils = require("./TwilioUtils");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
-    apiRouter.get("/FinishedRecord", async function (req, res) {
+    apiRouter.use("/FinishedRecord", async function (req, res) {
         res.set('Content-Type', 'text/xml');
         var VoiceResponse = require('twilio').twiml.VoiceResponse;
         var twiml = new VoiceResponse();
+        
         var patientPhone = req.query.From;
         var clinicPhone = req.query.To;
+        if(!patientPhone){
+            patientPhone = req.body.From;
+        }        
+        if(!clinicPhone){
+            clinicPhone = req.body.To;
+        }
 
         //get clinic        
         var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
@@ -42,13 +49,19 @@ module.exports = function (app, express) {
         res.end(twiml.toString());
     });
     // book appointment by Call
-    apiRouter.get("/Voice", async function (req, res) {
+    apiRouter.use("/Voice", async function (req, res) {
         res.set('Content-Type', 'text/xml');
         var VoiceResponse = require('twilio').twiml.VoiceResponse;
         var twiml = new VoiceResponse();
 
         var patientPhone = req.query.From;
-        var clinicPhone = req.query.To;
+        var clinicPhone = req.query.To;        
+        if(!patientPhone){
+            patientPhone = req.body.From;
+        }        
+        if(!clinicPhone){
+            clinicPhone = req.body.To;
+        }
 
         //get clinic        
         var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
