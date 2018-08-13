@@ -52,7 +52,10 @@ var services = {
         });
     },
 
-    getVoiceFromText: function (text, username) {
+    getVoiceFromText: function (text, username, delayTime) {
+        if(!delayTime){
+            delayTime = 2000;
+        }
         var options = {
             uri: 'http://api.openfpt.vn/text2speech/v4',
             method: 'POST',
@@ -91,7 +94,7 @@ var services = {
                             });
                         });
                     }
-                    setTimeout(downloadAudioFile, 4000);
+                    setTimeout(downloadAudioFile, delayTime);
                 } else {
                     reject(error);
                 }

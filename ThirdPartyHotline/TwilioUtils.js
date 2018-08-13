@@ -31,7 +31,7 @@ var twilioUtils = {
     callToAnnounce: async function (fromPhone, toPhone, message, client) {
         try {
             var clinicPhone = utils.getOnlyNumber(fromPhone);
-            var audioUrl = await cloudServices.getVoiceFromText(message, clinicPhone);
+            var audioUrl = await cloudServices.getVoiceFromText(message, clinicPhone, 4000);
             var VoiceResponse = require('twilio').twiml.VoiceResponse;
             var twiml = new VoiceResponse();
             twiml.play({

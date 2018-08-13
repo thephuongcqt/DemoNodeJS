@@ -17,7 +17,30 @@ var twilioUtils = require("./TwilioUtils");
 
 module.exports = function (app, express) {
     var apiRouter = express.Router();
+    apiRouter.get("/FinishedRecord", async function (req, res) {
+        res.set('Content-Type', 'text/xml');
+        var VoiceResponse = require('twilio').twiml.VoiceResponse;
+        var twiml = new VoiceResponse();
+        var patientPhone = req.query.From;
+        var clinicPhone = req.query.To;
 
+        //get clinic        
+        var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
+        if (userClinic) {
+            var username = userClinic.username;
+            var clinicName = userClinic.clinic.clinicName;
+            var message = "Phòng khám sẽ sắp xếp lịch khám và thông báo kết quả tới cho bạn sau vài phút";
+            var audioUrl = await cloudServices.getVoiceFromText(message, username);
+            audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
+            twiml.play({
+                loop: 2
+            }, audioUrl);
+            twiml.hangup();
+        } else{
+            twiml.reject();
+        }
+        res.end(twiml.toString());
+    });
     // book appointment by Call
     apiRouter.get("/Voice", async function (req, res) {
         res.set('Content-Type', 'text/xml');
@@ -71,14 +94,15 @@ module.exports = function (app, express) {
                 return;
             }
             var recordURL = req.protocol + '://' + req.get('host') + '/twilio/Recorded';
-
+            var actionURL = "/twilio/FinishedRecord";
             var greetingURL = await clinicDao.getGreetingURL(clinicPhone);
 
             twiml.play(greetingURL);
             twiml.record({
                 recordingStatusCallback: recordURL,
                 method: 'POST',
-                maxLength: 20
+                maxLength: 20,
+                action: actionURL
             });
             res.end(twiml.toString());
         } else {
@@ -203,7 +227,7 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
         //Begin send SMS to patient        
         var bookedDate = utils.getDateForVoice(appointment.appointmentTime);
         var bookedTime = utils.getTimeForVoice(appointment.appointmentTime);
-        var messageBody = patient.fullName + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' thành công. Số thứ tự của quý khách là ' + bookingNo + ', thời gian khám vào lúc ' + bookedTime + ", ngày " + bookedDate;        
+        var messageBody = patient.fullName + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' thành công. Số thứ tự của quý khách là ' + bookingNo + ', thời gian khám vào lúc ' + bookedTime + ", ngày " + bookedDate;
         twilioUtils.sendSMS(user.phoneNumber, patientPhone, messageBody);
         //End send SMS to patient
 
