@@ -24,9 +24,10 @@ Date.prototype.addDays = function (days) {
 
 var test = async function () {
     try {
-        var text = "đây là message test";
-        var url = await cloudServices.getVoiceFromText(text, "test");
-        console.log(url);
+        console.log(configUtils.getDefaultFinishedRecordingURL());
+        // var text = "đây là message test";
+        // var url = await cloudServices.getVoiceFromText(text, "test");
+        // console.log(url);
         // var phoneNumber = "+18327795475";
         // var list = await appointmentDao.getPatientNameForPhoneNumber(phoneNumber, "hoanghoa");
         // console.log(list);

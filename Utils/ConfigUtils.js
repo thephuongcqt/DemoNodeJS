@@ -50,6 +50,11 @@ var config = {
     getDefaultGreetingURL: function(){
         var config = getConfigJson();
         return config.defaultGreetingURL;
+    },
+
+    getDefaultFinishedRecordingURL: () => {
+        var config = getConfigJson();
+        return config.defaultFinishedRecordingURL;
     }
 };
 module.exports = config;

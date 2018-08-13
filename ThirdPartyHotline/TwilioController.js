@@ -24,28 +24,18 @@ module.exports = function (app, express) {
 
         var patientPhone = req.query.From;
         var clinicPhone = req.query.To;
-        if(!patientPhone){
+        if (!patientPhone) {
             patientPhone = req.body.From;
-        }        
-        if(!clinicPhone){
+        }
+        if (!clinicPhone) {
             clinicPhone = req.body.To;
         }
 
-        //get clinic        
-        var userClinic = await clinicDao.findClinicByPhone(clinicPhone);
-        if (userClinic) {
-            var username = userClinic.username;
-            var clinicName = userClinic.clinic.clinicName;
-            var message = "Phòng khám sẽ sắp xếp lịch khám và thông báo kết quả tới cho quý khách sau vài phút, cám ơn quý khách";
-            var audioUrl = await cloudServices.getVoiceFromText(message, username);
-            audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
-            twiml.play({
-                loop: 2
-            }, audioUrl);
-            twiml.hangup();
-        } else{
-            twiml.reject();
-        }
+        var audioUrl = configUtils.getDefaultFinishedRecordingURL();
+        twiml.play({
+            loop: 1
+        }, audioUrl);
+        twiml.hangup();
         res.end(twiml.toString());
     });
 
@@ -56,11 +46,11 @@ module.exports = function (app, express) {
         var twiml = new VoiceResponse();
 
         var patientPhone = req.query.From;
-        var clinicPhone = req.query.To;        
-        if(!patientPhone){
+        var clinicPhone = req.query.To;
+        if (!patientPhone) {
             patientPhone = req.body.From;
-        }        
-        if(!clinicPhone){
+        }
+        if (!clinicPhone) {
             clinicPhone = req.body.To;
         }
 
