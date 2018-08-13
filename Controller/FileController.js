@@ -64,7 +64,7 @@ module.exports = function (app, express) {
         res.json({
             "success": false,
             "value": null,
-            "error": "Someting went wrong!!! this is a default route"
+            "error": "Something went wrong!!! this is a default route"
         });
     });
 
