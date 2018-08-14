@@ -105,8 +105,8 @@ module.exports = function (app, express) {
             twiml.record({
                 recordingStatusCallback: recordURL,
                 method: 'POST',
-                maxLength: 25,
-                timeout: 5,
+                maxLength: 20,
+                timeout: 2,
                 action: actionURL
             });
             res.end(twiml.toString());

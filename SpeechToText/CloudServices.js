@@ -77,35 +77,14 @@ var services = {
 
                     var delayFunction = async () => {
                         await services.downloadFile(responseObj.async, destinationUri);
-                        if (services.getFilesizeInBytes(destinationUri) > 100) {                        
+                        if (services.getFilesizeInBytes(destinationUri) > 100) {
                             resolve("/" + destinationUri);                            
                         } else {
+                            logger.log(new Error("File: " + destinationUri + " size: " + services.getFilesizeInBytes(destinationUri)));
                             setTimeout(this, 500);                            
                         }
                     }
-                    setTimeout(delayFunction, 500);                    
-                    // var destinationUri = audioUri + username + ".mp3";
-
-                    // if (fs.existsSync(destinationUri)) {
-                    //     fs.unlink(destinationUri);
-                    // }
-                    // var callback = function () {
-                    //     resolve("/" + destinationUri);
-                    // }
-                    // var downloadAudioFile = function () {
-                    //     var file = fs.createWriteStream(destinationUri);
-                    //     var request = https.get(responseObj.async, function (response) {
-                    //         response.pipe(file);
-                    //         file.on('finish', function () {
-                    //             file.close(callback);
-                    //         });
-                    //         file.on('error', function (err) {
-                    //             fs.unlink(dest);
-                    //             reject(err);
-                    //         });
-                    //     });
-                    // }
-                    // setTimeout(downloadAudioFile, delayTime);
+                    setTimeout(delayFunction, 0);
                 } else {
                     reject(error);
                 }
@@ -121,7 +100,8 @@ var services = {
                 }
 
                 var file = fs.createWriteStream(filePath);
-                var request = https.get(url, function (response) {
+                
+                https.get(url, function (response) {
                     response.pipe(file);
                     file.on('finish', function () {
                         file.close(resolve());
