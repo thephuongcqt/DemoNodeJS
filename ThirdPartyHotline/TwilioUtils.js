@@ -17,6 +17,8 @@ var twilioUtils = {
                 loop: 2
             }, audioUrl);
             twiml.hangup();
+            
+            httpObj.res.set('Content-Type', 'text/xml');
             httpObj.res.end(twiml.toString());
             var sendSMSMethod = () => {
                 twilioUtils.sendSMS(fromPhone, to, message);
