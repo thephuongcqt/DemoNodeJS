@@ -5,30 +5,56 @@ var logger = require("../Utils/Logger");
 var cloudServices = require("../SpeechToText/CloudServices");
 
 var twilioUtils = {
-    sendSMS: async function (fromPhone, to, message) {
-        var client = await twilioDao.getTwilioByPhone(fromPhone);
-        if (client) {
-            if (to.includes("+1")) {
-                client.messages.create({
-                    body: message,
-                    from: fromPhone,
-                    to: to
-                }).then(messages => {
-                })
-                    .catch(function (err) {
-                        logger.log(err);
-                        this.callToAnnounce(fromPhone, to, message, client);
-                    })
-                    .done();
-            } else {
-                this.callToAnnounce(fromPhone, to, message, client);
+    announceAppointment: async function (fromPhone, to, message, httpObj) {
+        if (httpObj) {
+            //booking appointment by a call
+            //httpObj contain fields: req, res 
+            var clinicPhone = utils.getOnlyNumber(fromPhone);
+            var audioUrl = cloudServices.getVoiceFromText(message, clinicPhone);
+            var VoiceResponse = require('twilio').twiml.VoiceResponse;
+            var twiml = new VoiceResponse();
+            twiml.play({
+                loop: 2
+            }, audioUrl);
+            twiml.hangup();
+            httpObj.res.end(twiml.toString());
+            var sendSMSMethod = () => {
+                twilioUtils.sendSMS(fromPhone, to, message);
             }
+            setTimeout(sendSMSMethod, 2000);
         } else {
-            logger.log(new Error("An error occurred when get twilio account"));
+            twilioUtils.sendSMS(fromPhone, to, message);
         }
     },
 
-    callToAnnounce: async function (fromPhone, toPhone, message, client) {
+    sendSMS: async (fromPhone, to, message) => {
+        try {
+            var client = await twilioDao.getTwilioByPhone(fromPhone);
+            if (client) {
+                if (to.includes("+1")) {
+                    client.messages.create({
+                        body: message,
+                        from: fromPhone,
+                        to: to
+                    }).then(messages => {
+                    })
+                        .catch(function (err) {
+                            logger.log(err);
+                            this.callToAnnouncement(fromPhone, to, message, client);
+                        })
+                        .done();
+                } else {
+                    this.callToAnnouncement(fromPhone, to, message, client);
+                }
+            } else {
+                logger.log(new Error("An error occurred when get twilio account"));
+            }
+        } catch (error) {
+            logger.log(error);            
+        }
+    },
+
+    callToAnnouncement: async function (fromPhone, toPhone, message, client) {
         try {
             var clinicPhone = utils.getOnlyNumber(fromPhone);
             var audioUrl = await cloudServices.getVoiceFromText(message, clinicPhone, 4000);

@@ -53,7 +53,7 @@ var services = {
     },
 
     getVoiceFromText: function (text, username, delayTime) {
-        if(!delayTime){
+        if (!delayTime) {
             delayTime = 2000;
         }
         var options = {
@@ -74,32 +74,73 @@ var services = {
                     var responseObj = JSON.parse(body);
                     logger.log(new Error(JSON.stringify(responseObj)));
                     var destinationUri = audioUri + username + new Date().getTime() + ".mp3";
+
+                    var delayFunction = async () => {
+                        await services.downloadFile(responseObj.async, destinationUri);
+                        if (services.getFilesizeInBytes(destinationUri) > 100) {                        
+                            resolve("/" + destinationUri);                            
+                        } else {
+                            setTimeout(this, 500);                            
+                        }
+                    }
+                    setTimeout(delayFunction, 500);                    
                     // var destinationUri = audioUri + username + ".mp3";
-                    if (fs.existsSync(destinationUri)) {
-                        fs.unlink(destinationUri);
-                    }
-                    var callback = function () {
-                        resolve("/" + destinationUri);
-                    }
-                    var downloadAudioFile = function () {
-                        var file = fs.createWriteStream(destinationUri);
-                        var request = https.get(responseObj.async, function (response) {
-                            response.pipe(file);
-                            file.on('finish', function () {
-                                file.close(callback);
-                            });
-                            file.on('error', function (err) {
-                                fs.unlink(dest);
-                                reject(err);
-                            });
-                        });
-                    }
-                    setTimeout(downloadAudioFile, delayTime);
+
+                    // if (fs.existsSync(destinationUri)) {
+                    //     fs.unlink(destinationUri);
+                    // }
+                    // var callback = function () {
+                    //     resolve("/" + destinationUri);
+                    // }
+                    // var downloadAudioFile = function () {
+                    //     var file = fs.createWriteStream(destinationUri);
+                    //     var request = https.get(responseObj.async, function (response) {
+                    //         response.pipe(file);
+                    //         file.on('finish', function () {
+                    //             file.close(callback);
+                    //         });
+                    //         file.on('error', function (err) {
+                    //             fs.unlink(dest);
+                    //             reject(err);
+                    //         });
+                    //     });
+                    // }
+                    // setTimeout(downloadAudioFile, delayTime);
                 } else {
                     reject(error);
                 }
             });
         })
+    },
+
+    downloadFile: async (url, filePath) => {
+        return new Promise((resolve, reject) => {
+            try {
+                if (fs.existsSync(filePath)) {
+                    fs.unlink(filePath);
+                }
+
+                var file = fs.createWriteStream(filePath);
+                var request = https.get(url, function (response) {
+                    response.pipe(file);
+                    file.on('finish', function () {
+                        file.close(resolve());
+                    });
+                    file.on('error', function (err) {
+                        fs.unlink(dest);
+                        reject(err);
+                    });
+                });
+            } catch (error) {
+                reject(error);
+            }
+        })
+    },
+
+    getFilesizeInBytes: function (filename) {
+        var stats = fs.statSync(filename)
+        var fileSizeInBytes = stats["size"]
+        return fileSizeInBytes
     }
 };
 module.exports = services;

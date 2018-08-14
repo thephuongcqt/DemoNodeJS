@@ -35,7 +35,7 @@ module.exports = function (app, express) {
         twiml.play({
             loop: 1
         }, audioUrl);
-        twiml.hangup();
+        // twiml.hangup();
         res.end(twiml.toString());
     });
 
@@ -72,7 +72,7 @@ module.exports = function (app, express) {
                     twiml.hangup();
                 } catch (error) {
                     logger.log(error);
-                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                    twilioUtils.announceAppointment(clinicPhone, patientPhone, message);
                     twiml.reject();
                 }
                 res.end(twiml.toString());
@@ -81,8 +81,8 @@ module.exports = function (app, express) {
 
             var isDayOff = await checkIsDayOff(username);
             if (isDayOff) {
-                var message = await appointmentDao.getMessageForOffDay(username, clinicName);
                 try {
+                    var message = await appointmentDao.getMessageForOffDay(username, clinicName);
                     var audioUrl = await cloudServices.getVoiceFromText(message, username);
                     audioUrl = req.protocol + '://' + req.get('host') + audioUrl;
                     twiml.play({
@@ -91,7 +91,7 @@ module.exports = function (app, express) {
                     twiml.hangup();
                 } catch (error) {
                     logger.log(error);
-                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                    twilioUtils.announceAppointment(clinicPhone, patientPhone, message);
                     twiml.reject();
                 }
                 res.end(twiml.toString());
@@ -118,33 +118,41 @@ module.exports = function (app, express) {
 
     // Receive record and make appointment with google speech to text
     apiRouter.post("/Recorded", async function (req, res) {
-        res.set('Content-Type', 'text/xml');
-        res.end();
-
-        var client = await twilioDao.getTwilioByID(req.body.AccountSid);
-        if (client) {
-            cloudServices.getTextFromVoice(req.body.RecordingUrl)
-                .then(patientName => {
-                    client.calls(req.body.CallSid)
-                        .fetch()
-                        .then(call => {
-                            logger.log(call);
-                            makeAppointment(call.from, patientName, call.to);
-                        })
-                        .done();
-                })
-                .catch(err => {
-                    logger.log(err);
-                    client.calls(req.body.CallSid)
-                        .fetch()
-                        .then(call => {
-                            makeAppointment(call.from, "", call.to);
-                        })
-                        .done();
-                });
-        } else {
-            logger.log(new Error("An error occurred when get twilio account"));
+        var httpObj = {
+            'req': req,
+            'res': res
         }
+        try {
+            var client = await twilioDao.getTwilioByID(req.body.AccountSid);
+            if (client) {
+                cloudServices.getTextFromVoice(req.body.RecordingUrl)
+                    .then(patientName => {
+                        client.calls(req.body.CallSid)
+                            .fetch()
+                            .then(call => {
+                                logger.log(call);
+                                makeAppointment(call.from, patientName, call.to, httpObj);
+                            })
+                            .done();
+                    })
+                    .catch(err => {
+                        logger.log(err);
+                        client.calls(req.body.CallSid)
+                            .fetch()
+                            .then(call => {
+                                makeAppointment(call.from, "", call.to, httpObj);
+                            })
+                            .done();
+                    });
+            } else {
+                logger.log(new Error("An error occurred when get twilio account"));
+            }
+        } catch (error) {
+            logger.log(error);
+            res.set('Content-Type', 'text/xml');
+            res.end();
+        }
+
     });
 
     // book appointment by SMS
@@ -164,14 +172,14 @@ module.exports = function (app, express) {
                 var isBlock = await blockDao.isBlockNumber(patientPhone, clinicPhone);
                 if (isBlock) {
                     var message = "Bạn không thể đặt hẹn vì số điện thoại này đang ở trong danh sách hạn chế của phòng khám " + clinicName + ", vui lòng liên hệ phòng khám tại số 0908223223 để biết thêm chi tiết";
-                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                    twilioUtils.announceAppointment(clinicPhone, patientPhone, message);
                     return;
                 }
 
                 var isDayOff = await checkIsDayOff(username);
                 if (isDayOff) {
                     var message = await appointmentDao.getMessageForOffDay(username, clinicName);
-                    twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+                    twilioUtils.announceAppointment(clinicPhone, patientPhone, message);
                     return;
                 }
                 message = utils.toBeautifulName(message);
@@ -183,7 +191,7 @@ module.exports = function (app, express) {
                     }
                     makeAppointment(patientPhone, patientName, clinicPhone);
                 } else {
-                    twilioUtils.sendSMS(clinicPhone, patientPhone, Const.Error.WrongFormatMessage);
+                    twilioUtils.announceAppointment(clinicPhone, patientPhone, Const.Error.WrongFormatMessage);
                 }
             } else {
                 logger.log(new Error("The phone number doesnt map to any clinic account"));
@@ -217,7 +225,7 @@ module.exports = function (app, express) {
 //     }
 // }
 
-async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, patientPhone) {
+async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, patientPhone, httpObj) {
     try {
         var newPatient = await patientDao.insertNotExistedPatient(patient);
         var newAppointment = {
@@ -233,7 +241,7 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
         var bookedDate = utils.getDateForVoice(appointment.appointmentTime);
         var bookedTime = utils.getTimeForVoice(appointment.appointmentTime);
         var messageBody = patient.fullName + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' thành công. Số thứ tự của quý khách là ' + bookingNo + ', thời gian khám vào lúc ' + bookedTime + ", ngày " + bookedDate;
-        twilioUtils.sendSMS(user.phoneNumber, patientPhone, messageBody);
+        twilioUtils.announceAppointment(user.phoneNumber, patientPhone, messageBody, httpObj);
         //End send SMS to patient
 
         //Begin send notification to Clinic
@@ -243,31 +251,31 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
         firebase.notifyToClinic(topic, notifyTitle, notifyMessage);
         //End send notification to Clinic        
     } catch (error) {
-        twilioUtils.sendSMS(user.phoneNumber, patientPhone, Const.BookAppointmentFailure);
+        twilioUtils.announceAppointment(user.phoneNumber, patientPhone, Const.BookAppointmentFailure, httpObj);
         logger.log(error);
     }
 }
 
-async function scheduleAppointment(user, patient, patientPhone) {
+async function scheduleAppointment(user, patient, patientPhone, httpObj) {
     try {
         var clinic = user.clinic;
         var detailAppointment = await scheduler.getExpectationAppointment(clinic);
         if (detailAppointment) {
-            saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, patientPhone);
+            saveDataWhenBookingSuccess(user, patient, detailAppointment.bookedTime, detailAppointment.no, patientPhone, httpObj);
         } else {
-            twilioUtils.sendSMS(user.phoneNumber, patientPhone, Const.FullSlot);
+            twilioUtils.announceAppointment(user.phoneNumber, patientPhone, Const.FullSlot, httpObj);
             logger.log(new Error(user.phoneNumber + " " + patientPhone + " " + Const.FullSlot));
         }
     } catch (error) {
         logger.log(error);
-        twilioUtils.sendSMS(user.phoneNumber, patientPhone, Const.Error.ScheduleAppointmentError);
+        twilioUtils.announceAppointment(user.phoneNumber, patientPhone, Const.Error.ScheduleAppointmentError, httpObj);
     }
 }
 
-async function makeAppointment(patientPhone, patientName, clinicPhone) {
+async function makeAppointment(patientPhone, patientName, clinicPhone, httpObj) {
     if (patientName.length > 50) {
         var message = "Tên quá dài, vui lòng thử lại";
-        twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+        twilioUtils.announceAppointment(clinicPhone, patientPhone, message, httpObj);
         return;
     }
     patientName = utils.toBeautifulName(patientName);
@@ -278,7 +286,7 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
         var isDayOff = await checkIsDayOff(userClinic.username);
         if (isDayOff) {
             var message = "Hôm nay phòng khám không hoạt động. Xin quý khách vui lòng quay lại vào hôm sau.";
-            twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+            twilioUtils.announceAppointment(clinicPhone, patientPhone, message, httpObj);
             return
         }
 
@@ -304,12 +312,12 @@ async function makeAppointment(patientPhone, patientName, clinicPhone) {
                 message = "Hôm nay quý khách đã đặt lịch khám rồi. Xin quý khách vui lòng quay lại vào hôm sau.";
             }
             logger.log(new Error(message));
-            twilioUtils.sendSMS(clinicPhone, patientPhone, message);
+            twilioUtils.announceAppointment(clinicPhone, patientPhone, message, httpObj);
         } else {
-            scheduleAppointment(userClinic, patient, patientPhone);
+            scheduleAppointment(userClinic, patient, patientPhone, httpObj);
         }
     } else {
-        twilioUtils.sendSMS(clinicPhone, patientPhone, Const.BookAppointmentFailure);
+        twilioUtils.announceAppointment(clinicPhone, patientPhone, Const.BookAppointmentFailure, httpObj);
         logger.log("Make appoiontment fail: clinicphone:" + clinicPhone + " patientphone: " + patientPhone, "makeAppointment");
     }
 }

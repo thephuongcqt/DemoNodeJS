@@ -24,14 +24,16 @@ Date.prototype.addDays = function (days) {
 
 var test = async function () {
     try {
-        logger.log({
-            "alsdkfjda": "alskdfj",
-            "day ne": "asldkfj"
-        })
-        logger.log("test ne");
-        // var text = "đây là message test";
-        // var url = await cloudServices.getVoiceFromText(text, "test");
-        // console.log(url);
+        var text = "lại là mình đây";
+        // var text = "Xin chào các bạn mình đang làm một chức năng vô cùng ảo diệu, chức năng này cần nhờ tới sự góp sức của các bạn, mong các bạn có thể giúp đỡ mình bằng cách trả về file lâu một chút, để mình có thể biết được khi nào file chết";
+            var url = await cloudServices.getVoiceFromText(text, "test");
+            console.log(url);
+        // for(var i = 0; i < 5; i++){
+        //     var text = "Xin chào các bạn mình đang làm một chức năng vô cùng ảo diệu, chức năng này cần nhờ tới sự góp sức của các bạn, mong các bạn có thể giúp đỡ mình bằng cách trả về file lâu một chút, để mình có thể biết được khi nào file chết";
+        //     var url = await cloudServices.getVoiceFromText(text, "test" + i + "-");
+        //     console.log(url);
+        // }
+        
         // var phoneNumber = "+18327795475";
         // var list = await appointmentDao.getPatientNameForPhoneNumber(phoneNumber, "hoanghoa");
         // console.log(list);
