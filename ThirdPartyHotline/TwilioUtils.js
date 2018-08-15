@@ -7,7 +7,7 @@ var cloudServices = require("../SpeechToText/CloudServices");
 var twilioUtils = {
     checkRecordedFile: async (client, RecordingSid) => {
         return new Promise((resolve, reject) => {
-            var maxCount = 5;
+            var maxCount = 10;
             var count = 0;
             var funcChecking = async () => {
                 try {
@@ -48,9 +48,9 @@ var twilioUtils = {
                 var sendSMSMethod = () => {
                     twilioUtils.sendSMS(fromPhone, to, smsMessage);
                 }
-                if(smsMessage){
-                    setTimeout(sendSMSMethod, 5000);
-                }                
+                if (smsMessage) {
+                    setTimeout(sendSMSMethod, 0);
+                }
             } catch (error) {
                 logger.log(error);
             }
@@ -64,21 +64,32 @@ var twilioUtils = {
         try {
             var client = await twilioDao.getTwilioByPhone(fromPhone);
             if (client) {
-                if (to.includes("+1")) {
-                    client.messages.create({
-                        body: message,
-                        from: fromPhone,
-                        to: to
-                    }).then(messages => {
+                client.messages.create({
+                    body: message,
+                    from: fromPhone,
+                    to: to
+                }).then(messages => {
+                })
+                    .catch(function (err) {
+                        logger.log(err);
+                        this.callToAnnouncement(fromPhone, to, message, client);
                     })
-                        .catch(function (err) {
-                            logger.log(err);
-                            this.callToAnnouncement(fromPhone, to, message, client);
-                        })
-                        .done();
-                } else {
-                    this.callToAnnouncement(fromPhone, to, message, client);
-                }
+                    .done();
+                // if (to.includes("+1")) {
+                //     client.messages.create({
+                //         body: message,
+                //         from: fromPhone,
+                //         to: to
+                //     }).then(messages => {
+                //     })
+                //         .catch(function (err) {
+                //             logger.log(err);
+                //             this.callToAnnouncement(fromPhone, to, message, client);
+                //         })
+                //         .done();
+                // } else {
+                //     this.callToAnnouncement(fromPhone, to, message, client);
+                // }
             } else {
                 logger.log(new Error("An error occurred when get twilio account"));
             }
