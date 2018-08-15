@@ -5,6 +5,30 @@ var logger = require("../Utils/Logger");
 var cloudServices = require("../SpeechToText/CloudServices");
 
 var twilioUtils = {
+    checkRecordedFile: async (client, RecordingSid) => {
+        return new Promise((resolve, reject) => {
+            var maxCount = 5;
+            var count = 0;
+            var funcChecking = async () => {
+                try {
+                    var recording = await client.recordings(RecordingSid).fetch();
+                    if (recording.status == 'completed') {
+                        resolve();
+                    } else {
+                        count++;
+                        if (count >= maxCount) {
+                            reject(new Error("Time out when check recorded file"));
+                        }
+                        setTimeout(this, 200);
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            }
+            funcChecking();
+        })
+    }, 
+    
     announceAppointment: async function (fromPhone, to, message, httpObj) {
         if (httpObj) {
             //booking appointment by a call

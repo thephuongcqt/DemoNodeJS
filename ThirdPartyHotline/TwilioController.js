@@ -19,6 +19,11 @@ module.exports = function (app, express) {
     var apiRouter = express.Router();
     apiRouter.use("/FinishedRecord", async function (req, res) {
         res.set('Content-Type', 'text/xml');
+        var httpObj = {
+            'req': req,
+            'res': res
+        }
+
         var VoiceResponse = require('twilio').twiml.VoiceResponse;
         var twiml = new VoiceResponse();
 
@@ -31,11 +36,42 @@ module.exports = function (app, express) {
             clinicPhone = req.body.To;
         }
 
-        var audioUrl = configUtils.getDefaultFinishedRecordingURL();
-        twiml.play({
-            loop: 1
-        }, audioUrl);
+        // var audioUrl = configUtils.getDefaultFinishedRecordingURL();
+        // twiml.play({
+        //     loop: 1
+        // }, audioUrl);
         // twiml.hangup();
+
+        try {
+            var accountSid = req.body.AccountSid;
+            var recordedUrl = req.body.RecordingUrl;
+            var recordingSid = req.body.RecordingSid;
+            var patientPhone = req.body.From;
+            var clinicPhone = req.body.To;
+
+            var client = await twilioDao.getTwilioByID(accountSid);
+            if (client) {
+                try {
+                    await twilioUtils.checkRecordedFile(client, recordingSid)
+                    cloudServices.getTextFromVoice(recordedUrl)
+                        .then(patientName => {
+                            makeAppointment(patientPhone, patientName, clinicPhone, httpObj);
+                            return;
+                        })
+                        .catch(err => {
+                            logger.log(err);
+                            makeAppointment(patientPhone, patientName, clinicPhone, httpObj);
+                            return;
+                        });                        
+                } catch (error) {
+                    logger.log(error);
+                }                
+            } else {
+                logger.log(new Error("An error occurred when get twilio account"));
+            }
+        } catch (error) {
+            logger.log(error);                        
+        }
         res.end(twiml.toString());
     });
 
@@ -103,7 +139,7 @@ module.exports = function (app, express) {
 
             twiml.play(greetingURL);
             twiml.record({
-                recordingStatusCallback: recordURL,
+                // recordingStatusCallback: recordURL,
                 method: 'POST',
                 maxLength: 20,
                 timeout: 2,
