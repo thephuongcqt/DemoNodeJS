@@ -81,10 +81,10 @@ var services = {
                             resolve("/" + destinationUri);
                         } else {
                             logger.log(new Error("File: " + destinationUri + " size: " + services.getFilesizeInBytes(destinationUri)));
-                            setTimeout(this, 100);
+                            setTimeout(this, 200);
                         }
                     }
-                    setTimeout(delayFunction, 100);
+                    setTimeout(delayFunction, 200);
                 } else {
                     reject(error);
                 }
