@@ -62,7 +62,7 @@ module.exports = function (app, express) {
                             logger.log(err);
                             makeAppointment(patientPhone, patientName, clinicPhone, httpObj);
                             return;
-                        });                        
+                        });
                 } catch (error) {
                     logger.log(error);
                 }                

@@ -27,27 +27,32 @@ var twilioUtils = {
             }
             funcChecking();
         })
-    }, 
-    
+    },
+
     announceAppointment: async function (fromPhone, to, message, httpObj) {
         if (httpObj) {
-            //booking appointment by a call
-            //httpObj contain fields: req, res 
-            var clinicPhone = utils.getOnlyNumber(fromPhone);
-            var audioUrl = cloudServices.getVoiceFromText(message, clinicPhone);
-            var VoiceResponse = require('twilio').twiml.VoiceResponse;
-            var twiml = new VoiceResponse();
-            twiml.play({
-                loop: 2
-            }, audioUrl);
-            twiml.hangup();
-            
-            httpObj.res.set('Content-Type', 'text/xml');
-            httpObj.res.end(twiml.toString());
-            var sendSMSMethod = () => {
-                twilioUtils.sendSMS(fromPhone, to, message);
+            try {
+                //booking appointment by a call
+                //httpObj contain fields: req, res 
+                var clinicPhone = utils.getOnlyNumber(fromPhone);
+                var audioUrl = cloudServices.getVoiceFromText(message, clinicPhone);
+                var VoiceResponse = require('twilio').twiml.VoiceResponse;
+                var twiml = new VoiceResponse();
+                twiml.play({
+                    loop: 2
+                }, audioUrl);
+                twiml.hangup();
+
+                httpObj.res.set('Content-Type', 'text/xml');
+                httpObj.res.end(twiml.toString());
+                var sendSMSMethod = () => {
+                    twilioUtils.sendSMS(fromPhone, to, message);
+                }
+                setTimeout(sendSMSMethod, 2000);
+            } catch (error) {
+                logger.log(error);
             }
-            setTimeout(sendSMSMethod, 2000);
+
         } else {
             twilioUtils.sendSMS(fromPhone, to, message);
         }
@@ -76,7 +81,7 @@ var twilioUtils = {
                 logger.log(new Error("An error occurred when get twilio account"));
             }
         } catch (error) {
-            logger.log(error);            
+            logger.log(error);
         }
     },
 
