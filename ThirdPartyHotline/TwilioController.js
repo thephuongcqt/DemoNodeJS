@@ -65,14 +65,16 @@ module.exports = function (app, express) {
                         });
                 } catch (error) {
                     logger.log(error);
+                    res.end(twiml.toString());
                 }                
             } else {
                 logger.log(new Error("An error occurred when get twilio account"));
+                res.end(twiml.toString());
             }
         } catch (error) {
-            logger.log(error);                        
-        }
-        res.end(twiml.toString());
+            logger.log(error);
+            res.end(twiml.toString());
+        }        
     });
 
     // book appointment by Call
