@@ -35,7 +35,7 @@ var twilioUtils = {
                 //booking appointment by a call
                 //httpObj contain fields: req, res 
                 var clinicPhone = utils.getOnlyNumber(fromPhone);
-                var audioUrl = cloudServices.getVoiceFromText(message, clinicPhone);
+                var audioUrl = await cloudServices.getVoiceFromText(message, clinicPhone);
                 var VoiceResponse = require('twilio').twiml.VoiceResponse;
                 var twiml = new VoiceResponse();
                 twiml.play({
