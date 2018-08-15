@@ -78,13 +78,13 @@ var services = {
                     var delayFunction = async () => {
                         await services.downloadFile(responseObj.async, destinationUri);
                         if (services.getFilesizeInBytes(destinationUri) > 100) {
-                            resolve("/" + destinationUri);                            
+                            resolve("/" + destinationUri);
                         } else {
                             logger.log(new Error("File: " + destinationUri + " size: " + services.getFilesizeInBytes(destinationUri)));
-                            setTimeout(this, 500);                            
+                            setTimeout(this, 100);
                         }
                     }
-                    setTimeout(delayFunction, 0);
+                    setTimeout(delayFunction, 100);
                 } else {
                     reject(error);
                 }
