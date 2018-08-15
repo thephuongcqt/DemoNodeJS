@@ -104,7 +104,8 @@ var services = {
                 https.get(url, function (response) {
                     response.pipe(file);
                     file.on('finish', function () {
-                        file.close(resolve());
+                        file.close();
+                        resolve();
                     });
                     file.on('error', function (err) {
                         fs.unlink(dest);
