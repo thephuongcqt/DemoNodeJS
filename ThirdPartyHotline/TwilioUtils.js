@@ -29,7 +29,7 @@ var twilioUtils = {
         })
     },
 
-    announceAppointment: async function (fromPhone, to, message, httpObj) {
+    announceAppointment: async function (fromPhone, to, message, httpObj, smsMessage) {
         if (httpObj) {
             try {
                 //booking appointment by a call
@@ -46,9 +46,11 @@ var twilioUtils = {
                 httpObj.res.set('Content-Type', 'text/xml');
                 httpObj.res.end(twiml.toString());
                 var sendSMSMethod = () => {
-                    twilioUtils.sendSMS(fromPhone, to, message);
+                    twilioUtils.sendSMS(fromPhone, to, smsMessage);
                 }
-                setTimeout(sendSMSMethod, 2000);
+                if(smsMessage){
+                    setTimeout(sendSMSMethod, 5000);
+                }                
             } catch (error) {
                 logger.log(error);
             }

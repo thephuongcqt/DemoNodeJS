@@ -279,7 +279,8 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
         var bookedDate = utils.getDateForVoice(appointment.appointmentTime);
         var bookedTime = utils.getTimeForVoice(appointment.appointmentTime);
         var messageBody = patient.fullName + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' thành công. Số thứ tự của quý khách là ' + bookingNo + ', thời gian khám vào lúc ' + bookedTime + ", ngày " + bookedDate;
-        twilioUtils.announceAppointment(user.phoneNumber, patientPhone, messageBody, httpObj);
+        var smsMessage = patient.fullName + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' thành công. Số thứ tự của quý khách là ' + bookingNo + ', thời gian khám vào lúc ' + bookedTime + ", ngày " + bookedDate;
+        twilioUtils.announceAppointment(user.phoneNumber, patientPhone, messageBody, httpObj, smsMessage);
         //End send SMS to patient
 
         //Begin send notification to Clinic
