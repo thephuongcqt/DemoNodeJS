@@ -84,7 +84,7 @@ var services = {
                             setTimeout(this, 200);
                         }
                     }
-                    setTimeout(delayFunction, 3000);
+                    setTimeout(delayFunction, 4000);
                 } else {
                     reject(error);
                 }
