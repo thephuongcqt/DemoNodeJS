@@ -25,9 +25,9 @@ Date.prototype.addDays = function (days) {
 
 var test = async function () {
     try {
-
-        var filePath = "Files/test.mp3";
-        console.log(cloudServices.getFilesizeInBytes(filePath));
+        console.log(configUtils.getErrorFPTVoice());
+        // var filePath = "Files/test.mp3";
+        // console.log(cloudServices.getFilesizeInBytes(filePath));
         // var client = await twilioDao.getTwilioByID("AC5b4d2c6c96b684d25b283d49f138cbd1");
         // var checkRecording = async (client, RecordingSid) => {
         //     return new Promise((resolve, reject) => {

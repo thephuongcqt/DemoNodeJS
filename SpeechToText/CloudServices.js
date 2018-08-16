@@ -2,7 +2,8 @@ const speech = require('@google-cloud/speech');
 const https = require('https');
 const http = require('http');
 var fs = require('fs');
-var logger = require("../Utils/Logger");
+const logger = require("../Utils/Logger");
+const configUtils = require("../Utils/ConfigUtils");
 const googleClient = new speech.SpeechClient({
     keyFilename: './Certificate/googleservices.json'
 });
@@ -53,6 +54,9 @@ var services = {
     },
 
     getVoiceFromText: function (text, username, delayTime) {
+        if (!fs.existsSync("Files")) {
+            fs.mkdirSync("Files");
+        }
         if (!delayTime) {
             delayTime = 2000;
         }
@@ -73,18 +77,23 @@ var services = {
                 if (!error && response.statusCode == 200) {
                     var responseObj = JSON.parse(body);
                     logger.log(new Error(JSON.stringify(responseObj)));
-                    var destinationUri = audioUri + username + new Date().getTime() + ".mp3";
+                    if (responseObj.error == 0) {
+                        var destinationUri = audioUri + username + new Date().getTime() + ".mp3";
 
-                    var delayFunction = async () => {
-                        await services.downloadFile(responseObj.async, destinationUri);
-                        if (services.getFilesizeInBytes(destinationUri) > 100) {
-                            resolve("/" + destinationUri);
-                        } else {
-                            logger.log(new Error("File: " + destinationUri + " size: " + services.getFilesizeInBytes(destinationUri)));
-                            setTimeout(this, 200);
+                        var delayFunction = async () => {
+                            await services.downloadFile(responseObj.async, destinationUri);
+                            if (services.getFilesizeInBytes(destinationUri) > 100) {
+                                resolve("/" + destinationUri);
+                            } else {
+                                logger.log(new Error("File: " + destinationUri + " size: " + services.getFilesizeInBytes(destinationUri)));
+                                setTimeout(this, 200);
+                            }
                         }
+                        setTimeout(delayFunction, 4000);
+                    } else{
+                        resolve(configUtils.getErrorFPTVoice());
                     }
-                    setTimeout(delayFunction, 4000);
+                    
                 } else {
                     reject(error);
                 }
@@ -100,11 +109,11 @@ var services = {
                 }
 
                 var file = fs.createWriteStream(filePath);
-                
+
                 https.get(url, function (response) {
                     response.pipe(file);
                     file.on('finish', function () {
-                        file.close(resolve());                        
+                        file.close(resolve());
                     });
                     file.on('error', function (err) {
                         fs.unlink(dest);

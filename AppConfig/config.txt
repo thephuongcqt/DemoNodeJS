@@ -33,5 +33,6 @@
         "authToken": "903448ab8b8a1e8a59bf62126841bd10"
     },
     "defaultGreetingURL": "https://firebasestorage.googleapis.com/v0/b/callcenter2-79faf.appspot.com/o/audio%2Fdefault_greeting.mp3?alt=media&token=d91ed4a4-8a8e-4747-a047-d15397a9e15f",
-    "defaultFinishedRecordingURL": "/Files/defaultFinishedRecording.mp3"
+    "defaultFinishedRecordingURL": "/Files/defaultFinishedRecording.mp3",
+    "errorGetVoiceURL": "https://firebasestorage.googleapis.com/v0/b/callcenter2-79faf.appspot.com/o/Default%2FerrorGetVoice.mp3?alt=media&token=6f9cce9d-6639-49a9-8779-ecb578575e62"
 }

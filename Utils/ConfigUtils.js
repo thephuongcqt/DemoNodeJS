@@ -55,6 +55,10 @@ var config = {
     getDefaultFinishedRecordingURL: () => {
         var config = getConfigJson();
         return config.defaultFinishedRecordingURL;
-    }
+    },
+    getErrorFPTVoice: () => {
+        var config = getConfigJson();
+        return config.errorGetVoiceURL;
+    },
 };
 module.exports = config;
