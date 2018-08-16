@@ -55,9 +55,9 @@ var test = async function () {
 
         // await checkRecording(client, "REa9dbedbaf6c0abc4120f862a9bcda14b");
         // console.log("done");
-        var text = "lại là mình đây";
+        // var text = "lại là mình đây";
         // var text = "Xin chào các bạn mình đang làm một chức năng vô cùng ảo diệu, chức năng này cần nhờ tới sự góp sức của các bạn, mong các bạn có thể giúp đỡ mình bằng cách trả về file lâu một chút, để mình có thể biết được khi nào file chết";
-        var url = await cloudServices.getVoiceFromText(text, "test");
+        // var url = await cloudServices.getVoiceFromText(text, "test");
         // console.log(url);
         // for(var i = 0; i < 20; i++){
         //     var text = "Công tằng tôn nữ tạ thị tòng teng đã đặt lịch khám thành công tại phòng khám PGS.TS Phạm Minh Tùng, Số thứ tự của bạn là 4, thời gian khám vào lúc 19 giờ 5 phút ngày 12 tháng 9 năm 2018";
