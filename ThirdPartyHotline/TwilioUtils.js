@@ -72,23 +72,23 @@ var twilioUtils = {
                 })
                     .catch(function (err) {
                         logger.log(err);
-                        this.callToAnnouncement(fromPhone, to, message, client);
+                        // twilioUtils.callToAnnouncement(fromPhone, to, message, client);
                     })
                     .done();
                 // if (to.includes("+1")) {
                 //     client.messages.create({
                 //         body: message,
-                //         from: fromPhone,
+                //         from: fromcallToAnnouncementPhone,
                 //         to: to
                 //     }).then(messages => {
                 //     })
                 //         .catch(function (err) {
                 //             logger.log(err);
-                //             this.callToAnnouncement(fromPhone, to, message, client);
+                //             twilioUtils.callToAnnouncement(fromPhone, to, message, client);
                 //         })
                 //         .done();
                 // } else {
-                //     this.callToAnnouncement(fromPhone, to, message, client);
+                //     twilioUtils.callToAnnouncement(fromPhone, to, message, client);
                 // }
             } else {
                 logger.log(new Error("An error occurred when get twilio account"));
