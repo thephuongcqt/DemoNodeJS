@@ -58,7 +58,7 @@ var utils = {
     getTimeForVoice: function(date){
         if (date) {
             var mDate = Moment(date);
-            var message = mDate.format("h") + " giờ " + mDate.format("m") + " phút";
+            var message = mDate.format("H") + " giờ " + mDate.format("m") + " phút";
             return message;
         }
         return null;
