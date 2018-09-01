@@ -276,6 +276,10 @@ async function saveDataWhenBookingSuccess(user, patient, bookedTime, bookingNo, 
         };
         var appointment = await baseDao.create(db.Appointment, newAppointment);
         //Begin send SMS to patient        
+        if(patient.fullName || patient.fullName.trim()){
+        } else{
+            patient.fullName = "Bạn";
+        }
         var bookedDate = utils.getDateForVoice(appointment.appointmentTime);
         var bookedTime = utils.getTimeForVoice(appointment.appointmentTime);
         var messageBody = patient.fullName + ' đã đặt lịch khám tại phòng khám ' + user.clinic.clinicName + ' thành công với số thứ tự là ' + bookingNo + ', thời gian khám vào lúc ' + bookedTime + ", ngày " + bookedDate;
